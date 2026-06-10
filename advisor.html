@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KPHクラウド Replace — 経営参謀 (Business Advisor)</title>
+<meta name="description" content="経営者の勘を、引き継げる形に。採算・車両増減・受け時/断り時・見積相場を、根拠付きで提示。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root{ --bg-0:#070912;--cyan:#22D3EE;--violet:#8B5CF6;--magenta:#EC4899;--lime:#A3E635;--amber:#FBBF24;--red:#F87171;
+    --text:#F8FAFC;--text-2:rgba(248,250,252,0.65);--text-3:rgba(248,250,252,0.4);--glass-bg:rgba(255,255,255,0.04);--glass-border:rgba(255,255,255,0.08);--shadow-deep:0 0 60px rgba(139,92,246,0.15),0 20px 80px rgba(0,0,0,0.5); }
+  *{ -webkit-font-smoothing:antialiased;box-sizing:border-box; } html,body{ background:var(--bg-0);color:var(--text);margin:0; }
+  body{ font-family:'Inter','Noto Sans JP',sans-serif; background:radial-gradient(1200px 600px at 10% -10%,rgba(34,211,238,0.10),transparent 60%),radial-gradient(1000px 500px at 90% 10%,rgba(236,72,153,0.10),transparent 60%),radial-gradient(900px 700px at 50% 110%,rgba(139,92,246,0.14),transparent 60%),linear-gradient(180deg,#0A0E1A 0%,#13102B 50%,#070912 100%); background-attachment:fixed; overflow-x:hidden; }
+  .font-jp{ font-family:'Noto Sans JP','Inter',sans-serif; } .mono{ font-family:'JetBrains Mono',ui-monospace,monospace;font-feature-settings:'tnum'; }
+  body::before{ content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.035;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
+  .glass{ background:var(--glass-bg);border:1px solid var(--glass-border);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-radius:24px;box-shadow:var(--shadow-deep);position:relative;overflow:hidden; }
+  .grad-text{ background:linear-gradient(135deg,#22D3EE 0%,#8B5CF6 50%,#EC4899 100%);-webkit-background-clip:text;background-clip:text;color:transparent; }
+  .grad-bg{ background:linear-gradient(135deg,#22D3EE 0%,#8B5CF6 55%,#EC4899 100%); } a{ color:inherit;text-decoration:none; }
+  .topbar{ border-bottom:1px solid var(--glass-border);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);background:rgba(7,9,18,0.55); }
+  .topbar nav a{ color:var(--text-2);transition:color .2s; } .topbar nav a:hover{ color:var(--text); } .topbar nav a.active{ color:#fff;font-weight:700; }
+  .eyebrow{ font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--violet);font-weight:700; }
+  .reveal{ opacity:0;transform:translateY(26px); }
+  .btn-primary{ border:none;cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-weight:800;color:#06121a;background:linear-gradient(135deg,#22D3EE,#8B5CF6);border-radius:14px;padding:13px 20px;box-shadow:0 0 26px rgba(139,92,246,.35);transition:transform .15s,box-shadow .25s; }
+  .btn-primary:hover{ transform:translateY(-2px);box-shadow:0 0 40px rgba(139,92,246,.55); } .btn-primary:disabled{ opacity:.45;cursor:not-allowed;transform:none;box-shadow:none; }
+  .ghost-btn{ background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);color:var(--text-2);border-radius:12px;padding:10px 16px;font-size:13px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:.2s; } .ghost-btn:hover{ color:#fff;border-color:rgba(255,255,255,0.25); }
+  .pill{ font-size:10px;font-weight:800;padding:3px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:5px;font-family:'Noto Sans JP',sans-serif; }
+  .pill.green{ background:rgba(163,230,53,0.16);color:var(--lime); } .pill.amber{ background:rgba(251,191,36,0.16);color:var(--amber); } .pill.red{ background:rgba(248,113,113,0.18);color:var(--red); }
+
+  /* customer rows */
+  .cust{ border-radius:14px;border:1px solid var(--glass-border);background:rgba(255,255,255,0.025);padding:14px 16px;font-family:'Noto Sans JP',sans-serif; }
+  .cust .top{ display:flex;align-items:center;justify-content:space-between;gap:10px; }
+  .cust .name{ font-weight:800;font-size:14px; } .cust .meta{ font-size:11.5px;color:var(--text-3);margin-top:2px; }
+  .cust .margin{ font-family:'JetBrains Mono',monospace;font-weight:800;font-size:16px; }
+  .advice{ margin-top:11px;padding:11px 13px;border-radius:11px;font-size:12.5px;line-height:1.6;display:none;align-items:flex-start;gap:8px;background:linear-gradient(135deg,rgba(139,92,246,0.10),rgba(34,211,238,0.06));border:1px solid rgba(139,92,246,0.28); }
+  .advice b{ color:#c4b5fd; }
+  .advice.warn{ background:linear-gradient(135deg,rgba(248,113,113,0.10),rgba(251,191,36,0.06));border-color:rgba(248,113,113,0.3); } .advice.warn b{ color:#fca5a5; }
+
+  /* verdict */
+  .seg{ display:inline-flex;padding:3px;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:12px; }
+  .seg button{ border:none;background:transparent;color:var(--text-2);font-size:12px;font-weight:700;padding:7px 13px;border-radius:9px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:.2s; }
+  .seg button.active{ background:linear-gradient(135deg,rgba(34,211,238,.9),rgba(139,92,246,.9));color:#06121a; }
+  .verdict{ border-radius:16px;padding:18px;border:1px solid var(--glass-border);font-family:'Noto Sans JP',sans-serif;opacity:0;transform:translateY(12px); }
+  .verdict.go{ background:linear-gradient(135deg,rgba(163,230,53,0.1),rgba(34,211,238,0.06));border-color:rgba(163,230,53,0.4); }
+  .verdict.no{ background:linear-gradient(135deg,rgba(248,113,113,0.1),rgba(255,255,255,0.02));border-color:rgba(248,113,113,0.4); }
+  .verdict .head{ display:flex;align-items:center;gap:10px;font-size:20px;font-weight:900; }
+  .verdict ul{ margin:12px 0 0;padding:0;list-style:none; } .verdict li{ font-size:13px;line-height:1.7;display:flex;gap:8px;color:var(--text-2); }
+
+  /* estimator */
+  .field{ font-family:'Noto Sans JP',sans-serif; } .field label{ font-size:11px;color:var(--text-3);font-weight:700; }
+  .field select,.field input{ width:100%;margin-top:5px;padding:10px 12px;border-radius:11px;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);color:#fff;font-family:'Noto Sans JP',sans-serif;font-size:13px; }
+  .quote{ font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:900; }
+  @media (prefers-reduced-motion:reduce){ *{ animation:none!important; } }
+</style>
+</head>
+<body>
+<header class="topbar sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="./index.html" class="flex items-center gap-2.5"><span class="w-9 h-9 rounded-xl grad-bg flex items-center justify-center text-[#070912] font-extrabold">K</span><span class="font-extrabold tracking-tight text-lg">KPH<span class="grad-text">.Replace</span></span></a>
+    <nav class="hidden md:flex items-center gap-5 text-sm">
+      <a href="./index.html">概要</a><a href="./dispatch.html">配車</a><a href="./driver.html">ドライバー</a><a href="./manifest.html">マニフェスト</a><a href="./vision.html">撮るだけ</a><a href="./mind.html">会社の頭脳</a><a href="./office.html">事務</a><a href="./advisor.html" class="active">経営参謀</a>
+    </nav>
+    <a href="./index.html" class="md:hidden text-sm text-[var(--text-2)]">← 戻る</a>
+  </div>
+</header>
+
+<main class="relative z-10 max-w-7xl mx-auto px-6">
+  <section class="pt-16 pb-10 text-center">
+    <p class="eyebrow reveal">09 / Business Advisor</p>
+    <h1 class="reveal font-jp text-4xl md:text-6xl font-black leading-tight tracking-tight mt-4">経営の勘を、<span class="grad-text">引き継げる形に。</span></h1>
+    <p class="reveal font-jp text-[var(--text-2)] text-base md:text-lg max-w-2xl mx-auto mt-6 leading-relaxed">どの客が儲かり、どの車が遊んでいて、その仕事を受けるべきか断るべきか——<strong class="text-white">社長の頭の中だけにある判断</strong>を、根拠付きで誰でも見られる形に。<br class="hidden md:block"/>承継できる経営へ。</p>
+  </section>
+
+  <!-- ① 採算アドバイザー -->
+  <section class="reveal glass p-5 md:p-8 mb-7">
+    <div class="flex items-center justify-between flex-wrap gap-3 mb-6">
+      <div class="flex items-center gap-2"><span class="w-7 h-7 rounded-lg grad-bg flex items-center justify-center text-[#06121a]"><i data-lucide="line-chart" class="w-4 h-4"></i></span><span class="font-jp font-extrabold text-lg">① 採算アドバイザー — 儲かる客・損する客が一目で</span></div>
+      <button class="btn-primary flex items-center gap-2" id="adviceBtn"><i data-lucide="lightbulb" class="w-4 h-4"></i>AIの提言を見る</button>
+    </div>
+    <div class="space-y-3" id="custList"></div>
+  </section>
+
+  <!-- ② 受ける/断る判定 -->
+  <section class="reveal glass p-5 md:p-8 mb-7">
+    <div class="flex items-center justify-between flex-wrap gap-3 mb-6">
+      <div class="flex items-center gap-2"><span class="w-7 h-7 rounded-lg grad-bg flex items-center justify-center text-[#06121a]"><i data-lucide="scale" class="w-4 h-4"></i></span><span class="font-jp font-extrabold text-lg">② 受ける？断る？ — 新規案件をその場で判定</span></div>
+      <div class="seg" id="caseSeg"><button data-c="ok" class="active">解体現場の混合廃棄物</button><button data-c="ng">石綿含む解体廃材</button></div>
+    </div>
+    <div class="grid md:grid-cols-2 gap-6 items-start">
+      <div class="rounded-2xl p-5 font-jp" style="background:rgba(255,255,255,0.025);border:1px solid var(--glass-border);">
+        <p class="text-xs text-[var(--text-3)] tracking-wider mb-3">新規引き合い</p>
+        <div id="caseBody"></div>
+        <button class="btn-primary w-full mt-5 flex items-center justify-center gap-2" id="judgeBtn"><i data-lucide="gavel" class="w-4 h-4"></i>この案件、受けるべき？</button>
+      </div>
+      <div>
+        <div id="verdictIdle" class="font-jp text-sm text-[var(--text-2)] rounded-2xl border border-dashed border-[var(--glass-border)] p-8 text-center"><i data-lucide="scale" class="w-7 h-7 mx-auto mb-3 text-[var(--violet)]"></i>「受けるべき？」を押すと、許可・採算・稼働から<strong class="text-white">根拠付きで判定</strong>します。</div>
+        <div id="verdictBox" style="display:none;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ③ 見積脳 -->
+  <section class="reveal glass p-5 md:p-8 mb-16">
+    <div class="flex items-center gap-2 mb-6"><span class="w-7 h-7 rounded-lg grad-bg flex items-center justify-center text-[#06121a]"><i data-lucide="calculator" class="w-4 h-4"></i></span><span class="font-jp font-extrabold text-lg">③ 見積脳 — ベテランと同じ額を、理由付きで即提示</span></div>
+    <div class="grid md:grid-cols-2 gap-7 items-end">
+      <div class="grid grid-cols-3 gap-3">
+        <div class="field"><label>廃棄物の種類</label><select id="qType"><option>混合廃棄物</option><option>がれき類</option><option>木くず</option><option>廃プラスチック類</option></select></div>
+        <div class="field"><label>数量 (t)</label><input id="qQty" type="number" value="3.0" step="0.1" min="0"/></div>
+        <div class="field"><label>取引先</label><select id="qCust"><option>○○建設（継続）</option><option>△△解体（継続）</option><option>新規</option></select></div>
+      </div>
+      <button class="btn-primary flex items-center justify-center gap-2" id="quoteBtn"><i data-lucide="sparkles" class="w-4 h-4"></i>見積を出す</button>
+    </div>
+    <div id="quoteOut" class="mt-6 rounded-2xl p-5 font-jp" style="display:none;background:linear-gradient(135deg,rgba(34,211,238,0.06),rgba(139,92,246,0.06));border:1px solid rgba(139,92,246,0.3);">
+      <div class="flex items-end justify-between flex-wrap gap-3">
+        <div><p class="text-xs text-[var(--text-3)]">推奨見積（税抜）</p><p class="quote grad-text" id="quoteVal">¥0</p></div>
+        <div class="text-right text-xs text-[var(--text-2)]" id="quoteMeta"></div>
+      </div>
+      <p class="text-sm text-[var(--text-2)] mt-3 flex items-start gap-2" id="quoteWhy"></p>
+    </div>
+  </section>
+
+  <section class="reveal text-center pb-24">
+    <h2 class="font-jp text-2xl md:text-3xl font-black">社長が引退しても、<span class="grad-text">同じ判断ができる会社へ。</span></h2>
+    <div class="flex items-center justify-center gap-3 mt-7 flex-wrap">
+      <a href="./mind.html" class="ghost-btn flex items-center gap-2"><i data-lucide="brain-circuit" class="w-4 h-4"></i>会社の頭脳へ</a>
+      <a href="./office.html" class="ghost-btn flex items-center gap-2"><i data-lucide="mic" class="w-4 h-4"></i>しゃべるだけ事務へ</a>
+      <a href="./index.html" class="ghost-btn flex items-center gap-2"><i data-lucide="layout-grid" class="w-4 h-4"></i>提案トップへ</a>
+    </div>
+    <p class="font-jp text-xs text-[var(--text-3)] mt-10">© 2026 KPH.Replace — 産廃SaaSリプレイス提案モック / Business Advisor</p>
+  </section>
+</main>
+
+<script>
+  lucide.createIcons();
+  const $ = s => document.querySelector(s);
+
+  /* ① customers */
+  const CUST = [
+    { name:'○○建設', meta:'月商 ¥820,000 / 月12回 / 近距離', margin:'+18%', cls:'green', tag:['green','優良'], advice:null },
+    { name:'××運輸', meta:'月商 ¥350,000 / 月8回 / 待機多い', margin:'−6%', cls:'red', tag:['red','赤字'],
+      advice:['warn','<b>値上げ +8% を推奨。</b>待機時間が利益を食っている。同条件の他社相場より低単価。値上げ交渉文を用意済み。応じない場合は撤退も選択肢。'] },
+    { name:'△△解体', meta:'月商 ¥1,200,000 / 月6回 / 遠方多い', margin:'+9%', cls:'amber', tag:['amber','要改善'],
+      advice:['','<b>最低ロット設定を提案。</b>遠方の少量案件が採算を薄めている。1回あたり下限を設ければ粗利+5pt見込み。'] },
+  ];
+  function renderCust(){
+    const list = $('#custList'); list.innerHTML='';
+    CUST.forEach(c=>{
+      const el = document.createElement('div'); el.className='cust';
+      const mc = c.cls==='green'?'var(--lime)':(c.cls==='red'?'var(--red)':'var(--amber)');
+      el.innerHTML = `<div class="top"><div><div class="name">${c.name} <span class="pill ${c.tag[0]}">${c.tag[1]}</span></div><div class="meta">${c.meta}</div></div>
+        <div class="margin" style="color:${mc}">${c.margin}</div></div>
+        ${c.advice?`<div class="advice ${c.advice[0]}"><i data-lucide="lightbulb" class="w-4 h-4 mt-0.5 flex-shrink-0"></i><div>${c.advice[1]}</div></div>`:''}`;
+      list.appendChild(el);
+    });
+    lucide.createIcons();
+  }
+  renderCust();
+  $('#adviceBtn').addEventListener('click', ()=>{
+    document.querySelectorAll('.advice').forEach((a,i)=>{ a.style.display='flex'; gsap.from(a,{opacity:0,y:8,duration:.4,delay:i*0.12}); });
+    $('#adviceBtn').innerHTML='<i data-lucide="check" class="w-4 h-4"></i>提言を表示中'; lucide.createIcons();
+  });
+
+  /* ② verdict */
+  const CASE = {
+    ok:{ body:`<p class="font-bold text-base mb-2">解体現場の混合廃棄物</p>
+        <ul class="text-sm text-[var(--text-2)] space-y-1.5">
+        <li>・品目：混合廃棄物（木・プラ・がれき）</li><li>・頻度：月4回 / 1回 約4t</li><li>・距離：片道 12km（近距離）</li><li>・客先：地場の優良ゼネコン下請</li></ul>`,
+      verdict:{ cls:'go', icon:'circle-check', color:'var(--lime)', title:'受けるべき',
+        reasons:['自社の収集運搬業許可の対象品目（混合・がれき）に合致','近距離×定期で積載効率が高く、粗利+15%超の見込み','既存ルートに無理なく差し込める（稼働の谷を埋める）'] } },
+    ng:{ body:`<p class="font-bold text-base mb-2">石綿（アスベスト）含む解体廃材</p>
+        <ul class="text-sm text-[var(--text-2)] space-y-1.5">
+        <li>・品目：<span style="color:var(--red)">廃石綿等（特別管理産業廃棄物）</span></li><li>・頻度：月4回 / 不定</li><li>・距離：片道 60km（遠方）</li><li>・客先：新規・一見</li></ul>`,
+      verdict:{ cls:'no', icon:'circle-x', color:'var(--red)', title:'断ることを推奨',
+        reasons:['廃石綿等は自社の許可の対象外 → <b style="color:#fca5a5">無許可運搬は違法</b>（最大のリスク）','片道60kmの不定期少量で採算ライン割れ','許可を持つ提携先◯◯への紹介で関係はつなげる（機会損失を回避）'] } },
+  };
+  let cas = 'ok';
+  function renderCase(){ $('#caseBody').innerHTML = CASE[cas].body; lucide.createIcons(); resetVerdict(); }
+  function resetVerdict(){ $('#verdictIdle').style.display='block'; $('#verdictBox').style.display='none'; }
+  document.querySelectorAll('#caseSeg button').forEach(b=> b.addEventListener('click', ()=>{
+    document.querySelectorAll('#caseSeg button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); cas=b.dataset.c; renderCase();
+  }));
+  $('#judgeBtn').addEventListener('click', ()=>{
+    const v = CASE[cas].verdict;
+    $('#verdictIdle').style.display='none';
+    const box = $('#verdictBox'); box.style.display='block';
+    box.innerHTML = `<div class="verdict ${v.cls}"><div class="head"><i data-lucide="${v.icon}" style="color:${v.color}"></i><span style="color:${v.color}">${v.title}</span></div>
+      <ul>${v.reasons.map(r=>`<li><i data-lucide="corner-down-right" class="w-4 h-4 mt-0.5 flex-shrink-0" style="color:${v.color}"></i><span>${r}</span></li>`).join('')}</ul>
+      <p class="text-xs text-[var(--text-3)] mt-4">※ 許可・契約・採算・稼働のデータから自動判定。社長の判断基準を学習して再現します。</p></div>`;
+    lucide.createIcons();
+    gsap.to('.verdict',{opacity:1,y:0,duration:.5});
+  });
+  renderCase();
+
+  /* ③ estimator */
+  const BASE = { '混合廃棄物':16000, 'がれき類':9000, '木くず':12000, '廃プラスチック類':22000 }; // 円/t（デモ用ダミー単価）
+  const CUSTADJ = { '○○建設（継続）':{r:-0.05,t:'継続割引 −5% 適用'}, '△△解体（継続）':{r:0,t:'標準単価'}, '新規':{r:0.05,t:'新規のため +5%（与信前）'} };
+  $('#quoteBtn').addEventListener('click', ()=>{
+    const type=$('#qType').value, qty=parseFloat($('#qQty').value)||0, cust=$('#qCust').value;
+    const adj=CUSTADJ[cust]; const base=BASE[type]*qty; const total=Math.round(base*(1+adj.r)/100)*100;
+    $('#quoteOut').style.display='block';
+    const t0={v:0}; gsap.to(t0,{v:total,duration:.8,ease:'power1.out',onUpdate:()=> $('#quoteVal').textContent='¥'+Math.round(t0.v).toLocaleString()});
+    $('#quoteMeta').innerHTML = `${type} × ${qty}t<br>${adj.t}`;
+    const margin = type==='廃プラスチック類'?'+21%':(type==='がれき類'?'+11%':'+16%');
+    $('#quoteWhy').innerHTML = `<i data-lucide="message-square-quote" class="w-4 h-4 text-[var(--violet)] mt-0.5 flex-shrink-0"></i><span><b style="color:#c4b5fd">なぜ：</b>過去の同条件（${type}・近距離）の成約中央値が基準。${adj.t}。想定粗利 ${margin}。ベテラン営業の値付けと整合。</span>`;
+    gsap.from('#quoteOut',{opacity:0,y:10,duration:.4}); lucide.createIcons();
+  });
+
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.utils.toArray('.reveal').forEach(el=> gsap.to(el,{opacity:1,y:0,duration:.8,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 88%'}}));
+</script>
+</body>
+</html>

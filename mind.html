@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KPHクラウド Replace — 会社の頭脳 (Operating Brain)</title>
+<meta name="description" content="ベテランの暗黙知を、働いているだけで会社のものに。属人化を溶かす『会社の頭脳』。" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+<style>
+  :root {
+    --bg-0:#070912; --bg-1:#0A0E1A; --bg-2:#13102B;
+    --cyan:#22D3EE; --violet:#8B5CF6; --magenta:#EC4899; --lime:#A3E635;
+    --amber:#FBBF24; --red:#F87171;
+    --text:#F8FAFC; --text-2:rgba(248,250,252,0.65); --text-3:rgba(248,250,252,0.4);
+    --glass-bg:rgba(255,255,255,0.04); --glass-border:rgba(255,255,255,0.08);
+    --shadow-deep:0 0 60px rgba(139,92,246,0.15), 0 20px 80px rgba(0,0,0,0.5);
+  }
+  * { -webkit-font-smoothing:antialiased; box-sizing:border-box; }
+  html,body { background:var(--bg-0); color:var(--text); margin:0; }
+  body {
+    font-family:'Inter','Noto Sans JP',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(34,211,238,0.10), transparent 60%),
+      radial-gradient(1000px 500px at 90% 10%, rgba(236,72,153,0.10), transparent 60%),
+      radial-gradient(900px 700px at 50% 110%, rgba(139,92,246,0.14), transparent 60%),
+      linear-gradient(180deg,#0A0E1A 0%,#13102B 50%,#070912 100%);
+    background-attachment:fixed; overflow-x:hidden;
+  }
+  .font-jp{ font-family:'Noto Sans JP','Inter',sans-serif; }
+  .mono{ font-family:'JetBrains Mono',ui-monospace,monospace; font-feature-settings:'tnum'; }
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:1; opacity:.035; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  .glass{
+    background:var(--glass-bg); border:1px solid var(--glass-border);
+    -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px);
+    border-radius:24px; box-shadow:var(--shadow-deep); position:relative; overflow:hidden;
+  }
+  .grad-text{ background:linear-gradient(135deg,#22D3EE 0%,#8B5CF6 50%,#EC4899 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .grad-bg{ background:linear-gradient(135deg,#22D3EE 0%,#8B5CF6 55%,#EC4899 100%); }
+  a{ color:inherit; text-decoration:none; }
+
+  .topbar{ border-bottom:1px solid var(--glass-border); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); background:rgba(7,9,18,0.55); }
+  .topbar nav a{ color:var(--text-2); transition:color .2s; }
+  .topbar nav a:hover{ color:var(--text); }
+  .topbar nav a.active{ color:#fff; font-weight:700; }
+
+  .eyebrow{ font-size:12px; letter-spacing:.28em; text-transform:uppercase; color:var(--violet); font-weight:700; }
+  .reveal{ opacity:0; transform:translateY(26px); }
+
+  .btn-primary{ border:none; cursor:pointer; font-family:'Noto Sans JP',sans-serif; font-weight:800; color:#06121a;
+    background:linear-gradient(135deg,#22D3EE,#8B5CF6); border-radius:14px; padding:13px 20px; box-shadow:0 0 26px rgba(139,92,246,.35); transition:transform .15s, box-shadow .25s; }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 0 40px rgba(139,92,246,.55); }
+  .btn-primary:disabled{ opacity:.45; cursor:not-allowed; transform:none; box-shadow:none; }
+  .ghost-btn{ background:rgba(255,255,255,0.05); border:1px solid var(--glass-border); color:var(--text-2);
+    border-radius:12px; padding:10px 16px; font-size:13px; cursor:pointer; font-family:'Noto Sans JP',sans-serif; transition:.2s; }
+  .ghost-btn:hover{ color:#fff; border-color:rgba(255,255,255,0.25); }
+
+  /* gauge */
+  .gauge-wrap{ position:relative; width:148px; height:148px; }
+  .gauge-num{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .gauge-num .pct{ font-size:34px; font-weight:900; font-family:'JetBrains Mono',monospace; line-height:1; }
+  .gauge-num .cap{ font-size:10px; color:var(--text-3); margin-top:3px; letter-spacing:.1em; }
+
+  /* learned rule chips */
+  .rule{ display:flex; gap:10px; align-items:flex-start; padding:11px 13px; border-radius:13px; border:1px solid var(--glass-border);
+    background:rgba(255,255,255,0.025); opacity:0; transform:translateX(-12px); font-family:'Noto Sans JP',sans-serif; }
+  .rule .ic{ width:26px; height:26px; border-radius:8px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg,rgba(139,92,246,0.25),rgba(34,211,238,0.25)); color:#a5f3fc; }
+  .rule .tag{ font-size:9px; font-weight:800; color:var(--violet); letter-spacing:.08em; }
+  .rule .txt{ font-size:12.5px; line-height:1.5; color:var(--text); margin-top:2px; }
+  .rule.neg .ic{ background:linear-gradient(135deg,rgba(248,113,113,0.25),rgba(251,191,36,0.2)); color:#fca5a5; }
+  .rule.neg .tag{ color:var(--red); }
+
+  /* assignment cards */
+  .asg{ border-radius:14px; padding:13px 15px; border:1px solid var(--glass-border); background:rgba(255,255,255,0.025);
+    opacity:0; transform:translateY(12px); font-family:'Noto Sans JP',sans-serif; }
+  .asg .top{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .asg .veh{ font-weight:800; font-size:14px; }
+  .asg .time{ font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--cyan); }
+  .asg .job{ font-size:12.5px; color:var(--text-2); margin-top:2px; }
+  .asg .why{ margin-top:9px; font-size:12px; display:flex; gap:7px; align-items:flex-start; padding:8px 10px; border-radius:10px;
+    background:linear-gradient(135deg,rgba(139,92,246,0.10),rgba(34,211,238,0.06)); border:1px solid rgba(139,92,246,0.25); }
+  .asg .why b{ color:#c4b5fd; font-weight:800; }
+
+  .pill{ font-size:10px; font-weight:800; padding:3px 10px; border-radius:999px; display:inline-flex; align-items:center; gap:5px; font-family:'Noto Sans JP',sans-serif; }
+  .pill.violet{ background:rgba(139,92,246,0.16); color:#c4b5fd; }
+  .pill.green{ background:rgba(163,230,53,0.16); color:var(--lime); }
+  .pill.red{ background:rgba(248,113,113,0.18); color:var(--red); }
+  .pill.gray{ background:rgba(255,255,255,0.06); color:var(--text-2); }
+
+  /* resignation sim */
+  .switch{ position:relative; width:58px; height:30px; border-radius:999px; background:rgba(255,255,255,0.1); border:1px solid var(--glass-border); cursor:pointer; transition:.25s; flex-shrink:0; }
+  .switch::after{ content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:#94a3b8; transition:.25s; }
+  .switch.on{ background:linear-gradient(135deg,#22D3EE,#8B5CF6); }
+  .switch.on::after{ left:33px; background:#06121a; }
+
+  .task-row{ display:flex; align-items:center; gap:11px; padding:11px 13px; border-radius:12px; border:1px solid var(--glass-border);
+    background:rgba(255,255,255,0.02); font-family:'Noto Sans JP',sans-serif; transition:.35s; }
+  .task-row .st{ width:24px; height:24px; border-radius:7px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .task-row .lbl{ font-size:13px; font-weight:600; }
+  .task-row .sub{ font-size:11px; color:var(--text-3); }
+  .task-row.broken{ border-color:rgba(248,113,113,0.45); background:linear-gradient(135deg,rgba(248,113,113,0.10),rgba(255,255,255,0.02)); }
+  .task-row.broken .st{ background:rgba(248,113,113,0.2); color:var(--red); }
+  .task-row.kept{ border-color:rgba(163,230,53,0.4); background:linear-gradient(135deg,rgba(163,230,53,0.08),rgba(34,211,238,0.05)); }
+  .task-row.kept .st{ background:rgba(163,230,53,0.2); color:var(--lime); }
+  .task-row .sub.kept-sub{ color:var(--text-2); }
+
+  .busfactor{ font-family:'JetBrains Mono',monospace; font-weight:900; line-height:1; }
+
+  /* map / memory cards */
+  .mapcard{ border-radius:18px; padding:18px; border:1px solid var(--glass-border); background:rgba(255,255,255,0.025); height:100%; }
+  .mapcard h4{ font-size:14px; font-weight:800; margin:10px 0 6px; font-family:'Noto Sans JP',sans-serif; display:flex; align-items:center; gap:8px; }
+  .mapcard .risk{ font-size:11px; color:var(--red); font-family:'Noto Sans JP',sans-serif; margin:0 0 8px; }
+  .mapcard p{ font-size:12.5px; line-height:1.7; color:var(--text-2); font-family:'Noto Sans JP',sans-serif; margin:0; }
+  .mapcard .ic{ width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(34,211,238,0.2)); color:#a5f3fc; }
+
+  /* site memory */
+  .memcard{ display:flex; gap:11px; align-items:flex-start; padding:12px 14px; border-radius:13px; border:1px solid var(--glass-border);
+    background:rgba(255,255,255,0.025); opacity:0; transform:translateY(10px); font-family:'Noto Sans JP',sans-serif; }
+  .memcard .ic{ width:30px; height:30px; border-radius:9px; flex-shrink:0; display:flex; align-items:center; justify-content:center; background:rgba(34,211,238,0.14); color:#67e8f9; }
+  .memcard.warn .ic{ background:rgba(248,113,113,0.16); color:#fca5a5; }
+  .memcard .t{ font-size:10px; color:var(--text-3); letter-spacing:.06em; font-weight:700; }
+  .memcard .v{ font-size:13px; margin-top:2px; }
+
+  @media (prefers-reduced-motion:reduce){ * { animation:none!important; } }
+</style>
+</head>
+<body>
+
+<!-- ===== top nav ===== -->
+<header class="topbar sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="./index.html" class="flex items-center gap-2.5">
+      <span class="w-9 h-9 rounded-xl grad-bg flex items-center justify-center text-[#070912] font-extrabold">K</span>
+      <span class="font-extrabold tracking-tight text-lg">KPH<span class="grad-text">.Replace</span></span>
+    </a>
+    <nav class="hidden md:flex items-center gap-6 text-sm">
+      <a href="./index.html">概要</a>
+      <a href="./dispatch.html">配車</a>
+      <a href="./driver.html">ドライバー</a>
+      <a href="./manifest.html">マニフェスト</a>
+      <a href="./vision.html">撮るだけ</a>
+      <a href="./mind.html" class="active">会社の頭脳</a>
+      <a href="./dashboard.html">経営</a>
+    </nav>
+    <a href="./index.html" class="md:hidden text-sm text-[var(--text-2)]">← 戻る</a>
+  </div>
+</header>
+
+<main class="relative z-10 max-w-7xl mx-auto px-6">
+
+  <!-- ===== hero ===== -->
+  <section class="pt-16 pb-10 text-center">
+    <p class="eyebrow reveal">07 / Operating Brain</p>
+    <h1 class="reveal font-jp text-4xl md:text-6xl font-black leading-tight tracking-tight mt-4">
+      「あの人がいないと回らない」を、<br class="hidden md:block" /><span class="grad-text">終わらせる。</span>
+    </h1>
+    <p class="reveal font-jp text-[var(--text-2)] text-base md:text-lg max-w-2xl mx-auto mt-6 leading-relaxed">
+      ベテランの頭の中にある勘——客の地雷、入れない道、混む処分場、やってはいけない事。<br class="hidden md:block" />
+      会社の頭脳が、<strong class="text-white">働いているだけで勝手に覚え</strong>、<strong class="text-white">必ず“なぜ”を説明</strong>する。
+      だから、誰が抜けても回る。
+    </p>
+  </section>
+
+  <!-- ===== ① 配車脳コピー ===== -->
+  <section class="reveal glass p-5 md:p-8 mb-7">
+    <div class="flex items-center gap-2 mb-6">
+      <span class="w-7 h-7 rounded-lg grad-bg flex items-center justify-center text-[#06121a]"><i data-lucide="brain-circuit" class="w-4 h-4"></i></span>
+      <span class="font-jp font-extrabold text-lg">① 配車脳コピー — ベテランの判断を観察学習</span>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-7 items-start">
+      <!-- left: learning -->
+      <div>
+        <div class="flex items-center gap-5">
+          <div class="gauge-wrap">
+            <svg width="148" height="148" viewBox="0 0 128 128">
+              <circle cx="64" cy="64" r="52" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="12"/>
+              <circle id="gaugeArc" cx="64" cy="64" r="52" fill="none" stroke="url(#gg)" stroke-width="12" stroke-linecap="round"
+                transform="rotate(-90 64 64)" stroke-dasharray="326.726" stroke-dashoffset="326.726"/>
+              <defs><linearGradient id="gg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#22D3EE"/><stop offset="0.5" stop-color="#8B5CF6"/><stop offset="1" stop-color="#EC4899"/>
+              </linearGradient></defs>
+            </svg>
+            <div class="gauge-num"><span class="pct grad-text" id="gaugePct">34%</span><span class="cap">ベテラン一致率</span></div>
+          </div>
+          <div class="font-jp">
+            <p class="text-sm text-[var(--text-2)] leading-relaxed">
+              配車マンの<strong class="text-white">決定</strong>と、AI案への<strong class="text-white">手直し</strong>を観察。
+              本人は今まで通り働くだけ。<strong class="text-white">入力作業はゼロ。</strong>
+            </p>
+            <p class="text-xs text-[var(--text-3)] mt-2" id="learnStat">観察した判断: 1,284件 / 抽出した暗黙ルール: 3件</p>
+          </div>
+        </div>
+
+        <div class="mt-5 flex gap-3">
+          <button class="btn-primary flex items-center gap-2" id="learnBtn"><i data-lucide="graduation-cap" class="w-4 h-4"></i><span id="learnLabel">ベテランの判断を学習する</span></button>
+          <button class="ghost-btn" id="learnReset"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></button>
+        </div>
+
+        <p class="font-jp text-xs text-[var(--text-3)] mt-5 mb-2 flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i>頭の中から抽出された暗黙知</p>
+        <div id="rulesList" class="space-y-2"></div>
+      </div>
+
+      <!-- right: handoff / auto-dispatch -->
+      <div>
+        <div id="brainIdle" class="font-jp text-sm text-[var(--text-2)] rounded-2xl border border-dashed border-[var(--glass-border)] p-8 text-center">
+          <i data-lucide="lock" class="w-7 h-7 mx-auto mb-3 text-[var(--violet)]"></i>
+          一致率が <strong class="text-white">90%</strong> を超えると、頭脳が配車を<strong class="text-white">お任せ</strong>できるようになります。
+        </div>
+
+        <div id="brainReady" style="display:none;">
+          <div class="rounded-2xl p-4 mb-4 text-center" style="background:linear-gradient(135deg,rgba(163,230,53,0.12),rgba(34,211,238,0.08));border:1px solid rgba(163,230,53,0.4);">
+            <p class="font-jp font-extrabold text-lg"><span class="grad-text" id="readyRate">95%</span> 一致 — もうお任せできます</p>
+            <p class="font-jp text-xs text-[var(--text-2)] mt-1">ベテランと見分けのつかない配車を生成します。</p>
+          </div>
+          <button class="btn-primary w-full flex items-center justify-center gap-2 mb-4" id="autoDispatch"><i data-lucide="wand-sparkles" class="w-4 h-4"></i>頭脳に配車させる</button>
+          <div id="asgList" class="space-y-3"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ② 退職シミュレーション ===== -->
+  <section class="reveal glass p-5 md:p-8 mb-7">
+    <div class="flex items-center justify-between flex-wrap gap-4 mb-6">
+      <div class="flex items-center gap-2">
+        <span class="w-7 h-7 rounded-lg grad-bg flex items-center justify-center text-[#06121a]"><i data-lucide="user-minus" class="w-4 h-4"></i></span>
+        <span class="font-jp font-extrabold text-lg">② 退職シミュレーション — Bus factor を ∞ に</span>
+      </div>
+      <div class="flex items-center gap-3 font-jp">
+        <span class="text-sm text-[var(--text-2)]">会社の頭脳</span>
+        <div class="switch on" id="brainSwitch"></div>
+        <span class="text-sm font-bold" id="brainState" style="color:var(--lime)">ON</span>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6 items-start">
+      <!-- trigger + bus factor -->
+      <div class="md:col-span-1">
+        <div class="rounded-2xl p-5 text-center mb-4" style="background:rgba(255,255,255,0.025);border:1px solid var(--glass-border);">
+          <div class="w-14 h-14 rounded-full mx-auto flex items-center justify-center mb-3" style="background:rgba(248,113,113,0.14);"><i data-lucide="user-round" class="w-7 h-7 text-[var(--red)]"></i></div>
+          <p class="font-jp font-bold">配車の田中さん（勤続18年）</p>
+          <p class="font-jp text-xs text-[var(--text-3)] mt-1">会社の配車・客先対応の中心人物</p>
+        </div>
+        <button class="btn-primary w-full flex items-center justify-center gap-2" id="quitBtn"><i data-lucide="door-open" class="w-4 h-4"></i>明日、田中さんが退職する</button>
+
+        <div class="rounded-2xl p-5 text-center mt-4" style="background:rgba(255,255,255,0.025);border:1px solid var(--glass-border);">
+          <p class="font-jp text-xs text-[var(--text-3)] tracking-wider mb-1">BUS FACTOR（1人抜けたら止まる度）</p>
+          <p class="busfactor text-5xl" id="busFactor" style="color:var(--text-3)">—</p>
+          <p class="font-jp text-xs mt-1" id="busNote">退職ボタンを押してください</p>
+        </div>
+      </div>
+
+      <!-- outcome -->
+      <div class="md:col-span-2">
+        <p class="font-jp text-xs text-[var(--text-3)] mb-3" id="outcomeTitle">翌朝の業務 ——</p>
+        <div class="space-y-2.5" id="taskList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ③ 現場メモリ ===== -->
+  <section class="reveal glass p-5 md:p-8 mb-16">
+    <div class="flex items-center justify-between flex-wrap gap-4 mb-6">
+      <div class="flex items-center gap-2">
+        <span class="w-7 h-7 rounded-lg grad-bg flex items-center justify-center text-[#06121a]"><i data-lucide="map-pin" class="w-4 h-4"></i></span>
+        <span class="font-jp font-extrabold text-lg">③ 現場メモリ — 初日の新人が、10年選手の動きをする</span>
+      </div>
+      <button class="ghost-btn flex items-center gap-2" id="arriveBtn"><i data-lucide="navigation" class="w-4 h-4"></i>現場に到着する</button>
+    </div>
+
+    <div id="memIdle" class="font-jp text-sm text-[var(--text-2)] rounded-2xl border border-dashed border-[var(--glass-border)] p-8 text-center">
+      <i data-lucide="route" class="w-7 h-7 mx-auto mb-3 text-[var(--cyan)]"></i>
+      GPSで現着した瞬間、<strong class="text-white">過去に訪れた全ドライバーの知識</strong>が湧き出します。
+    </div>
+
+    <div id="memOut" style="display:none;">
+      <div class="flex items-center gap-2 mb-4 font-jp">
+        <span class="pill green"><i data-lucide="map-pin" class="w-3 h-3"></i>現着</span>
+        <span class="font-bold">○○建設 東大阪資材ヤード</span>
+        <span class="text-xs text-[var(--text-3)]">大阪府東大阪市長田中 3-2-1</span>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-3" id="memCards"></div>
+    </div>
+  </section>
+
+  <!-- ===== 属人化マップ ===== -->
+  <section class="reveal mb-16">
+    <div class="text-center mb-10">
+      <p class="eyebrow">No more key-person risk</p>
+      <h2 class="font-jp text-3xl md:text-4xl font-black mt-3">考えうる属人化を、<span class="grad-text">すべて溶かす。</span></h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-4">
+      <div class="mapcard"><div class="ic"><i data-lucide="route" class="w-4.5 h-4.5"></i></div><h4>配車マンの勘</h4><p class="risk">▲ いないと配車が回らない</p><p>決定と手直しを観察学習。辞めてもベテランのまま回る。</p></div>
+      <div class="mapcard"><div class="ic"><i data-lucide="truck" class="w-4.5 h-4.5"></i></div><h4>ベテランの現場知</h4><p class="risk">▲ 育成に数年・事故やクレーム</p><p>門の入り方・コンテナ位置・キーマン・危険箇所を現着時に再生。</p></div>
+      <div class="mapcard"><div class="ic"><i data-lucide="shield-x" class="w-4.5 h-4.5"></i></div><h4>“やらない”という知恵</h4><p class="risk">▲ 一番言葉にされない</p><p>拒否・回避・例外対応も学習。やってはいけない事を自動ガード。</p></div>
+      <div class="mapcard"><div class="ic"><i data-lucide="calculator" class="w-4.5 h-4.5"></i></div><h4>営業の相場観</h4><p class="risk">▲ 見積がブレる・安請け合い</p><p>写真＋客＋履歴から、ベテランと同じ額を理由付きで即提示。</p></div>
+      <div class="mapcard"><div class="ic"><i data-lucide="file-check" class="w-4.5 h-4.5"></i></div><h4>事務の手続き知</h4><p class="risk">▲ 休むと書類が出ない＝法令違反</p><p>マニフェスト・JWNET・行政報告・契約更新を会話と自動化で。</p></div>
+      <div class="mapcard"><div class="ic"><i data-lucide="line-chart" class="w-4.5 h-4.5"></i></div><h4>経営者の頭</h4><p class="risk">▲ 後継者が判断できず承継不能</p><p>採算・車の増減・受け時/断り時を根拠付きで提示。承継できる経営に。</p></div>
+    </div>
+  </section>
+
+  <!-- ===== 2つの肝 ===== -->
+  <section class="reveal mb-20">
+    <div class="grid md:grid-cols-2 gap-5">
+      <div class="glass p-7">
+        <div class="w-11 h-11 rounded-xl grad-bg flex items-center justify-center text-[#06121a] mb-4"><i data-lucide="eye" class="w-5 h-5"></i></div>
+        <h3 class="font-jp text-xl font-extrabold mb-2">入力ゼロで覚える</h3>
+        <p class="font-jp text-sm text-[var(--text-2)] leading-relaxed">誰の作業も増やさない。ベテランは今まで通り働くだけ。配車の手直し・走った道・出した見積・埋めた伝票——その全部が勝手に教師データになる。<strong class="text-white">「気づいたら会社の頭脳が育っていた」</strong></p>
+      </div>
+      <div class="glass p-7">
+        <div class="w-11 h-11 rounded-xl grad-bg flex items-center justify-center text-[#06121a] mb-4"><i data-lucide="message-square-quote" class="w-5 h-5"></i></div>
+        <h3 class="font-jp text-xl font-extrabold mb-2">必ず“なぜ”を言う</h3>
+        <p class="font-jp text-sm text-[var(--text-2)] leading-relaxed">「田中を回したのは“客先指名”＋“この路地は4t不可”だから」。決定だけでなく根拠が言語化されるので、<strong class="text-white">人にも継承され、信頼でき、監査もできる。</strong>ブラックボックスにしない。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== footer cta ===== -->
+  <section class="reveal text-center pb-24">
+    <h2 class="font-jp text-2xl md:text-3xl font-black">退職予告ゼロでも、明日いなくなっても、<br class="hidden md:block"/><span class="grad-text">会社は回り続ける。</span></h2>
+    <div class="flex items-center justify-center gap-3 mt-7 flex-wrap">
+      <a href="./vision.html" class="ghost-btn flex items-center gap-2"><i data-lucide="scan-eye" class="w-4 h-4"></i>撮るだけAIへ</a>
+      <a href="./dispatch.html" class="ghost-btn flex items-center gap-2"><i data-lucide="route" class="w-4 h-4"></i>配車表へ</a>
+      <a href="./index.html" class="ghost-btn flex items-center gap-2"><i data-lucide="layout-grid" class="w-4 h-4"></i>提案トップへ</a>
+    </div>
+    <p class="font-jp text-xs text-[var(--text-3)] mt-10">© 2026 KPH.Replace — 産廃SaaSリプレイス提案モック / Operating Brain</p>
+  </section>
+
+</main>
+
+<script>
+  lucide.createIcons();
+  const $ = s => document.querySelector(s);
+  const C = 326.726; // 2*pi*52
+
+  /* ============ ① 配車脳コピー ============ */
+  const RULES = [
+    { tag:'観察から抽出 · 客先慣習', ic:'handshake', txt:'「田中 → ○○建設」は客先からの指名（過去22回中20回が田中）' },
+    { tag:'観察から抽出 · 道路制約', ic:'triangle-alert', txt:'中央区××町の路地は幅員が狭く 4t 進入不可 → 2t車に限定' },
+    { tag:'観察から抽出 · 処分場の波', ic:'clock', txt:'金曜15時以降の環境RCは計量待ち40分超 → 木曜か午前に寄せる' },
+    { tag:'やらない知恵 · 天候判断', ic:'cloud-rain', neg:true, txt:'廃石膏ボードは雨天時は積まない（特管隣接リスク）→ 晴れ日に回す' },
+    { tag:'やらない知恵 · 客の地雷', ic:'alarm-clock', neg:true, txt:'△△建設は遅刻に厳しい → 必ず朝イチ枠を確保する' },
+  ];
+  const STAGES = [ {rate:34, obs:1284, n:3}, {rate:58, obs:2960, n:7}, {rate:79, obs:5120, n:12}, {rate:95, obs:8470, n:21} ];
+  let stage = 0;
+
+  function setGauge(pct){
+    $('#gaugeArc').style.transition = 'stroke-dashoffset 1s cubic-bezier(.2,.7,.2,1)';
+    $('#gaugeArc').style.strokeDashoffset = C * (1 - pct/100);
+    // count up
+    const el = $('#gaugePct'); const from = parseInt(el.textContent) || 0;
+    const t0 = {v:from};
+    gsap.to(t0,{ v:pct, duration:1, ease:'power1.out', onUpdate:()=> el.textContent = Math.round(t0.v)+'%' });
+  }
+  function renderRules(count){
+    const list = $('#rulesList'); list.innerHTML='';
+    RULES.slice(0,count).forEach((r,i)=>{
+      const el = document.createElement('div');
+      el.className = 'rule' + (r.neg?' neg':'');
+      el.innerHTML = `<div class="ic"><i data-lucide="${r.ic}" class="w-3.5 h-3.5"></i></div>
+        <div><div class="tag">${r.tag}</div><div class="txt">${r.txt}</div></div>`;
+      list.appendChild(el);
+      gsap.to(el,{ opacity:1, x:0, duration:.4, delay:i*0.08, ease:'power2.out' });
+    });
+    lucide.createIcons();
+  }
+  // rule count shown per stage
+  const RULE_COUNT = [1,3,4,5];
+
+  $('#learnBtn').addEventListener('click', ()=>{
+    if(stage >= STAGES.length-1){ becomeReady(); return; }
+    stage++;
+    const s = STAGES[stage];
+    setGauge(s.rate);
+    $('#learnStat').textContent = `観察した判断: ${s.obs.toLocaleString()}件 / 抽出した暗黙ルール: ${s.n}件`;
+    renderRules(RULE_COUNT[stage]);
+    if(stage >= STAGES.length-1){
+      $('#learnLabel').textContent = '学習完了 — お任せできます';
+      setTimeout(becomeReady, 700);
+    } else {
+      $('#learnLabel').textContent = 'さらに学習する';
+    }
+  });
+  function becomeReady(){
+    $('#brainIdle').style.display='none';
+    $('#brainReady').style.display='block';
+    $('#readyRate').textContent = STAGES[STAGES.length-1].rate + '%';
+    gsap.fromTo('#brainReady',{ opacity:0, y:14 },{ opacity:1, y:0, duration:.5 });
+  }
+  $('#learnReset').addEventListener('click', ()=>{
+    stage=0; setGauge(34);
+    $('#learnStat').textContent='観察した判断: 1,284件 / 抽出した暗黙ルール: 3件';
+    $('#learnLabel').textContent='ベテランの判断を学習する';
+    renderRules(1);
+    $('#brainReady').style.display='none'; $('#brainIdle').style.display='block';
+    $('#asgList').innerHTML='';
+  });
+
+  const ASG = [
+    { veh:'2t #5 / 田中', time:'09:00', job:'○○建設 — 混合廃棄物 3.0t', why:'客先からの指名（過去22回中20回が田中）＋路地が狭く4t不可' },
+    { veh:'4t #2 / 佐藤', time:'08:30', job:'△△建設 — がれき類 4.0t', why:'△△は遅刻に厳しい → 朝イチ枠を確保' },
+    { veh:'4t #2 / 佐藤', time:'11:00', job:'環境RC — 搬入・計量', why:'金曜午後の環境RCは混む → 午前に寄せて計量待ちを回避' },
+    { veh:'2t #5 / 田中', time:'13:30', job:'××解体 — 廃石膏ボード 0.8t', why:'晴れ予報のため廃石膏OK（雨天なら別日に回す判断）' },
+  ];
+  $('#autoDispatch').addEventListener('click', ()=>{
+    const list = $('#asgList'); list.innerHTML='';
+    ASG.forEach((a,i)=>{
+      const el = document.createElement('div'); el.className='asg';
+      el.innerHTML = `<div class="top"><span class="veh">${a.veh}</span><span class="time">${a.time}</span></div>
+        <div class="job">${a.job}</div>
+        <div class="why"><i data-lucide="message-square-quote" class="w-3.5 h-3.5 text-[var(--violet)] mt-0.5 flex-shrink-0"></i><div><b>なぜ：</b>${a.why}</div></div>`;
+      list.appendChild(el);
+      gsap.to(el,{ opacity:1, y:0, duration:.45, delay:i*0.18, ease:'power2.out' });
+    });
+    lucide.createIcons();
+  });
+  // init
+  setTimeout(()=>{ $('#gaugeArc').style.strokeDashoffset = C*(1-0.34); renderRules(1); }, 200);
+
+  /* ============ ② 退職シミュレーション ============ */
+  let brainOn = true;
+  const TASKS = [
+    { lbl:'配車表の作成', know:'ベテランの判断を継承し、いつも通りの配車を自動生成', lost:'田中さんしか組めない（誰も代われない）' },
+    { lbl:'○○建設への対応', know:'窓口は専務・指名は田中…客先メモを引き継ぎ済み', lost:'客先の地雷・キーマンが分からず信頼を失う' },
+    { lbl:'4t進入不可ルートの回避', know:'走行履歴から危険箇所を全車で共有済み', lost:'新人が大型で突っ込み、立ち往生・事故リスク' },
+    { lbl:'廃石膏の天候判断', know:'“雨天は積まない”ルールを自動ガード', lost:'暗黙のNGを知らず、処分場で荷降ろし拒否' },
+    { lbl:'見積の相場', know:'過去の値付け履歴から同じ額を即提示', lost:'相場が分からず安請け合い／失注' },
+  ];
+  function renderTasks(){
+    const list = $('#taskList'); list.innerHTML='';
+    TASKS.forEach(t=>{
+      const el = document.createElement('div'); el.className='task-row';
+      el.innerHTML = `<div class="st"><i data-lucide="minus" class="w-3.5 h-3.5"></i></div>
+        <div><div class="lbl">${t.lbl}</div><div class="sub">退職前の状態</div></div>`;
+      list.appendChild(el);
+    });
+    lucide.createIcons();
+  }
+  function setSwitch(on){
+    brainOn = on;
+    $('#brainSwitch').classList.toggle('on', on);
+    $('#brainState').textContent = on ? 'ON' : 'OFF';
+    $('#brainState').style.color = on ? 'var(--lime)' : 'var(--text-3)';
+  }
+  $('#brainSwitch').addEventListener('click', ()=>{ setSwitch(!brainOn); resetSim(); });
+  function resetSim(){
+    renderTasks();
+    $('#busFactor').textContent='—'; $('#busFactor').style.color='var(--text-3)';
+    $('#busNote').textContent='退職ボタンを押してください'; $('#busNote').style.color='var(--text-3)';
+    $('#outcomeTitle').textContent='翌朝の業務 ——';
+  }
+  $('#quitBtn').addEventListener('click', ()=>{
+    const rows = document.querySelectorAll('#taskList .task-row');
+    rows.forEach((row,i)=>{
+      setTimeout(()=>{
+        const t = TASKS[i];
+        if(brainOn){
+          row.className='task-row kept';
+          row.querySelector('.st').innerHTML='<i data-lucide="check" class="w-3.5 h-3.5"></i>';
+          row.querySelector('.lbl').innerHTML = t.lbl;
+          const sub=row.querySelector('.sub'); sub.textContent='✓ '+t.know; sub.className='sub kept-sub';
+        } else {
+          row.className='task-row broken';
+          row.querySelector('.st').innerHTML='<i data-lucide="x" class="w-3.5 h-3.5"></i>';
+          const sub=row.querySelector('.sub'); sub.textContent='✕ '+t.lost; sub.style.color='var(--red)';
+        }
+        lucide.createIcons();
+      }, i*180);
+    });
+    setTimeout(()=>{
+      if(brainOn){
+        $('#busFactor').textContent='∞'; $('#busFactor').style.color='var(--lime)';
+        $('#busNote').textContent='頭脳が継承済み — 誰が抜けても回る'; $('#busNote').style.color='var(--lime)';
+        $('#outcomeTitle').innerHTML='翌朝の業務 —— <span style="color:var(--lime)">いつも通り稼働</span>';
+      } else {
+        $('#busFactor').textContent='1'; $('#busFactor').style.color='var(--red)';
+        $('#busNote').textContent='1人抜けただけで業務が停止'; $('#busNote').style.color='var(--red)';
+        $('#outcomeTitle').innerHTML='翌朝の業務 —— <span style="color:var(--red)">機能停止</span>';
+      }
+    }, TASKS.length*180 + 200);
+  });
+  renderTasks();
+
+  /* ============ ③ 現場メモリ ============ */
+  const MEM = [
+    { ic:'box', t:'コンテナ位置', v:'入って右奥・フェンス沿い。前回もこの位置。', warn:false },
+    { ic:'user-round', t:'キーマン', v:'窓口は専務（田中様）。事務所2F、不在時は携帯へ。', warn:false },
+    { ic:'zap', t:'危険箇所', v:'入口の電線が低い（2.8m）。4t幌は接触注意。', warn:true },
+    { ic:'history', t:'過去の履歴', v:'前回 2026/05/12 混合3.0t。クレーム履歴なし・支払良好。', warn:false },
+  ];
+  $('#arriveBtn').addEventListener('click', ()=>{
+    $('#memIdle').style.display='none'; $('#memOut').style.display='block';
+    const wrap = $('#memCards'); wrap.innerHTML='';
+    MEM.forEach((m,i)=>{
+      const el=document.createElement('div'); el.className='memcard'+(m.warn?' warn':'');
+      el.innerHTML=`<div class="ic"><i data-lucide="${m.ic}" class="w-3.5 h-3.5"></i></div>
+        <div><div class="t">${m.t}</div><div class="v">${m.v}</div></div>`;
+      wrap.appendChild(el);
+      gsap.to(el,{ opacity:1, y:0, duration:.4, delay:i*0.12, ease:'power2.out' });
+    });
+    lucide.createIcons();
+  });
+
+  /* ============ reveal ============ */
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.utils.toArray('.reveal').forEach(el=>{
+    gsap.to(el,{ opacity:1, y:0, duration:.8, ease:'power3.out', scrollTrigger:{ trigger:el, start:'top 88%' } });
+  });
+</script>
+</body>
+</html>

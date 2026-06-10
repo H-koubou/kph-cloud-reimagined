@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KPHクラウド Replace — 撮るだけ (Vision Intake)</title>
+<meta name="description" content="現場を1枚撮るだけ。AIが廃棄物の種類・量・不適物を判定し、配車・マニフェスト・請求まで自動で流れます。" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+<style>
+  :root {
+    --bg-0:#070912; --bg-1:#0A0E1A; --bg-2:#13102B;
+    --cyan:#22D3EE; --violet:#8B5CF6; --magenta:#EC4899; --lime:#A3E635;
+    --amber:#FBBF24; --red:#F87171;
+    --text:#F8FAFC; --text-2:rgba(248,250,252,0.65); --text-3:rgba(248,250,252,0.4);
+    --glass-bg:rgba(255,255,255,0.04); --glass-border:rgba(255,255,255,0.08);
+    --shadow-deep:0 0 60px rgba(139,92,246,0.15), 0 20px 80px rgba(0,0,0,0.5);
+  }
+  * { -webkit-font-smoothing:antialiased; box-sizing:border-box; }
+  html,body { background:var(--bg-0); color:var(--text); margin:0; }
+  body {
+    font-family:'Inter','Noto Sans JP',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(34,211,238,0.10), transparent 60%),
+      radial-gradient(1000px 500px at 90% 10%, rgba(236,72,153,0.10), transparent 60%),
+      radial-gradient(900px 700px at 50% 110%, rgba(139,92,246,0.14), transparent 60%),
+      linear-gradient(180deg,#0A0E1A 0%,#13102B 50%,#070912 100%);
+    background-attachment:fixed; overflow-x:hidden;
+  }
+  .font-jp{ font-family:'Noto Sans JP','Inter',sans-serif; }
+  .mono{ font-family:'JetBrains Mono',ui-monospace,monospace; font-feature-settings:'tnum'; }
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:1; opacity:.035; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  .glass{
+    background:var(--glass-bg); border:1px solid var(--glass-border);
+    -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px);
+    border-radius:24px; box-shadow:var(--shadow-deep); position:relative; overflow:hidden;
+  }
+  .grad-text{ background:linear-gradient(135deg,#22D3EE 0%,#8B5CF6 50%,#EC4899 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .grad-text-lime{ background:linear-gradient(135deg,#A3E635 0%,#22D3EE 100%); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .grad-bg{ background:linear-gradient(135deg,#22D3EE 0%,#8B5CF6 55%,#EC4899 100%); }
+  a{ color:inherit; text-decoration:none; }
+
+  /* ---------- top nav ---------- */
+  .topbar{ border-bottom:1px solid var(--glass-border); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); background:rgba(7,9,18,0.55); }
+  .topbar nav a{ color:var(--text-2); transition:color .2s; }
+  .topbar nav a:hover{ color:var(--text); }
+  .topbar nav a.active{ color:#fff; font-weight:700; }
+
+  .eyebrow{ font-size:12px; letter-spacing:.28em; text-transform:uppercase; color:var(--cyan); font-weight:700; }
+  .reveal{ opacity:0; transform:translateY(26px); }
+
+  /* ---------- viewfinder ---------- */
+  .viewfinder{
+    position:relative; aspect-ratio:4/3; border-radius:20px; overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 50% 0%, #2b3344 0%, #161b27 55%, #0c0f18 100%);
+    border:1px solid rgba(255,255,255,0.10);
+    box-shadow:inset 0 0 60px rgba(0,0,0,0.6);
+  }
+  .vf-corner{ position:absolute; width:26px; height:26px; border:2px solid rgba(34,211,238,0.7); z-index:30; pointer-events:none; }
+  .vf-corner.tl{ top:14px; left:14px; border-right:0; border-bottom:0; border-radius:6px 0 0 0; }
+  .vf-corner.tr{ top:14px; right:14px; border-left:0; border-bottom:0; border-radius:0 6px 0 0; }
+  .vf-corner.bl{ bottom:14px; left:14px; border-right:0; border-top:0; border-radius:0 0 0 6px; }
+  .vf-corner.br{ bottom:14px; right:14px; border-left:0; border-top:0; border-radius:0 0 6px 0; }
+  .vf-hud{ position:absolute; top:18px; left:0; right:0; text-align:center; z-index:30; pointer-events:none; }
+  .vf-hud .rec{ display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700; letter-spacing:.1em; color:var(--text-2); }
+  .vf-hud .rec .dot{ width:8px; height:8px; border-radius:50%; background:var(--red); box-shadow:0 0 10px var(--red); animation:blink 1.4s infinite; }
+  @keyframes blink{ 50%{ opacity:.25; } }
+
+  /* scan */
+  .scan-overlay{ position:absolute; inset:0; z-index:25; opacity:0; transition:opacity .25s; pointer-events:none;
+    background:linear-gradient(rgba(34,211,238,0.05) 1px,transparent 1px) 0 0/16px 16px,
+              linear-gradient(90deg,rgba(34,211,238,0.05) 1px,transparent 1px) 0 0/16px 16px; }
+  .scan-overlay.on{ opacity:1; }
+  .scan-line{ position:absolute; left:0; right:0; height:2px; top:-10%; z-index:26; opacity:0;
+    background:linear-gradient(90deg,transparent,#22D3EE 50%,transparent); box-shadow:0 0 18px #22D3EE,0 0 40px rgba(34,211,238,.6); }
+  .scan-line::before{ content:""; position:absolute; left:0; right:0; top:2px; height:70px; background:linear-gradient(180deg,rgba(34,211,238,.18),transparent); }
+
+  /* detection boxes */
+  .det{ position:absolute; z-index:28; border:1.5px solid var(--cyan); border-radius:8px; opacity:0; transform:scale(.92);
+    box-shadow:0 0 0 1px rgba(0,0,0,0.3), 0 0 18px rgba(34,211,238,0.25); }
+  .det.warn{ border-color:var(--red); box-shadow:0 0 0 1px rgba(0,0,0,0.3),0 0 22px rgba(248,113,113,0.45); }
+  .det .tag{ position:absolute; top:-22px; left:-1px; font-size:10px; font-weight:700; white-space:nowrap;
+    padding:2px 7px; border-radius:6px; background:var(--cyan); color:#06121a; font-family:'Noto Sans JP',sans-serif; }
+  .det.warn .tag{ background:var(--red); color:#1a0606; }
+
+  .vf-empty{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:24; }
+
+  /* shutter */
+  .shutter{ position:relative; width:100%; padding:15px; border:none; border-radius:16px; cursor:pointer;
+    font-family:'Noto Sans JP',sans-serif; font-weight:800; font-size:15px; color:#06121a;
+    background:linear-gradient(135deg,#22D3EE,#8B5CF6); box-shadow:0 0 26px rgba(34,211,238,.4); transition:transform .15s, box-shadow .25s; }
+  .shutter:hover{ transform:translateY(-2px); box-shadow:0 0 40px rgba(34,211,238,.55); }
+  .shutter:disabled{ opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
+  .ghost-btn{ background:rgba(255,255,255,0.05); border:1px solid var(--glass-border); color:var(--text-2);
+    border-radius:12px; padding:9px 14px; font-size:12px; cursor:pointer; font-family:'Noto Sans JP',sans-serif; transition:.2s; }
+  .ghost-btn:hover{ color:#fff; border-color:rgba(255,255,255,0.25); }
+
+  /* scenario seg */
+  .seg{ display:inline-flex; padding:3px; background:rgba(255,255,255,0.04); border:1px solid var(--glass-border); border-radius:12px; }
+  .seg button{ border:none; background:transparent; color:var(--text-2); font-size:12px; font-weight:700; padding:7px 13px; border-radius:9px; cursor:pointer; font-family:'Noto Sans JP',sans-serif; transition:.2s; }
+  .seg button.active{ background:linear-gradient(135deg,rgba(34,211,238,.9),rgba(139,92,246,.9)); color:#06121a; }
+
+  /* result cards */
+  .rcard{ border-radius:16px; padding:14px 15px; border:1px solid var(--glass-border); background:rgba(255,255,255,0.025);
+    opacity:0; transform:translateY(14px); }
+  .rcard.ok{ border-color:rgba(163,230,53,0.4); background:linear-gradient(135deg,rgba(163,230,53,0.08),rgba(34,211,238,0.05)); }
+  .rcard.ask{ border-color:rgba(251,191,36,0.45); background:linear-gradient(135deg,rgba(251,191,36,0.09),rgba(255,255,255,0.02)); }
+  .rcard.warn{ border-color:rgba(248,113,113,0.5); background:linear-gradient(135deg,rgba(248,113,113,0.10),rgba(255,255,255,0.02)); }
+  .rcard .head{ display:flex; align-items:center; justify-content:space-between; }
+  .rcard .label{ font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-3); font-weight:700; }
+  .rcard .value{ font-size:20px; font-weight:800; margin-top:3px; font-family:'Noto Sans JP',sans-serif; }
+  .pill{ font-size:10px; font-weight:800; padding:3px 9px; border-radius:999px; display:inline-flex; align-items:center; gap:4px; font-family:'Noto Sans JP',sans-serif; }
+  .pill.green{ background:rgba(163,230,53,0.16); color:var(--lime); }
+  .pill.amber{ background:rgba(251,191,36,0.16); color:var(--amber); }
+  .pill.red{ background:rgba(248,113,113,0.18); color:var(--red); }
+  .pill.gray{ background:rgba(255,255,255,0.06); color:var(--text-2); }
+
+  .confbar{ margin-top:9px; height:6px; border-radius:3px; background:rgba(255,255,255,0.06); overflow:hidden; }
+  .confbar > span{ display:block; height:100%; width:0; border-radius:3px; transition:width 1s cubic-bezier(.2,.7,.2,1); }
+  .conf-green > span{ background:linear-gradient(90deg,#A3E635,#22D3EE); }
+  .conf-amber > span{ background:linear-gradient(90deg,#FBBF24,#EC4899); }
+
+  .cand{ display:flex; align-items:center; justify-content:space-between; font-size:12px; padding:7px 10px; border-radius:9px;
+    background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); margin-top:7px; cursor:pointer; transition:.18s; font-family:'Noto Sans JP',sans-serif; }
+  .cand:hover{ border-color:var(--cyan); background:rgba(34,211,238,0.06); }
+  .cand.picked{ border-color:var(--lime); background:rgba(163,230,53,0.10); }
+
+  .tap-confirm{ margin-top:10px; width:100%; padding:9px; border-radius:11px; border:none; cursor:pointer; font-weight:800; font-size:12px; font-family:'Noto Sans JP',sans-serif;
+    background:linear-gradient(135deg,#A3E635,#22D3EE); color:#06121a; }
+  .tap-confirm.dim{ background:rgba(255,255,255,0.06); color:var(--text-2); }
+
+  /* cascade flow */
+  .flowstep{ display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:14px; border:1px solid var(--glass-border);
+    background:rgba(255,255,255,0.02); opacity:.35; transition:opacity .4s, border-color .4s, background .4s; }
+  .flowstep.lit{ opacity:1; border-color:rgba(139,92,246,0.45); background:linear-gradient(135deg,rgba(139,92,246,0.10),rgba(34,211,238,0.05)); }
+  .flowstep.hold{ opacity:1; border-color:rgba(251,191,36,0.45); background:linear-gradient(135deg,rgba(251,191,36,0.08),rgba(255,255,255,0.02)); }
+  .flowstep .ic{ width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:rgba(255,255,255,0.05); }
+  .flowstep.lit .ic{ background:linear-gradient(135deg,#8B5CF6,#22D3EE); color:#06121a; }
+  .flowstep.hold .ic{ background:rgba(251,191,36,0.22); color:var(--amber); }
+  .flow-conn{ width:2px; height:14px; margin-left:32px; background:linear-gradient(180deg,var(--violet),transparent); opacity:.4; }
+
+  /* ribbon */
+  .ribbon{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center; }
+  .ribbon .node{ display:flex; align-items:center; gap:8px; padding:10px 16px; border-radius:14px; border:1px solid var(--glass-border); background:rgba(255,255,255,0.03); font-size:13px; font-weight:700; font-family:'Noto Sans JP',sans-serif; }
+  .ribbon .node.start{ background:linear-gradient(135deg,rgba(34,211,238,0.16),rgba(139,92,246,0.12)); border-color:rgba(34,211,238,0.4); }
+  .ribbon .arr{ color:var(--violet); }
+
+  /* assurance cards */
+  .acard{ border-radius:18px; padding:18px; border:1px solid var(--glass-border); background:rgba(255,255,255,0.025); height:100%; }
+  .acard .n{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--cyan); font-weight:700; }
+  .acard h4{ font-size:15px; font-weight:800; margin:8px 0 6px; font-family:'Noto Sans JP',sans-serif; }
+  .acard p{ font-size:13px; line-height:1.7; color:var(--text-2); font-family:'Noto Sans JP',sans-serif; margin:0; }
+
+  /* before/after */
+  .ba{ border-radius:18px; padding:20px; border:1px solid var(--glass-border); }
+  .ba.before{ background:rgba(255,255,255,0.02); }
+  .ba.after{ background:linear-gradient(135deg,rgba(34,211,238,0.06),rgba(139,92,246,0.06)); border-color:rgba(139,92,246,0.35); }
+  .ba li{ font-size:13.5px; line-height:1.9; font-family:'Noto Sans JP',sans-serif; display:flex; gap:9px; }
+
+  @media (prefers-reduced-motion:reduce){ .scan-line{ animation:none!important; } .vf-hud .rec .dot{ animation:none!important; } }
+</style>
+</head>
+<body>
+
+<!-- ===== top nav ===== -->
+<header class="topbar sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="./index.html" class="flex items-center gap-2.5">
+      <span class="w-9 h-9 rounded-xl grad-bg flex items-center justify-center text-[#070912] font-extrabold">K</span>
+      <span class="font-extrabold tracking-tight text-lg">KPH<span class="grad-text">.Replace</span></span>
+    </a>
+    <nav class="hidden md:flex items-center gap-7 text-sm">
+      <a href="./index.html">概要</a>
+      <a href="./dispatch.html">配車</a>
+      <a href="./driver.html">ドライバー</a>
+      <a href="./manifest.html">マニフェスト</a>
+      <a href="./vision.html" class="active">撮るだけ</a>
+      <a href="./mind.html">会社の頭脳</a>
+      <a href="./dashboard.html">経営</a>
+    </nav>
+    <a href="./index.html" class="md:hidden text-sm text-[var(--text-2)]">← 戻る</a>
+  </div>
+</header>
+
+<main class="relative z-10 max-w-7xl mx-auto px-6">
+
+  <!-- ===== hero ===== -->
+  <section class="pt-16 pb-10 text-center">
+    <p class="eyebrow reveal">06 / Vision Intake</p>
+    <h1 class="reveal font-jp text-4xl md:text-6xl font-black leading-tight tracking-tight mt-4">
+      撮るだけで、<span class="grad-text">全部が動き出す。</span>
+    </h1>
+    <p class="reveal font-jp text-[var(--text-2)] text-base md:text-lg max-w-2xl mx-auto mt-6 leading-relaxed">
+      現場を1枚撮るだけ。AIが廃棄物の<strong class="text-white">種類・量・不適物</strong>を判定し、
+      配車・マニフェスト・請求まで<strong class="text-white">自動で流れる</strong>。<br class="hidden md:block" />
+      自信がある所は手放しで、迷う所だけ人に聞く——だから速くて、事故らない。
+    </p>
+  </section>
+
+  <!-- ===== interactive demo ===== -->
+  <section class="reveal glass p-5 md:p-8 mb-7">
+    <div class="flex items-center justify-between flex-wrap gap-3 mb-5">
+      <div class="flex items-center gap-2">
+        <span class="w-7 h-7 rounded-lg grad-bg flex items-center justify-center text-[#06121a]"><i data-lucide="scan-eye" class="w-4 h-4"></i></span>
+        <span class="font-jp font-extrabold text-lg">ライブデモ — 現場を撮ってみる</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="font-jp text-xs text-[var(--text-3)]">現場の難易度</span>
+        <div class="seg" id="scenarioSeg">
+          <button data-scn="clear" class="active">クリアな現場</button>
+          <button data-scn="hard">判断が難しい現場</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 items-start">
+      <!-- left: viewfinder -->
+      <div>
+        <div class="viewfinder" id="vf">
+          <!-- waste scene (stylized) -->
+          <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;">
+            <defs>
+              <linearGradient id="cont" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#3a4456"/><stop offset="1" stop-color="#222a38"/>
+              </linearGradient>
+            </defs>
+            <!-- container -->
+            <path d="M40 150 L360 150 L340 270 L60 270 Z" fill="url(#cont)" stroke="#11161f" stroke-width="2"/>
+            <path d="M40 150 L60 270 L60 282 L40 162 Z" fill="#1a2230"/>
+            <rect x="40" y="142" width="320" height="12" rx="3" fill="#4a5568"/>
+            <!-- wood scraps (lumber) -->
+            <g transform="rotate(-12 150 200)">
+              <rect x="95" y="185" width="120" height="13" rx="2" fill="#a9742f"/>
+              <rect x="110" y="200" width="100" height="11" rx="2" fill="#c08a3e"/>
+              <rect x="90" y="170" width="90" height="10" rx="2" fill="#8c5f26"/>
+            </g>
+            <!-- concrete chunk -->
+            <path d="M225 205 l45 -8 l24 28 l-18 30 l-46 4 l-14 -30 Z" fill="#9aa3ad" stroke="#7c858f" stroke-width="1.5"/>
+            <path d="M235 215 l30 -5 l12 16" fill="none" stroke="#7c858f" stroke-width="1.2"/>
+            <!-- plastic sheet -->
+            <path d="M70 215 q40 -18 80 -4 q-6 30 -40 40 q-44 2 -40 -36 Z" fill="#3f7d8c" opacity="0.85"/>
+            <!-- battery (hidden hazard) -->
+            <g id="batteryShape" transform="translate(150 232)">
+              <rect x="0" y="0" width="34" height="22" rx="3" fill="#1f2937" stroke="#0b0f16" stroke-width="1.5"/>
+              <rect x="6" y="-4" width="6" height="5" fill="#9aa3ad"/>
+              <rect x="22" y="-4" width="6" height="5" fill="#9aa3ad"/>
+              <text x="17" y="15" font-size="9" fill="#f87171" text-anchor="middle" font-family="monospace" font-weight="700">+ −</text>
+            </g>
+          </svg>
+
+          <div class="vf-corner tl"></div><div class="vf-corner tr"></div>
+          <div class="vf-corner bl"></div><div class="vf-corner br"></div>
+          <div class="vf-hud"><span class="rec"><span class="dot"></span> LIVE · 現場カメラ</span></div>
+
+          <div class="scan-overlay" id="scanOverlay"></div>
+          <div class="scan-line" id="scanLine"></div>
+
+          <!-- detection boxes injected here -->
+          <div id="detLayer"></div>
+        </div>
+
+        <div class="mt-4 flex gap-3">
+          <button class="shutter flex-1 flex items-center justify-center gap-2" id="shutterBtn">
+            <i data-lucide="camera" class="w-5 h-5"></i><span id="shutterLabel">撮影してAI判定</span>
+          </button>
+          <button class="ghost-btn" id="resetBtn" title="やり直す"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></button>
+        </div>
+        <p class="font-jp text-xs text-[var(--text-3)] mt-3 leading-relaxed">
+          ※ 実機ではスマホのカメラ。ここではデモ用に現場写真を再現しています。
+        </p>
+      </div>
+
+      <!-- right: results + cascade -->
+      <div>
+        <div id="idleState" class="font-jp text-sm text-[var(--text-2)] rounded-2xl border border-dashed border-[var(--glass-border)] p-8 text-center">
+          <i data-lucide="sparkles" class="w-7 h-7 mx-auto mb-3 text-[var(--violet)]"></i>
+          「撮影してAI判定」を押すと、ここに結果が流れ込みます。
+        </div>
+
+        <!-- detection results -->
+        <div id="results" class="space-y-3" style="display:none;">
+          <!-- 種類 -->
+          <div class="rcard" id="rcType">
+            <div class="head">
+              <span class="label">廃棄物の種類</span>
+              <span class="pill" id="typePill"></span>
+            </div>
+            <div class="value" id="typeValue"></div>
+            <div class="confbar" id="typeConf"><span></span></div>
+            <div id="typeCandidates" style="display:none;"></div>
+            <button class="tap-confirm" id="typeConfirm" style="display:none;"></button>
+          </div>
+
+          <!-- 量 -->
+          <div class="rcard" id="rcVol">
+            <div class="head">
+              <span class="label">推定量（体積→重量）</span>
+              <span class="pill gray"><i data-lucide="ruler" class="w-3 h-3"></i>推定値</span>
+            </div>
+            <div class="value" id="volValue"></div>
+            <p class="font-jp text-xs text-[var(--text-3)] mt-1.5">写真からの当たり。<strong class="text-[var(--text-2)]">計量で実測に上書き</strong>するので請求はブレません。</p>
+          </div>
+
+          <!-- 不適物 -->
+          <div class="rcard" id="rcWarn">
+            <div class="head">
+              <span class="label">不適物・混入チェック</span>
+              <span class="pill" id="warnPill"></span>
+            </div>
+            <div class="value" id="warnValue" style="font-size:16px;"></div>
+            <p class="font-jp text-xs text-[var(--text-3)] mt-1.5" id="warnNote"></p>
+          </div>
+        </div>
+
+        <!-- cascade -->
+        <div id="cascade" class="mt-5" style="display:none;">
+          <p class="font-jp text-xs text-[var(--text-3)] mb-3 flex items-center gap-1.5"><i data-lucide="git-branch" class="w-3.5 h-3.5"></i>この1枚が、ここまで流れる</p>
+          <div class="flowstep" id="f1">
+            <div class="ic"><i data-lucide="truck" class="w-4 h-4"></i></div>
+            <div class="font-jp text-sm"><div class="font-bold" id="f1t">配車に自動反映</div><div class="text-xs text-[var(--text-2)]" id="f1s"></div></div>
+          </div>
+          <div class="flow-conn"></div>
+          <div class="flowstep" id="f2">
+            <div class="ic"><i data-lucide="file-text" class="w-4 h-4"></i></div>
+            <div class="font-jp text-sm"><div class="font-bold" id="f2t">マニフェスト下書き生成</div><div class="text-xs text-[var(--text-2)]" id="f2s"></div></div>
+          </div>
+          <div class="flow-conn"></div>
+          <div class="flowstep" id="f3">
+            <div class="ic"><i data-lucide="receipt-japanese-yen" class="w-4 h-4"></i></div>
+            <div class="font-jp text-sm"><div class="font-bold" id="f3t">請求見込みを試算</div><div class="text-xs text-[var(--text-2)]" id="f3s"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== flow ribbon ===== -->
+  <section class="reveal mb-16">
+    <div class="ribbon">
+      <div class="node start"><i data-lucide="camera" class="w-4 h-4 text-[var(--cyan)]"></i>1枚の写真</div>
+      <span class="arr">→</span>
+      <div class="node">種類</div><span class="arr">→</span>
+      <div class="node">量</div><span class="arr">→</span>
+      <div class="node">配車</div><span class="arr">→</span>
+      <div class="node">マニフェスト</div><span class="arr">→</span>
+      <div class="node">請求</div>
+    </div>
+    <p class="font-jp text-center text-sm text-[var(--text-2)] mt-5">
+      撮った瞬間に、現場・配車・経理が<strong class="text-white">同じデータで動き出す</strong>。二重入力ゼロ。
+    </p>
+  </section>
+
+  <!-- ===== accuracy assurance ===== -->
+  <section class="reveal mb-16">
+    <div class="text-center mb-10">
+      <p class="eyebrow">Accuracy by design</p>
+      <h2 class="font-jp text-3xl md:text-4xl font-black mt-3">「AIに任せて事故らない？」<br class="md:hidden"/>——<span class="grad-text">設計で担保します。</span></h2>
+      <p class="font-jp text-[var(--text-2)] max-w-2xl mx-auto mt-4 leading-relaxed">
+        AIの精度を100%にするのではなく、<strong class="text-white">AIの誤りが法的記録に化けない作り</strong>にする。
+        マニフェストは法定書類。AIは“爆速の下書き”、確定するのは人間です。
+      </p>
+    </div>
+    <div class="grid md:grid-cols-3 gap-4">
+      <div class="acard"><div class="n">01</div><h4>確信度で出し分け</h4><p>自信がある所は緑で自動入力＝ワンタップ確定。迷う所だけ候補を出して人に聞く。<strong class="text-white">自信のない推測を“確定”に見せない。</strong></p></div>
+      <div class="acard"><div class="n">02</div><h4>問題を狭めて当てる</h4><p>委託契約・許可品目・排出履歴で候補は1〜3種に絞れる。判定先はJWNETコードマスタ固定。<strong class="text-white">“当てやすい問題”に変換</strong>するから精度が跳ねる。</p></div>
+      <div class="acard"><div class="n">03</div><h4>事実と推定を分離</h4><p>種類は確認、量は<strong class="text-white">レンジ表示＋計量で上書き</strong>（請求には使わない）、不適物は再現率重視で“疑わしきはフラグ”→人が目視。</p></div>
+      <div class="acard"><div class="n">04</div><h4>使うほど賢くなる</h4><p>人の確認・修正が全部教師データに。<strong class="text-white">御社の実物</strong>でモデルが育つ。最初は確認多め、やがて手放しに近づく。</p></div>
+      <div class="acard"><div class="n">05</div><h4>数字で証明してから出す</h4><p>本番前にシャドーモードで実測→合格ライン（種類的中率・不適物見逃し0件目標）を合意→<strong class="text-white">超えてから本番</strong>。測ってない数字は言わない。</p></div>
+      <div class="acard"><div class="n">06</div><h4>止めない・証拠が残る</h4><p>迷えば手入力にフォールバックで業務は止まらない。全判定に<strong class="text-white">写真＋AI提案＋確認者</strong>を記録。処分場と揉めても証拠になる。</p></div>
+    </div>
+  </section>
+
+  <!-- ===== before / after ===== -->
+  <section class="reveal mb-20">
+    <div class="grid md:grid-cols-2 gap-5">
+      <div class="ba before">
+        <p class="font-jp text-xs font-bold text-[var(--text-3)] tracking-wider mb-4">BEFORE — 今の現場</p>
+        <ul class="space-y-1">
+          <li><i data-lucide="x" class="w-4 h-4 text-[var(--red)] mt-1 flex-shrink-0"></i><span>種類はプルダウンから手入力。書き間違い・選び間違いが起きる</span></li>
+          <li><i data-lucide="x" class="w-4 h-4 text-[var(--red)] mt-1 flex-shrink-0"></i><span>量は“勘”。計量まで誰も分からない</span></li>
+          <li><i data-lucide="x" class="w-4 h-4 text-[var(--red)] mt-1 flex-shrink-0"></i><span>不適物の混入は<strong class="text-white">処分場で発覚→積み戻し</strong>（時間もコストも大損）</span></li>
+          <li><i data-lucide="x" class="w-4 h-4 text-[var(--red)] mt-1 flex-shrink-0"></i><span>現場・配車・経理で同じ情報を何度も入力</span></li>
+        </ul>
+      </div>
+      <div class="ba after">
+        <p class="font-jp text-xs font-bold text-[var(--cyan)] tracking-wider mb-4">AFTER — 撮るだけ</p>
+        <ul class="space-y-1">
+          <li><i data-lucide="check" class="w-4 h-4 text-[var(--lime)] mt-1 flex-shrink-0"></i><span>種類はAIが候補を限定提示。<strong class="text-white">ワンタップ確定</strong></span></li>
+          <li><i data-lucide="check" class="w-4 h-4 text-[var(--lime)] mt-1 flex-shrink-0"></i><span>量は写真で“当たり”。積載・段取りが現場で読める</span></li>
+          <li><i data-lucide="check" class="w-4 h-4 text-[var(--lime)] mt-1 flex-shrink-0"></i><span>不適物は<strong class="text-white">積む前に赤フラグ</strong>。積み戻しを未然に防ぐ</span></li>
+          <li><i data-lucide="check" class="w-4 h-4 text-[var(--lime)] mt-1 flex-shrink-0"></i><span>1枚で配車・伝票・請求まで連動。<strong class="text-white">二重入力ゼロ</strong></span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== footer cta ===== -->
+  <section class="reveal text-center pb-24">
+    <h2 class="font-jp text-2xl md:text-3xl font-black">続きの画面も、つながっています。</h2>
+    <div class="flex items-center justify-center gap-3 mt-7 flex-wrap">
+      <a href="./dispatch.html" class="ghost-btn flex items-center gap-2"><i data-lucide="route" class="w-4 h-4"></i>配車表へ</a>
+      <a href="./manifest.html" class="ghost-btn flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4"></i>マニフェストへ</a>
+      <a href="./index.html" class="ghost-btn flex items-center gap-2"><i data-lucide="layout-grid" class="w-4 h-4"></i>提案トップへ</a>
+    </div>
+    <p class="font-jp text-xs text-[var(--text-3)] mt-10">© 2026 KPH.Replace — 産廃SaaSリプレイス提案モック / Vision Intake</p>
+  </section>
+
+</main>
+
+<script>
+  lucide.createIcons();
+
+  /* ---------- scenario data ---------- */
+  const SCN = {
+    clear: {
+      boxes: [
+        { l:'22%', t:'58%', w:'34%', h:'24%', tag:'木くず', warn:false },
+        { l:'56%', t:'66%', w:'24%', h:'22%', tag:'がれき類', warn:false },
+        { l:'16%', t:'70%', w:'22%', h:'18%', tag:'廃プラ類', warn:false },
+      ],
+      type:{ status:'ok', value:'混合廃棄物', conf:98, pill:['green','高信頼 98%'] },
+      vol:'2.8 〜 3.2 t',
+      warn:{ status:'clean' },
+      cascade:{
+        hold:false,
+        f1:'4t車 #3・田中／14:30枠に挿入（許可品目・積載クリア）',
+        f2:'混合廃棄物 / 排出:○○建設 / 処分:環境RC を自動補完',
+        f3:'¥84,500（仮）— 計量で確定'
+      }
+    },
+    hard: {
+      boxes: [
+        { l:'20%', t:'56%', w:'40%', h:'26%', tag:'判定中…', warn:false },
+        { l:'37%', t:'74%', w:'14%', h:'13%', tag:'⚠ 異物', warn:true },
+      ],
+      type:{ status:'ask', value:'判断が難しい', conf:61,
+        candidates:[ ['混合廃棄物',61], ['がれき類',28], ['木くず',11] ],
+        pill:['amber','要確認 61%'] },
+      vol:'2.4 〜 3.6 t',
+      warn:{ status:'hit', item:'鉛蓄電池らしき物体 ×1', note:'積む前に要目視。処分場での荷降ろし拒否＝積み戻しを未然に防ぎます。' },
+      cascade:{
+        hold:true,
+        f1:'種類の確認待ち — 確定後に自動で配車へ',
+        f2:'下書きは保留。誤データを法定書類に流しません',
+        f3:'量はレンジのまま。計量で確定'
+      }
+    }
+  };
+
+  let scn = 'clear';
+  let running = false;
+  const $ = s => document.querySelector(s);
+
+  /* ---------- scenario toggle ---------- */
+  document.querySelectorAll('#scenarioSeg button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      if(running) return;
+      document.querySelectorAll('#scenarioSeg button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      scn = b.dataset.scn;
+      resetDemo();
+    });
+  });
+
+  function resetDemo(){
+    running = false;
+    $('#detLayer').innerHTML = '';
+    $('#scanOverlay').classList.remove('on');
+    gsap.set('#scanLine',{ opacity:0, top:'-10%' });
+    $('#results').style.display = 'none';
+    $('#cascade').style.display = 'none';
+    $('#idleState').style.display = 'block';
+    ['#f1','#f2','#f3'].forEach(s=>{ $(s).classList.remove('lit','hold'); });
+    $('#shutterBtn').disabled = false;
+    $('#shutterLabel').textContent = '撮影してAI判定';
+  }
+  $('#resetBtn').addEventListener('click', ()=>{ if(!running) resetDemo(); });
+
+  /* ---------- run pipeline ---------- */
+  $('#shutterBtn').addEventListener('click', runPipeline);
+
+  function runPipeline(){
+    if(running) return;
+    running = true;
+    const d = SCN[scn];
+    $('#shutterBtn').disabled = true;
+    $('#shutterLabel').textContent = '解析中…';
+    $('#idleState').style.display = 'none';
+    $('#detLayer').innerHTML = '';
+    ['#f1','#f2','#f3'].forEach(s=>{ $(s).classList.remove('lit','hold'); });
+
+    const tl = gsap.timeline({ onComplete:()=>{ running=false; $('#shutterBtn').disabled=false; $('#shutterLabel').textContent='もう一度撮る'; } });
+
+    // 1) scan sweep
+    tl.add(()=> $('#scanOverlay').classList.add('on'));
+    tl.set('#scanLine',{ opacity:1, top:'-10%' });
+    tl.to('#scanLine',{ top:'108%', duration:1.1, ease:'power1.inOut' });
+    tl.to('#scanLine',{ opacity:0, duration:0.2 });
+    tl.add(()=> $('#scanOverlay').classList.remove('on'));
+
+    // 2) detection boxes pop in
+    tl.add(()=> {
+      d.boxes.forEach((b,i)=>{
+        const el = document.createElement('div');
+        el.className = 'det' + (b.warn?' warn':'');
+        el.style.cssText = `left:${b.l};top:${b.t};width:${b.w};height:${b.h};`;
+        el.innerHTML = `<span class="tag">${b.tag}</span>`;
+        $('#detLayer').appendChild(el);
+        gsap.to(el,{ opacity:1, scale:1, duration:.35, delay:i*0.12, ease:'back.out(2)' });
+      });
+    });
+    tl.to({}, { duration: 0.6 });
+
+    // 3) results panel
+    tl.add(()=> { $('#results').style.display='block'; renderResults(d); });
+    tl.fromTo('#rcType',{ opacity:0, y:14 },{ opacity:1, y:0, duration:.4 });
+    tl.add(()=> animConf('#typeConf', d.type.conf), '<');
+    tl.fromTo('#rcVol',{ opacity:0, y:14 },{ opacity:1, y:0, duration:.4 }, '-=0.2');
+    tl.fromTo('#rcWarn',{ opacity:0, y:14 },{ opacity:1, y:0, duration:.4 }, '-=0.2');
+
+    // 4) cascade
+    tl.add(()=> { $('#cascade').style.display='block'; renderCascade(d); });
+    tl.to({}, { duration:0.15 });
+    tl.add(()=> litStep('#f1', d.cascade.hold), '+=0.15');
+    tl.to({}, { duration:0.45 });
+    tl.add(()=> litStep('#f2', d.cascade.hold));
+    tl.to({}, { duration:0.45 });
+    tl.add(()=> litStep('#f3', d.cascade.hold));
+  }
+
+  function litStep(sel, hold){ $(sel).classList.add(hold ? 'hold' : 'lit'); }
+  function animConf(sel, pct){
+    const wrap = $(sel);
+    wrap.className = 'confbar ' + (pct>=85 ? 'conf-green':'conf-amber');
+    requestAnimationFrame(()=> wrap.querySelector('span').style.width = pct + '%');
+  }
+
+  function renderResults(d){
+    // 種類
+    const t = d.type;
+    $('#typePill').className = 'pill ' + t.pill[0];
+    $('#typePill').textContent = t.pill[1];
+    $('#typeValue').textContent = t.value;
+    $('#rcType').className = 'rcard ' + (t.status==='ok'?'ok':'ask');
+    const candWrap = $('#typeCandidates'), confirmBtn = $('#typeConfirm');
+    if(t.status==='ask'){
+      candWrap.style.display='block';
+      candWrap.innerHTML = '<p class="font-jp text-xs text-[var(--amber)] mt-3 mb-1">AIは確信が持てません。候補から選んでください：</p>' +
+        t.candidates.map((c,i)=>`<div class="cand" data-name="${c[0]}"><span>${c[0]}</span><span class="mono text-[var(--text-2)]">${c[1]}%</span></div>`).join('');
+      confirmBtn.style.display='none';
+      candWrap.querySelectorAll('.cand').forEach(c=>{
+        c.addEventListener('click', ()=>{
+          candWrap.querySelectorAll('.cand').forEach(x=>x.classList.remove('picked'));
+          c.classList.add('picked');
+          $('#typeValue').textContent = c.dataset.name;
+          $('#typePill').className='pill green';
+          $('#typePill').innerHTML = '人が確定 ✓';
+          $('#rcType').className='rcard ok';
+          // release the held cascade
+          ['#f1','#f2'].forEach(s=>{ $(s).classList.remove('hold'); $(s).classList.add('lit'); });
+          $('#f1s').textContent = '4t車 #3・田中／14:30枠に挿入';
+          $('#f2s').textContent = '確定した種類でマニフェスト下書きを生成';
+        });
+      });
+    } else {
+      candWrap.style.display='none'; candWrap.innerHTML='';
+      confirmBtn.style.display='block';
+      confirmBtn.className='tap-confirm';
+      confirmBtn.innerHTML='ワンタップで確定 ✓';
+      confirmBtn.onclick = ()=>{ confirmBtn.innerHTML='確定しました ✓'; confirmBtn.classList.add('dim'); };
+    }
+    // 量
+    $('#volValue').textContent = d.vol;
+    // 不適物
+    const w = d.warn;
+    if(w.status==='clean'){
+      $('#rcWarn').className='rcard ok';
+      $('#warnPill').className='pill green';
+      $('#warnPill').innerHTML='<i data-lucide="shield-check" class="w-3 h-3"></i>クリーン';
+      $('#warnValue').textContent='混入なし';
+      $('#warnNote').textContent='このまま積載・運搬してOK。';
+    } else {
+      $('#rcWarn').className='rcard warn';
+      $('#warnPill').className='pill red';
+      $('#warnPill').innerHTML='<i data-lucide="alert-triangle" class="w-3 h-3"></i>要確認';
+      $('#warnValue').innerHTML='⚠ '+w.item;
+      $('#warnNote').textContent=w.note;
+    }
+    lucide.createIcons();
+  }
+
+  function renderCascade(d){
+    $('#f1s').textContent = d.cascade.f1;
+    $('#f2s').textContent = d.cascade.f2;
+    $('#f3s').textContent = d.cascade.f3;
+  }
+
+  /* ---------- reveal on scroll ---------- */
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.utils.toArray('.reveal').forEach(el=>{
+    gsap.to(el,{ opacity:1, y:0, duration:.8, ease:'power3.out',
+      scrollTrigger:{ trigger:el, start:'top 88%' } });
+  });
+</script>
+</body>
+</html>

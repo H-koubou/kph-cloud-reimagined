@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dispatch Command — 産廃SaaS</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root{
+    --bg:#070912;
+    --bg-2:#0A0E1A;
+    --bg-3:#13102B;
+    --glass:rgba(255,255,255,0.04);
+    --glass-border:rgba(255,255,255,0.08);
+    --text:#F8FAFC;
+    --text-2:rgba(248,250,252,0.65);
+    --cyan:#22D3EE;
+    --violet:#8B5CF6;
+    --magenta:#EC4899;
+    --lime:#A3E635;
+  }
+  *{box-sizing:border-box;}
+  html,body{font-family:'Inter','Noto Sans JP',sans-serif;letter-spacing:-0.01em;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    overflow-x:hidden;
+    background-image:
+      radial-gradient(1200px 600px at 80% -10%, rgba(139,92,246,0.18), transparent 60%),
+      radial-gradient(900px 500px at -10% 30%, rgba(34,211,238,0.12), transparent 60%),
+      radial-gradient(800px 600px at 50% 110%, rgba(236,72,153,0.10), transparent 60%),
+      linear-gradient(180deg,#0A0E1A 0%, #13102B 50%, #070912 100%);
+  }
+  .glass{
+    background:var(--glass);
+    border:1px solid var(--glass-border);
+    backdrop-filter:blur(24px);
+    -webkit-backdrop-filter:blur(24px);
+  }
+  .glass-hover:hover{
+    border-color:rgba(255,255,255,0.16);
+    box-shadow:0 20px 60px -20px rgba(34,211,238,0.25), 0 0 0 1px rgba(255,255,255,0.08) inset;
+  }
+  .grad-text{
+    background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .grad-bg{ background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);}
+  .grad-border{
+    position:relative;
+  }
+  .grad-border::before{
+    content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;
+    background:linear-gradient(135deg,rgba(34,211,238,0.6),rgba(139,92,246,0.5),rgba(236,72,153,0.5));
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude;
+    pointer-events:none;
+  }
+  .heading{letter-spacing:-0.03em;font-weight:800;}
+  .neon-cyan{box-shadow:0 0 0 1px rgba(34,211,238,0.3), 0 0 24px rgba(34,211,238,0.35);}
+  .neon-violet{box-shadow:0 0 0 1px rgba(139,92,246,0.3), 0 0 24px rgba(139,92,246,0.35);}
+  .neon-magenta{box-shadow:0 0 0 1px rgba(236,72,153,0.3), 0 0 24px rgba(236,72,153,0.35);}
+  .neon-lime{box-shadow:0 0 0 1px rgba(163,230,53,0.3), 0 0 24px rgba(163,230,53,0.35);}
+
+  /* Particles canvas */
+  #particles{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.7;}
+  .layer-fg{position:relative;z-index:1;}
+
+  /* Pulse */
+  @keyframes softPulse{0%,100%{opacity:.6;transform:scale(1);}50%{opacity:1;transform:scale(1.04);}}
+  .pulse{animation:softPulse 2.4s ease-in-out infinite;}
+  @keyframes glowPulse{0%,100%{box-shadow:0 0 0 0 rgba(34,211,238,0.45);}50%{box-shadow:0 0 30px 8px rgba(139,92,246,0.35);}}
+  .glow-pulse{animation:glowPulse 2.8s ease-in-out infinite;}
+
+  /* Tab pill */
+  .tab-pill{transition:all .35s cubic-bezier(.2,.7,.2,1);}
+  .tab-pill.active{
+    background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);
+    color:#0A0E1A;
+    box-shadow:0 10px 30px -10px rgba(139,92,246,0.6), 0 0 24px rgba(34,211,238,0.4);
+  }
+
+  /* Bootstrap-ish Before */
+  .before-shell{
+    background:#f6f7fb;color:#1f2937;font-family:'Helvetica Neue',Arial,'Noto Sans JP',sans-serif;
+    border-radius:14px;box-shadow:0 30px 80px -20px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05);
+  }
+  .before-shell .btn-bs{background:#0d6efd;color:#fff;padding:6px 12px;border-radius:4px;font-size:12px;border:1px solid #0a58ca;}
+  .before-shell .btn-bs.sec{background:#6c757d;border-color:#5c636a;}
+  .before-shell table{border-collapse:collapse;width:100%;font-size:12px;}
+  .before-shell th,.before-shell td{border:1px solid #dee2e6;padding:6px 8px;vertical-align:top;}
+  .before-shell th{background:#e9ecef;font-weight:600;}
+  .before-shell .row-tag{display:inline-block;font-size:10px;background:#ffc107;color:#3f2d00;border-radius:3px;padding:1px 6px;margin-right:4px;}
+  .before-shell .row-tag.blue{background:#0dcaf0;color:#003844;}
+  .before-shell .row-tag.green{background:#198754;color:#fff;}
+  .before-shell .row-tag.red{background:#dc3545;color:#fff;}
+
+  .anno{
+    position:absolute;font-family:'Caveat','Noto Sans JP',cursive;color:#ff4d6d;font-size:20px;
+    text-shadow:0 0 12px rgba(255,77,109,0.45);
+    transform:rotate(-3deg);
+    pointer-events:none;
+  }
+  .anno::after{
+    content:"";position:absolute;left:50%;bottom:-14px;width:60px;height:14px;
+    border-bottom:2px solid #ff4d6d;border-left:2px solid #ff4d6d;border-bottom-left-radius:30px;
+    transform:translateX(-50%) rotate(-8deg);
+    opacity:0.85;
+  }
+
+  /* Timeline grid */
+  .tl-grid{
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: calc(100% / 12) 100%;
+  }
+  .tl-row{
+    background-image:linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: calc(100% / 12) 100%;
+  }
+  .task-card{
+    position:absolute;top:8px;bottom:8px;border-radius:14px;
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(18px);
+    border:1px solid rgba(255,255,255,0.08);
+    padding:8px 12px;cursor:grab;overflow:hidden;
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .task-card:active{cursor:grabbing;}
+  .task-card:hover{transform:translateY(-2px);}
+  .task-card .lb{position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:14px 0 0 14px;}
+  .task-card .pop{
+    position:absolute;left:50%;top:-8px;transform:translate(-50%,-100%);opacity:0;pointer-events:none;
+    background:rgba(10,14,26,0.95);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:10px 12px;
+    width:240px;font-size:11px;transition:opacity .25s ease;z-index:30;
+    box-shadow:0 20px 50px -10px rgba(0,0,0,0.7);
+  }
+  .task-card:hover .pop{opacity:1;}
+  .c-cyan{background:linear-gradient(180deg,#22D3EE,#0ea5b9);}
+  .c-violet{background:linear-gradient(180deg,#8B5CF6,#5b21b6);}
+  .c-magenta{background:linear-gradient(180deg,#EC4899,#9d174d);}
+  .c-lime{background:linear-gradient(180deg,#A3E635,#4d7c0f);}
+  .c-amber{background:linear-gradient(180deg,#F59E0B,#b45309);}
+
+  /* Driver row */
+  .driver-row{
+    transition:background .25s ease;
+  }
+  .driver-row:hover{background:rgba(255,255,255,0.03);}
+
+  /* Status chip */
+  .chip{font-size:10px;padding:2px 8px;border-radius:999px;font-weight:600;letter-spacing:0.02em;}
+  .chip.on{background:rgba(163,230,53,0.15);color:#A3E635;border:1px solid rgba(163,230,53,0.3);}
+  .chip.move{background:rgba(34,211,238,0.15);color:#22D3EE;border:1px solid rgba(34,211,238,0.3);}
+  .chip.rest{background:rgba(245,158,11,0.15);color:#F59E0B;border:1px solid rgba(245,158,11,0.3);}
+
+  /* Map */
+  .map-pin{
+    position:absolute;width:30px;height:30px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:700;color:#0A0E1A;
+    background:linear-gradient(135deg,#22D3EE,#8B5CF6);
+    box-shadow:0 0 0 4px rgba(34,211,238,0.15), 0 0 24px rgba(139,92,246,0.6);
+    transform:translate(-50%,-50%);
+    transition:transform .3s ease, box-shadow .3s ease;
+  }
+  .map-pin:hover{transform:translate(-50%,-50%) scale(1.15);box-shadow:0 0 0 6px rgba(34,211,238,0.2), 0 0 40px rgba(236,72,153,0.7);}
+
+  /* FAB */
+  .fab{
+    position:fixed;right:32px;bottom:32px;width:64px;height:64px;border-radius:50%;
+    background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);
+    display:flex;align-items:center;justify-content:center;color:#0A0E1A;
+    cursor:pointer;z-index:50;
+    box-shadow:0 20px 60px -10px rgba(139,92,246,0.6), 0 0 30px rgba(34,211,238,0.4);
+    transition:transform .3s ease;
+  }
+  .fab:hover{transform:translateY(-4px) scale(1.05);}
+  .fab .badge{position:absolute;top:-6px;right:-6px;background:#EC4899;color:#fff;font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;border:2px solid #070912;}
+
+  /* Bottom sheet */
+  .sheet{
+    position:fixed;left:0;right:0;bottom:0;z-index:60;
+    background:linear-gradient(180deg, rgba(10,14,26,0.96), rgba(7,9,18,0.98));
+    border-top:1px solid rgba(255,255,255,0.08);
+    backdrop-filter:blur(28px);
+    transform:translateY(100%);
+    transition:transform .5s cubic-bezier(.2,.7,.2,1);
+    box-shadow:0 -30px 80px -20px rgba(139,92,246,0.3);
+    padding:24px 32px;
+    max-height:60vh;overflow-y:auto;
+  }
+  .sheet.open{transform:translateY(0);}
+  .pool-card{
+    background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;
+    padding:14px 16px;cursor:grab;transition:all .25s ease;
+  }
+  .pool-card:hover{transform:translateY(-3px);border-color:rgba(34,211,238,0.4);box-shadow:0 12px 30px -10px rgba(34,211,238,0.3);}
+
+  /* AI Optimize */
+  .ai-btn{
+    position:relative;background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);background-size:200% 200%;
+    color:#0A0E1A;font-weight:700;padding:10px 22px;border-radius:14px;
+    display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+    animation:gradMove 6s ease infinite;
+    box-shadow:0 16px 40px -10px rgba(139,92,246,0.5), 0 0 0 1px rgba(255,255,255,0.1) inset;
+  }
+  @keyframes gradMove{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
+  .ai-btn::after{
+    content:"";position:absolute;inset:-2px;border-radius:16px;
+    background:linear-gradient(135deg,#22D3EE,#EC4899);filter:blur(14px);opacity:.55;z-index:-1;
+  }
+  .spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(10,14,26,0.3);border-top-color:#0A0E1A;animation:spin 0.9s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* Nav links */
+  .nav-link{color:var(--text-2);font-size:13px;transition:color .2s ease;}
+  .nav-link:hover{color:var(--text);}
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001s !important;animation-iteration-count:1 !important;transition-duration:0.001s !important;}
+    #particles{display:none;}
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:10px;}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.16);}
+
+  /* Drag hover state for timeline rows */
+  .tl-row.drag-over{background:rgba(34,211,238,0.06);box-shadow:inset 0 0 0 1px rgba(34,211,238,0.3);}
+
+  /* ============ ADDED FEATURES ============ */
+
+  /* GPS truck markers on map */
+  .gps-truck{
+    position:absolute;width:26px;height:26px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#22D3EE,#8B5CF6);
+    border:1px solid rgba(255,255,255,0.25);
+    box-shadow:0 0 0 3px rgba(34,211,238,0.18), 0 0 18px rgba(139,92,246,0.55);
+    transform:translate(-50%,-50%);
+    pointer-events:none;
+    z-index:6;
+  }
+  .gps-truck.t2{background:linear-gradient(135deg,#EC4899,#8B5CF6);box-shadow:0 0 0 3px rgba(236,72,153,0.18), 0 0 18px rgba(236,72,153,0.55);}
+  .gps-truck.t3{background:linear-gradient(135deg,#A3E635,#22D3EE);box-shadow:0 0 0 3px rgba(163,230,53,0.18), 0 0 18px rgba(163,230,53,0.55);}
+  .gps-label{
+    position:absolute;transform:translate(-50%, calc(-100% - 20px));
+    background:rgba(10,14,26,0.82);border:1px solid rgba(255,255,255,0.12);
+    border-radius:8px;padding:3px 8px;font-size:10px;white-space:nowrap;
+    pointer-events:none;z-index:7;
+    box-shadow:0 6px 18px -6px rgba(0,0,0,0.6);
+  }
+  .gps-label .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:#A3E635;margin-right:5px;vertical-align:middle;box-shadow:0 0 6px #A3E635;animation:softPulse 1.8s ease-in-out infinite;}
+  .gps-live{
+    position:absolute;left:10px;top:10px;z-index:8;
+    background:rgba(10,14,26,0.72);border:1px solid rgba(163,230,53,0.35);
+    border-radius:999px;padding:4px 10px;font-size:10px;
+    display:flex;align-items:center;gap:6px;
+    backdrop-filter:blur(10px);
+  }
+  .gps-live .pdot{
+    width:7px;height:7px;border-radius:50%;background:#A3E635;
+    box-shadow:0 0 0 0 rgba(163,230,53,0.6);
+    animation:pulseDot 1.6s ease-out infinite;
+  }
+  @keyframes pulseDot{
+    0%{box-shadow:0 0 0 0 rgba(163,230,53,0.6);}
+    70%{box-shadow:0 0 0 10px rgba(163,230,53,0);}
+    100%{box-shadow:0 0 0 0 rgba(163,230,53,0);}
+  }
+
+  /* Map overlay toggles */
+  .map-toggle{
+    position:absolute;top:10px;z-index:9;
+    background:rgba(10,14,26,0.72);border:1px solid rgba(255,255,255,0.12);
+    border-radius:999px;padding:5px 11px;font-size:11px;font-weight:600;
+    color:var(--text-2);cursor:pointer;
+    backdrop-filter:blur(10px);
+    transition:all .25s ease;
+    display:inline-flex;align-items:center;gap:5px;
+  }
+  .map-toggle:hover{border-color:rgba(255,255,255,0.22);color:var(--text);}
+  .map-toggle.weather.active{
+    background:linear-gradient(135deg,rgba(34,211,238,0.7),rgba(139,92,246,0.6));
+    color:#0A0E1A;border-color:transparent;
+    box-shadow:0 0 18px rgba(34,211,238,0.45);
+  }
+  .map-toggle.traffic.active{
+    background:linear-gradient(135deg,rgba(236,72,153,0.75),rgba(245,158,11,0.65));
+    color:#0A0E1A;border-color:transparent;
+    box-shadow:0 0 18px rgba(236,72,153,0.45);
+  }
+
+  /* Overlay groups (SVG) start hidden */
+  .ov-weather, .ov-traffic{opacity:0;transition:opacity .45s ease;pointer-events:none;}
+  .ov-weather.on, .ov-traffic.on{opacity:1;}
+
+  @keyframes rainDrift{0%{transform:translate(0,0);}50%{transform:translate(6px,4px);}100%{transform:translate(0,0);}}
+  .rain-cloud{animation:rainDrift 5s ease-in-out infinite;transform-origin:center;}
+
+  @keyframes lightning{0%,92%,100%{opacity:0;}94%,98%{opacity:1;}}
+  .bolt{animation:lightning 3.5s linear infinite;}
+
+  @keyframes trafficPulse{0%,100%{opacity:0.55;}50%{opacity:1;}}
+  .traffic-jam{animation:trafficPulse 1.6s ease-in-out infinite;}
+
+  /* Info chips under map */
+  .info-chips{
+    display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;
+    opacity:0;max-height:0;overflow:hidden;
+    transition:opacity .35s ease, max-height .4s ease, margin-top .35s ease;
+  }
+  .info-chips.show{opacity:1;max-height:120px;margin-top:10px;}
+  .info-chip{
+    font-size:10px;padding:4px 9px;border-radius:999px;
+    background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
+    display:inline-flex;align-items:center;gap:5px;
+  }
+  .info-chip.rain{border-color:rgba(34,211,238,0.4);color:#22D3EE;background:rgba(34,211,238,0.08);}
+  .info-chip.jam{border-color:rgba(236,72,153,0.4);color:#EC4899;background:rgba(236,72,153,0.08);}
+
+  .recalc-btn{
+    margin-top:10px;width:100%;
+    background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);background-size:200% 200%;
+    color:#0A0E1A;font-weight:700;font-size:12px;
+    padding:9px 14px;border-radius:12px;
+    display:none;align-items:center;justify-content:center;gap:6px;
+    cursor:pointer;
+    animation:gradMove 6s ease infinite;
+    box-shadow:0 12px 28px -10px rgba(139,92,246,0.5);
+  }
+  .recalc-btn.show{display:inline-flex;}
+
+  /* Toast */
+  .toast{
+    position:fixed;left:50%;bottom:48px;transform:translate(-50%, 30px);
+    background:rgba(10,14,26,0.95);border:1px solid rgba(163,230,53,0.4);
+    color:var(--text);font-size:13px;font-weight:600;
+    padding:12px 20px;border-radius:14px;z-index:80;
+    display:flex;align-items:center;gap:10px;
+    box-shadow:0 24px 60px -16px rgba(163,230,53,0.35), 0 0 24px rgba(34,211,238,0.2);
+    opacity:0;pointer-events:none;
+    transition:all .45s cubic-bezier(.2,.7,.2,1);
+  }
+  .toast.show{opacity:1;transform:translate(-50%, 0);}
+  .toast .ic{
+    width:22px;height:22px;border-radius:50%;
+    background:linear-gradient(135deg,#A3E635,#22D3EE);
+    display:flex;align-items:center;justify-content:center;color:#0A0E1A;
+  }
+
+  /* Notify icon button on task card */
+  .notify-btn{
+    position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:7px;
+    background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;z-index:5;
+    transition:all .2s ease;
+  }
+  .notify-btn:hover{background:linear-gradient(135deg,#22D3EE,#8B5CF6);border-color:transparent;color:#0A0E1A;transform:scale(1.1);}
+  .notify-btn i{width:11px;height:11px;}
+
+  /* Notify modal */
+  .modal-back{
+    position:fixed;inset:0;z-index:90;
+    background:rgba(7,9,18,0.7);backdrop-filter:blur(8px);
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity .3s ease;
+  }
+  .modal-back.open{opacity:1;pointer-events:auto;}
+  .modal-card{
+    width:min(720px, 92vw);max-height:84vh;overflow:hidden;
+    background:linear-gradient(180deg, rgba(19,16,43,0.96), rgba(10,14,26,0.98));
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:24px;padding:24px 26px;
+    box-shadow:0 40px 80px -20px rgba(139,92,246,0.4), 0 0 0 1px rgba(255,255,255,0.05) inset;
+    transform:scale(.96) translateY(10px);
+    transition:transform .35s cubic-bezier(.2,.7,.2,1);
+    display:grid;grid-template-columns:1fr 220px;gap:20px;
+  }
+  .modal-back.open .modal-card{transform:scale(1) translateY(0);}
+  .ch-tabs{display:flex;gap:6px;margin-bottom:12px;}
+  .ch-tab{
+    flex:1;padding:8px 10px;border-radius:10px;font-size:12px;font-weight:600;
+    background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+    color:var(--text-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    transition:all .25s ease;
+  }
+  .ch-tab.active{
+    background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);color:#0A0E1A;border-color:transparent;
+    box-shadow:0 8px 22px -8px rgba(139,92,246,0.55);
+  }
+  .msg-preview{
+    background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+    border-radius:14px;padding:14px;font-size:12px;line-height:1.7;
+    color:var(--text);min-height:120px;
+  }
+  .send-btn{
+    margin-top:14px;width:100%;
+    background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);background-size:200% 200%;
+    color:#0A0E1A;font-weight:700;font-size:13px;
+    padding:11px 16px;border-radius:12px;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    cursor:pointer;animation:gradMove 6s ease infinite;
+    box-shadow:0 14px 32px -10px rgba(139,92,246,0.55);
+  }
+  .send-btn.done{background:linear-gradient(135deg,#A3E635,#22D3EE);}
+  .history-side{
+    background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+    border-radius:14px;padding:14px;font-size:11px;overflow-y:auto;max-height:340px;
+  }
+  .hist-item{padding:8px 6px;border-bottom:1px dashed rgba(255,255,255,0.06);}
+  .hist-item:last-child{border-bottom:0;}
+  .hist-item .who{color:var(--text);font-weight:600;font-size:11px;}
+  .hist-item .meta{color:var(--text-2);font-size:10px;margin-top:2px;}
+  .hist-item .read{color:var(--lime);}
+  .hist-item .unread{color:var(--magenta);}
+
+  /* Check animation */
+  @keyframes checkPop{0%{transform:scale(0) rotate(-20deg);opacity:0;}60%{transform:scale(1.15) rotate(0);opacity:1;}100%{transform:scale(1) rotate(0);opacity:1;}}
+  .check-anim{animation:checkPop .55s cubic-bezier(.2,.7,.2,1) forwards;}
+
+  @media (max-width: 720px){
+    .modal-card{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<div class="layer-fg">
+
+<!-- Top nav -->
+<nav class="px-8 py-5 flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <div class="w-9 h-9 rounded-xl grad-bg flex items-center justify-center">
+      <i data-lucide="truck" class="w-5 h-5" style="color:#0A0E1A;"></i>
+    </div>
+    <div>
+      <div class="text-sm font-bold tracking-wide">Sanpai<span class="grad-text">OS</span></div>
+      <div class="text-[10px] uppercase tracking-[0.2em]" style="color:var(--text-2);">Dispatch Command</div>
+    </div>
+  </div>
+  <div class="hidden md:flex items-center gap-6">
+    <a href="./index.html" class="nav-link">Home</a>
+    <a href="./dashboard.html" class="nav-link">Dashboard</a>
+    <a href="./dispatch.html" class="nav-link" style="color:var(--text);">Dispatch</a>
+    <a href="./driver.html" class="nav-link">Driver</a>
+    <a href="./vision.html" class="nav-link">Vision</a>
+    <a href="./mind.html" class="nav-link">Brain</a>
+  </div>
+  <div class="flex items-center gap-3">
+    <span class="text-xs px-3 py-1 rounded-full glass">v2.6.0 · Beta</span>
+  </div>
+</nav>
+
+<!-- Hero / Compare -->
+<section class="px-8 pt-6 pb-8">
+  <div class="max-w-7xl mx-auto">
+    <div class="flex items-end justify-between flex-wrap gap-6 mb-8">
+      <div>
+        <div class="text-xs uppercase tracking-[0.35em] mb-3" style="color:var(--text-2);">Page · Dispatch</div>
+        <h1 class="heading text-4xl md:text-5xl">配車表、<span class="grad-text">10倍速</span>へ。</h1>
+        <p class="mt-3 text-sm md:text-base max-w-xl" style="color:var(--text-2);">
+          KPHクラウドの密集テーブルから、AIが提案する管制官UIへ。スワイプとドラッグだけで一日の配車が完成。
+        </p>
+      </div>
+      <!-- Toggle -->
+      <div class="glass rounded-full p-1.5 inline-flex gap-1">
+        <button id="tabBefore" class="tab-pill px-6 py-2.5 rounded-full text-sm font-semibold">Before</button>
+        <button id="tabAfter" class="tab-pill active px-6 py-2.5 rounded-full text-sm font-semibold">After</button>
+      </div>
+    </div>
+
+    <!-- BEFORE -->
+    <div id="viewBefore" class="hidden">
+      <div class="text-xs uppercase tracking-[0.3em] mb-3" style="color:#ff4d6d;">Before — KPH Cloud 2021</div>
+      <div class="relative">
+        <div class="before-shell p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <div style="background:#0d6efd;color:#fff;font-size:11px;padding:4px 10px;border-radius:3px;font-weight:600;">KPH CLOUD</div>
+              <span style="font-size:13px;color:#1f2937;">配車表 / 2026-05-27 (火)</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="btn-bs sec">＜ 前日</button>
+              <button class="btn-bs">本日</button>
+              <button class="btn-bs sec">翌日 ＞</button>
+              <button class="btn-bs">＋新規追加</button>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th style="width:120px;">ドライバー</th>
+                <th>午前</th>
+                <th>午後</th>
+                <th style="width:90px;">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>山田 太郎<br><span style="font-size:10px;color:#6b7280;">2tダンプ</span></td>
+                <td><span class="row-tag">木くず</span>09:00 ○○建設(尼崎)<br><span class="row-tag blue">混合</span>10:30 ××工務店(西宮)</td>
+                <td><span class="row-tag red">廃プラ</span>13:00 △△解体(伊丹)<br><span class="row-tag green">金属</span>15:30 □□産業(豊中)</td>
+                <td><button class="btn-bs sec">編集</button></td>
+              </tr>
+              <tr>
+                <td>佐藤 健一<br><span style="font-size:10px;color:#6b7280;">4tユニック</span></td>
+                <td><span class="row-tag blue">混合</span>08:30 ABC建材(吹田)<br><span class="row-tag">木くず</span>11:00 DEF工務店(摂津)</td>
+                <td><span class="row-tag red">廃プラ</span>14:00 GHI解体(茨木)</td>
+                <td><button class="btn-bs sec">編集</button></td>
+              </tr>
+              <tr>
+                <td>鈴木 一郎<br><span style="font-size:10px;color:#6b7280;">2tダンプ</span></td>
+                <td><span class="row-tag green">金属</span>09:30 JKL産業(東大阪)</td>
+                <td><span class="row-tag">木くず</span>13:30 MNO建設(八尾)<br><span class="row-tag blue">混合</span>15:00 PQR工務店(柏原)</td>
+                <td><button class="btn-bs sec">編集</button></td>
+              </tr>
+              <tr>
+                <td>田中 翔<br><span style="font-size:10px;color:#6b7280;">3tダンプ</span></td>
+                <td><span class="row-tag red">廃プラ</span>08:00 STU解体(高槻)<br><span class="row-tag">木くず</span>10:00 VWX建設(枚方)<br><span class="row-tag blue">混合</span>11:30 YZA工務店(寝屋川)</td>
+                <td><span class="row-tag green">金属</span>14:30 BCD産業(門真)</td>
+                <td><button class="btn-bs sec">編集</button></td>
+              </tr>
+              <tr>
+                <td>小林 愛<br><span style="font-size:10px;color:#6b7280;">2tダンプ</span></td>
+                <td><span class="row-tag">木くず</span>09:00 EFG建設(箕面)</td>
+                <td><span class="row-tag blue">混合</span>13:00 HIJ工務店(池田)<br><span class="row-tag red">廃プラ</span>15:30 KLM解体(豊中)</td>
+                <td><button class="btn-bs sec">編集</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="margin-top:12px;font-size:11px;color:#6b7280;">表示件数: 12件 / 未割当: 6件 ／ ※ルート最適化は手作業</div>
+        </div>
+        <!-- Annotations -->
+        <div class="anno" style="top:-8px;right:8%;">テーブルが密集して<br>誰がどこか即読み不可</div>
+        <div class="anno" style="top:38%;left:-2%;transform:rotate(4deg);">ルートが<br>見えない！</div>
+        <div class="anno" style="bottom:-12px;right:18%;transform:rotate(-2deg);">地図なし。<br>距離は脳内計算…</div>
+      </div>
+    </div>
+
+    <!-- AFTER -->
+    <div id="viewAfter">
+
+      <!-- Header bar -->
+      <div class="glass rounded-3xl p-5 flex items-center justify-between flex-wrap gap-4 mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl grad-bg flex items-center justify-center">
+            <i data-lucide="radio-tower" class="w-5 h-5" style="color:#0A0E1A;"></i>
+          </div>
+          <div>
+            <div class="text-xs uppercase tracking-[0.3em]" style="color:var(--text-2);">Today's Operation</div>
+            <div class="text-lg heading">Dispatch Command Center</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="glass rounded-full px-4 py-2 flex items-center gap-2 text-sm">
+            <i data-lucide="calendar" class="w-4 h-4" style="color:var(--cyan);"></i>
+            <span>2026-05-27 (火)</span>
+            <i data-lucide="chevron-down" class="w-3 h-3" style="color:var(--text-2);"></i>
+          </div>
+          <div class="glass rounded-full p-1 flex text-xs">
+            <button class="px-3 py-1.5 rounded-full" style="color:var(--text-2);">朝</button>
+            <button class="px-3 py-1.5 rounded-full grad-bg" style="color:#0A0E1A;font-weight:700;">昼</button>
+            <button class="px-3 py-1.5 rounded-full" style="color:var(--text-2);">夜</button>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="relative">
+            <button class="glass rounded-full w-10 h-10 flex items-center justify-center glow-pulse">
+              <i data-lucide="bell" class="w-4 h-4"></i>
+            </button>
+            <span class="absolute -top-1 -right-1 text-[10px] font-bold rounded-full px-1.5 py-0.5" style="background:#EC4899;color:#fff;">3</span>
+          </div>
+          <div class="w-10 h-10 rounded-full grad-bg flex items-center justify-center text-xs font-bold" style="color:#0A0E1A;">HK</div>
+        </div>
+      </div>
+
+      <!-- KPI -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="kpiGrid">
+        <div class="glass glass-hover grad-border rounded-3xl p-5 tilt" data-tilt data-tilt-max="6" data-tilt-glare data-tilt-max-glare="0.15">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs uppercase tracking-[0.2em]" style="color:var(--text-2);">本日案件</span>
+            <i data-lucide="package" class="w-4 h-4" style="color:var(--cyan);"></i>
+          </div>
+          <div class="flex items-end gap-2">
+            <span class="heading text-4xl grad-text count" data-target="12">0</span>
+            <span class="text-sm pb-1" style="color:var(--text-2);">件</span>
+          </div>
+          <div class="text-[11px] mt-1" style="color:var(--lime);">▲ 前日比 +3</div>
+        </div>
+        <div class="glass glass-hover grad-border rounded-3xl p-5" data-tilt data-tilt-max="6" data-tilt-glare data-tilt-max-glare="0.15">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs uppercase tracking-[0.2em]" style="color:var(--text-2);">完了</span>
+            <i data-lucide="check-circle-2" class="w-4 h-4" style="color:var(--lime);"></i>
+          </div>
+          <div class="flex items-end gap-2">
+            <span class="heading text-4xl count" style="color:var(--lime);" data-target="5">0</span>
+            <span class="text-sm pb-1" style="color:var(--text-2);">/ 12</span>
+          </div>
+          <div class="h-1.5 rounded-full mt-2" style="background:rgba(255,255,255,0.06);">
+            <div class="h-full rounded-full" style="width:42%;background:linear-gradient(90deg,#A3E635,#22D3EE);"></div>
+          </div>
+        </div>
+        <div class="glass glass-hover grad-border rounded-3xl p-5" data-tilt data-tilt-max="6" data-tilt-glare data-tilt-max-glare="0.15">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs uppercase tracking-[0.2em]" style="color:var(--text-2);">走行距離</span>
+            <i data-lucide="route" class="w-4 h-4" style="color:var(--violet);"></i>
+          </div>
+          <div class="flex items-end gap-2">
+            <span class="heading text-4xl count" style="color:var(--violet);" data-target="87">0</span>
+            <span class="text-sm pb-1" style="color:var(--text-2);">km</span>
+          </div>
+          <div class="text-[11px] mt-1" style="color:var(--text-2);">AI最適化で -18%</div>
+        </div>
+        <div class="glass glass-hover grad-border rounded-3xl p-5" data-tilt data-tilt-max="6" data-tilt-glare data-tilt-max-glare="0.15">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs uppercase tracking-[0.2em]" style="color:var(--text-2);">推定CO₂削減</span>
+            <i data-lucide="leaf" class="w-4 h-4" style="color:var(--lime);"></i>
+          </div>
+          <div class="flex items-end gap-2">
+            <span class="heading text-4xl count" style="color:var(--lime);" data-target="23">0</span>
+            <span class="text-sm pb-1" style="color:var(--text-2);">kg</span>
+          </div>
+          <div class="text-[11px] mt-1" style="color:var(--text-2);">スコープ3レポート対応</div>
+        </div>
+      </div>
+
+      <!-- Main 3 columns -->
+      <div class="grid gap-6" style="grid-template-columns: 240px minmax(0,1fr) 380px;">
+
+        <!-- Drivers -->
+        <aside class="glass rounded-3xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <div class="text-xs uppercase tracking-[0.25em]" style="color:var(--text-2);">Drivers</div>
+            <span class="text-[10px] glass px-2 py-0.5 rounded-full">5名稼働</span>
+          </div>
+          <div class="space-y-3" id="driverList">
+            <!-- driver template will be injected by JS -->
+          </div>
+          <button class="mt-5 w-full grad-bg rounded-xl py-2.5 text-sm font-bold flex items-center justify-center gap-2" style="color:#0A0E1A;">
+            <i data-lucide="user-plus" class="w-4 h-4"></i> Add Driver
+          </button>
+        </aside>
+
+        <!-- Timeline -->
+        <section class="glass rounded-3xl p-5 relative overflow-hidden">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <div class="text-xs uppercase tracking-[0.25em]" style="color:var(--text-2);">Timeline</div>
+              <div class="heading text-lg">本日のシフト · 07:00 — 19:00</div>
+            </div>
+            <button id="aiOptimize" class="ai-btn">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+              <span>AI Optimize Route</span>
+            </button>
+          </div>
+
+          <!-- Time axis -->
+          <div class="relative pl-2 pr-2">
+            <div class="grid mb-3 text-[10px] tl-grid" style="grid-template-columns:repeat(12,1fr);color:var(--text-2);">
+              <div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div>
+              <div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div>
+            </div>
+
+            <div id="timeline" class="space-y-3">
+              <!-- rows injected by JS -->
+            </div>
+
+            <!-- "Now" line -->
+            <div id="nowLine" class="absolute top-6 bottom-0 w-px pointer-events-none" style="left:calc(2px + (4 / 12) * (100% - 4px));background:linear-gradient(180deg,rgba(34,211,238,0.7),rgba(236,72,153,0.5));box-shadow:0 0 12px rgba(34,211,238,0.5);">
+              <div class="text-[10px] absolute -top-5 -translate-x-1/2 px-1.5 py-0.5 rounded-full" style="background:rgba(34,211,238,0.15);color:#22D3EE;border:1px solid rgba(34,211,238,0.4);">NOW 11:00</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Map -->
+        <aside class="glass rounded-3xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <div class="text-xs uppercase tracking-[0.25em]" style="color:var(--text-2);">Live Map</div>
+              <div class="heading text-base">山田太郎 · ルート</div>
+            </div>
+            <button class="glass rounded-full w-8 h-8 flex items-center justify-center">
+              <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+          <div class="relative rounded-2xl overflow-hidden" style="aspect-ratio: 1 / 1.05;background:radial-gradient(circle at 30% 30%, rgba(34,211,238,0.08), transparent 60%), linear-gradient(180deg,#0A0E1A,#070912);border:1px solid rgba(255,255,255,0.06);">
+            <svg viewBox="0 0 400 420" class="absolute inset-0 w-full h-full">
+              <!-- grid -->
+              <defs>
+                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                </pattern>
+                <linearGradient id="river" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#22D3EE" stop-opacity="0.25"/>
+                  <stop offset="1" stop-color="#8B5CF6" stop-opacity="0.15"/>
+                </linearGradient>
+                <linearGradient id="route" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#22D3EE"/>
+                  <stop offset="0.5" stop-color="#8B5CF6"/>
+                  <stop offset="1" stop-color="#EC4899"/>
+                </linearGradient>
+              </defs>
+              <rect width="400" height="420" fill="url(#grid)"/>
+              <!-- river -->
+              <path d="M -10 280 Q 100 250 180 290 T 410 240" stroke="url(#river)" stroke-width="22" fill="none" stroke-linecap="round"/>
+              <!-- green areas -->
+              <circle cx="320" cy="100" r="48" fill="rgba(163,230,53,0.06)"/>
+              <circle cx="80" cy="360" r="60" fill="rgba(163,230,53,0.05)"/>
+              <!-- roads -->
+              <path d="M 0 200 L 400 200" stroke="rgba(255,255,255,0.07)" stroke-width="2"/>
+              <path d="M 200 0 L 200 420" stroke="rgba(255,255,255,0.07)" stroke-width="2"/>
+              <path d="M 40 60 L 380 380" stroke="rgba(255,255,255,0.05)" stroke-width="1.5"/>
+              <path d="M 380 60 L 40 380" stroke="rgba(255,255,255,0.05)" stroke-width="1.5"/>
+              <path d="M 0 120 Q 200 140 400 110" stroke="rgba(255,255,255,0.06)" stroke-width="1.5" fill="none"/>
+              <path d="M 0 320 Q 200 300 400 330" stroke="rgba(255,255,255,0.06)" stroke-width="1.5" fill="none"/>
+
+              <!-- route dashed -->
+              <path id="routeLine" d="M 70 80 Q 140 130 200 170 Q 260 210 290 280 Q 220 330 130 340"
+                    stroke="url(#route)" stroke-width="3" fill="none"
+                    stroke-dasharray="6 8" stroke-linecap="round"/>
+
+              <!-- Traffic overlay (jam segments) -->
+              <g class="ov-traffic" id="ovTraffic">
+                <path d="M 0 200 L 400 200" stroke="rgba(236,72,153,0.0)" stroke-width="6"/>
+                <path class="traffic-jam" d="M 120 200 L 270 200" stroke="#EC4899" stroke-width="5" stroke-linecap="round" opacity="0.85"/>
+                <path class="traffic-jam" d="M 200 90 L 200 230" stroke="#F59E0B" stroke-width="5" stroke-linecap="round" opacity="0.7" style="animation-delay:.4s;"/>
+                <circle cx="195" cy="200" r="11" fill="rgba(236,72,153,0.18)" stroke="#EC4899" stroke-width="1.2"/>
+                <text x="195" y="204" text-anchor="middle" font-size="11" font-weight="700" fill="#EC4899">!</text>
+              </g>
+
+              <!-- Weather overlay -->
+              <g class="ov-weather" id="ovWeather">
+                <g class="rain-cloud">
+                  <ellipse cx="110" cy="120" rx="58" ry="26" fill="#22D3EE" opacity="0.22" filter="url(#blurC)"/>
+                  <ellipse cx="135" cy="110" rx="42" ry="22" fill="#8B5CF6" opacity="0.20" filter="url(#blurC)"/>
+                  <!-- rain dashes -->
+                  <line x1="92"  y1="140" x2="86"  y2="158" stroke="#22D3EE" stroke-width="1.5" opacity="0.8"/>
+                  <line x1="110" y1="142" x2="104" y2="162" stroke="#22D3EE" stroke-width="1.5" opacity="0.8"/>
+                  <line x1="128" y1="140" x2="122" y2="158" stroke="#22D3EE" stroke-width="1.5" opacity="0.8"/>
+                  <line x1="146" y1="142" x2="140" y2="162" stroke="#22D3EE" stroke-width="1.5" opacity="0.8"/>
+                  <!-- bolt -->
+                  <polygon class="bolt" points="118,130 110,150 122,150 114,170 134,144 122,144 130,128" fill="#A3E635" opacity="0.9"/>
+                </g>
+                <g class="rain-cloud" style="animation-delay:1.2s;">
+                  <ellipse cx="300" cy="320" rx="48" ry="22" fill="#22D3EE" opacity="0.18" filter="url(#blurC)"/>
+                  <line x1="285" y1="338" x2="280" y2="354" stroke="#22D3EE" stroke-width="1.5" opacity="0.75"/>
+                  <line x1="300" y1="340" x2="295" y2="356" stroke="#22D3EE" stroke-width="1.5" opacity="0.75"/>
+                  <line x1="315" y1="338" x2="310" y2="354" stroke="#22D3EE" stroke-width="1.5" opacity="0.75"/>
+                </g>
+              </g>
+
+              <!-- GPS trails (animated by JS) -->
+              <g id="gpsTrails">
+                <path id="trail1" d="" stroke="#22D3EE" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.5"/>
+                <path id="trail2" d="" stroke="#EC4899" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.5"/>
+                <path id="trail3" d="" stroke="#A3E635" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.5"/>
+              </g>
+
+              <defs>
+                <filter id="blurC" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="6"/>
+                </filter>
+              </defs>
+            </svg>
+
+            <!-- Map overlay toggles -->
+            <button class="map-toggle weather" id="tglWeather" style="right:88px;">
+              <span>☂</span><span>天気</span>
+            </button>
+            <button class="map-toggle traffic" id="tglTraffic" style="right:10px;">
+              <span>🚧</span><span>渋滞</span>
+            </button>
+
+            <!-- Live GPS badge -->
+            <div class="gps-live">
+              <span class="pdot"></span>
+              <span>Live GPS — 3 vehicles tracked</span>
+            </div>
+
+            <!-- GPS truck markers + labels (positioned by JS) -->
+            <div class="gps-truck"  id="truck1"><i data-lucide="truck" style="width:14px;height:14px;color:#0A0E1A;"></i></div>
+            <div class="gps-label"  id="label1"><span class="dot"></span>山田 / 走行中</div>
+            <div class="gps-truck t2" id="truck2"><i data-lucide="truck" style="width:14px;height:14px;color:#0A0E1A;"></i></div>
+            <div class="gps-label" id="label2"><span class="dot"></span>佐藤 / 走行中</div>
+            <div class="gps-truck t3" id="truck3"><i data-lucide="truck" style="width:14px;height:14px;color:#0A0E1A;"></i></div>
+            <div class="gps-label" id="label3"><span class="dot"></span>田中 / 走行中</div>
+
+            <!-- pins -->
+            <div class="map-pin" style="left:17.5%;top:19%;" data-i="1">1</div>
+            <div class="map-pin" style="left:50%;top:40%;" data-i="2">2</div>
+            <div class="map-pin" style="left:72.5%;top:66.5%;" data-i="3">3</div>
+            <div class="map-pin" style="left:32.5%;top:81%;" data-i="4">4</div>
+            <div class="map-pin" style="left:88%;top:24%;background:linear-gradient(135deg,#A3E635,#22D3EE);" data-i="0">
+              <i data-lucide="home" class="w-3 h-3" style="color:#0A0E1A;"></i>
+            </div>
+
+            <!-- bottom metrics overlay -->
+            <div class="absolute left-3 right-3 bottom-3 glass rounded-2xl p-3 flex items-center justify-between">
+              <div>
+                <div class="text-[10px] uppercase tracking-[0.2em]" style="color:var(--text-2);">距離</div>
+                <div class="text-sm font-bold">18.4 <span class="text-[10px]" style="color:var(--text-2);">km</span></div>
+              </div>
+              <div>
+                <div class="text-[10px] uppercase tracking-[0.2em]" style="color:var(--text-2);">時間</div>
+                <div class="text-sm font-bold">02:45</div>
+              </div>
+              <div>
+                <div class="text-[10px] uppercase tracking-[0.2em]" style="color:var(--text-2);">CO₂</div>
+                <div class="text-sm font-bold" style="color:var(--lime);">-4.2 kg</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- stops list -->
+          <div class="mt-4 space-y-2">
+            <div class="flex items-center gap-3 text-xs">
+              <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style="background:rgba(34,211,238,0.2);color:#22D3EE;">1</span>
+              <span class="flex-1">○○建設 · 木くず 2t</span>
+              <span style="color:var(--text-2);">09:00</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style="background:rgba(139,92,246,0.2);color:#8B5CF6;">2</span>
+              <span class="flex-1">××工務店 · 混合廃棄物 4t</span>
+              <span style="color:var(--text-2);">10:30</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style="background:rgba(236,72,153,0.2);color:#EC4899;">3</span>
+              <span class="flex-1">△△解体 · 廃プラ 1.5t</span>
+              <span style="color:var(--text-2);">13:00</span>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold" style="background:rgba(163,230,53,0.2);color:#A3E635;">4</span>
+              <span class="flex-1">□□産業 · 金属くず 3t</span>
+              <span style="color:var(--text-2);">15:30</span>
+            </div>
+          </div>
+
+          <!-- Info chips (weather/traffic) -->
+          <div class="info-chips" id="infoChips">
+            <span class="info-chip rain" data-kind="rain"><i data-lucide="cloud-rain" style="width:11px;height:11px;"></i> 降雨予測 15:00以降</span>
+            <span class="info-chip jam" data-kind="jam"><i data-lucide="alert-triangle" style="width:11px;height:11px;"></i> 阪神高速 1号線 渋滞中</span>
+          </div>
+          <button class="recalc-btn" id="recalcBtn">
+            <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i>
+            <span>ルート再計算</span>
+          </button>
+        </aside>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Footer spacer -->
+<div class="h-32"></div>
+
+</div><!-- /layer-fg -->
+
+<!-- FAB -->
+<div id="fab" class="fab" title="未割当案件プール">
+  <i data-lucide="layers" class="w-6 h-6"></i>
+  <span class="badge">6</span>
+</div>
+
+<!-- Bottom sheet -->
+<div id="sheet" class="sheet">
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <div class="text-xs uppercase tracking-[0.3em]" style="color:var(--text-2);">Unassigned Pool</div>
+      <div class="heading text-xl">未割当案件 <span class="grad-text">6</span> 件</div>
+      <div class="text-xs mt-1" style="color:var(--text-2);">ドラッグでドライバーのタイムラインへドロップ</div>
+    </div>
+    <button id="sheetClose" class="glass rounded-full w-9 h-9 flex items-center justify-center">
+      <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="poolGrid">
+    <!-- injected -->
+  </div>
+</div>
+
+<!-- Notify modal -->
+<div class="modal-back" id="notifyModal">
+  <div class="modal-card">
+    <div>
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <div class="text-xs uppercase tracking-[0.3em]" style="color:var(--text-2);">Notify Customer</div>
+          <div class="heading text-lg"><span id="notifyCustomer">○○建設</span> 様へ通知を送信</div>
+        </div>
+        <button id="notifyClose" class="glass rounded-full w-9 h-9 flex items-center justify-center">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="ch-tabs" id="chTabs">
+        <button class="ch-tab active" data-ch="line"><i data-lucide="message-square" style="width:13px;height:13px;"></i> LINE</button>
+        <button class="ch-tab" data-ch="sms"><i data-lucide="smartphone" style="width:13px;height:13px;"></i> SMS</button>
+        <button class="ch-tab" data-ch="email"><i data-lucide="mail" style="width:13px;height:13px;"></i> Email</button>
+      </div>
+
+      <div class="text-[10px] uppercase tracking-[0.2em] mb-2" style="color:var(--text-2);">メッセージプレビュー</div>
+      <div class="msg-preview" id="msgPreview">
+        <div style="color:var(--text-2);font-size:11px;margin-bottom:6px;">[テンプレ: 訪問予告]</div>
+        <span id="msgBody">いつもお世話になっております。<br>明日 10:30 に <span class="grad-text" style="font-weight:700;">山田太郎</span> が伺います。<br>引き取り品目: 木くず 2t<br>お立会いの程よろしくお願いいたします。</span>
+      </div>
+
+      <button class="send-btn" id="sendBtn">
+        <i data-lucide="send" style="width:14px;height:14px;"></i>
+        <span>送信</span>
+      </button>
+    </div>
+
+    <div>
+      <div class="text-[10px] uppercase tracking-[0.2em] mb-2" style="color:var(--text-2);">送信履歴</div>
+      <div class="history-side" id="historySide">
+        <div class="hist-item">
+          <div class="who">山田建設</div>
+          <div class="meta">昨日 16:42 · LINE · <span class="read">既読</span></div>
+        </div>
+        <div class="hist-item">
+          <div class="who">大阪解体</div>
+          <div class="meta">一昨日 09:15 · SMS · <span class="unread">未読</span></div>
+        </div>
+        <div class="hist-item">
+          <div class="who">摂津工務店</div>
+          <div class="meta">3日前 · Email · <span class="read">既読</span></div>
+        </div>
+        <div class="hist-item">
+          <div class="who">茨木産業</div>
+          <div class="meta">4日前 · LINE · <span class="read">既読</span></div>
+        </div>
+        <div class="hist-item">
+          <div class="who">高槻建材</div>
+          <div class="meta">先週火曜 · LINE · <span class="read">既読</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span class="ic"><i data-lucide="check" style="width:14px;height:14px;"></i></span>
+  <span id="toastMsg">送信完了</span>
+</div>
+
+<script>
+  /* -------------- Particle background -------------- */
+  (function(){
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) return;
+    const c = document.getElementById('particles');
+    const ctx = c.getContext('2d');
+    let w, h, dots = [];
+    const COLORS = ['rgba(34,211,238,0.6)','rgba(139,92,246,0.55)','rgba(236,72,153,0.5)'];
+    function resize(){
+      w = c.width = window.innerWidth * window.devicePixelRatio;
+      h = c.height = window.innerHeight * window.devicePixelRatio;
+      c.style.width = window.innerWidth + 'px';
+      c.style.height = window.innerHeight + 'px';
+    }
+    function init(){
+      resize();
+      dots = Array.from({length:80}, ()=>({
+        x: Math.random()*w, y: Math.random()*h,
+        r: (Math.random()*1.4+0.4)*window.devicePixelRatio,
+        vx:(Math.random()-0.5)*0.18*window.devicePixelRatio,
+        vy:(Math.random()-0.5)*0.18*window.devicePixelRatio,
+        c: COLORS[Math.floor(Math.random()*COLORS.length)]
+      }));
+    }
+    function tick(){
+      ctx.clearRect(0,0,w,h);
+      dots.forEach(d=>{
+        d.x+=d.vx; d.y+=d.vy;
+        if(d.x<0||d.x>w) d.vx*=-1;
+        if(d.y<0||d.y>h) d.vy*=-1;
+        ctx.beginPath();
+        ctx.fillStyle = d.c;
+        ctx.shadowColor = d.c;
+        ctx.shadowBlur = 10;
+        ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+        ctx.fill();
+      });
+      requestAnimationFrame(tick);
+    }
+    window.addEventListener('resize', init);
+    init(); tick();
+  })();
+
+  /* -------------- Tabs -------------- */
+  const tabBefore = document.getElementById('tabBefore');
+  const tabAfter  = document.getElementById('tabAfter');
+  const viewBefore = document.getElementById('viewBefore');
+  const viewAfter  = document.getElementById('viewAfter');
+  function setTab(which){
+    if(which==='before'){
+      tabBefore.classList.add('active'); tabAfter.classList.remove('active');
+      viewBefore.classList.remove('hidden'); viewAfter.classList.add('hidden');
+    }else{
+      tabAfter.classList.add('active'); tabBefore.classList.remove('active');
+      viewAfter.classList.remove('hidden'); viewBefore.classList.add('hidden');
+    }
+  }
+  tabBefore.addEventListener('click', ()=>setTab('before'));
+  tabAfter.addEventListener('click', ()=>setTab('after'));
+
+  /* -------------- Drivers -------------- */
+  const drivers = [
+    {name:'山田 太郎', util:82, status:'move',  vehicle:'2t ダンプ'},
+    {name:'佐藤 健一', util:65, status:'on',    vehicle:'4t ユニック'},
+    {name:'鈴木 一郎', util:48, status:'on',    vehicle:'2t ダンプ'},
+    {name:'田中 翔',   util:91, status:'move',  vehicle:'3t ダンプ'},
+    {name:'小林 愛',   util:35, status:'rest',  vehicle:'2t ダンプ'},
+  ];
+  const statusLabel = {on:'在席', move:'移動中', rest:'休憩'};
+  const dl = document.getElementById('driverList');
+  drivers.forEach((d,i)=>{
+    const C = 2*Math.PI*18;
+    const off = C * (1 - d.util/100);
+    const html = `
+      <div class="driver-row flex items-center gap-3 p-2 rounded-xl cursor-pointer">
+        <div class="relative w-12 h-12">
+          <svg width="48" height="48" viewBox="0 0 48 48">
+            <defs>
+              <linearGradient id="g${i}" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#22D3EE"/>
+                <stop offset="0.5" stop-color="#8B5CF6"/>
+                <stop offset="1" stop-color="#EC4899"/>
+              </linearGradient>
+            </defs>
+            <circle cx="24" cy="24" r="18" stroke="rgba(255,255,255,0.08)" stroke-width="3" fill="none"/>
+            <circle cx="24" cy="24" r="18" stroke="url(#g${i})" stroke-width="3" fill="none"
+              stroke-dasharray="${C}" stroke-dashoffset="${off}" stroke-linecap="round"
+              transform="rotate(-90 24 24)"/>
+          </svg>
+          <div class="absolute inset-0 m-1.5 rounded-full grad-bg flex items-center justify-center text-[10px] font-bold" style="color:#0A0E1A;">
+            ${d.name.slice(0,1)}
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold truncate">${d.name}</div>
+          <div class="text-[10px]" style="color:var(--text-2);">${d.vehicle} · 稼働 ${d.util}%</div>
+        </div>
+        <span class="chip ${d.status} ${d.status==='move'?'pulse':''}">${statusLabel[d.status]}</span>
+      </div>
+    `;
+    dl.insertAdjacentHTML('beforeend', html);
+  });
+
+  /* -------------- Timeline tasks -------------- */
+  // time range 7..19 = 12 hours -> %
+  function pct(h){ return ((h - 7) / 12) * 100; }
+  const tasks = [
+    {row:0, start:9,   end:10,  color:'c-lime',    title:'○○建設', sub:'木くず 2t',     loc:'尼崎'},
+    {row:0, start:10.5,end:11.5,color:'c-cyan',    title:'××工務店', sub:'混合 4t',       loc:'西宮'},
+    {row:0, start:13,  end:14,  color:'c-magenta', title:'△△解体', sub:'廃プラ 1.5t',   loc:'伊丹'},
+    {row:0, start:15.5,end:16.5,color:'c-violet',  title:'□□産業', sub:'金属 3t',       loc:'豊中'},
+    {row:1, start:8.5, end:9.5, color:'c-cyan',    title:'ABC建材', sub:'混合 2t',       loc:'吹田'},
+    {row:1, start:11,  end:12,  color:'c-lime',    title:'DEF工務店',sub:'木くず 3t',     loc:'摂津'},
+    {row:1, start:14,  end:15.5,color:'c-magenta', title:'GHI解体', sub:'廃プラ 2t',     loc:'茨木'},
+    {row:2, start:9.5, end:10.5,color:'c-violet',  title:'JKL産業', sub:'金属 1.5t',     loc:'東大阪'},
+    {row:2, start:13.5,end:14.5,color:'c-lime',    title:'MNO建設', sub:'木くず 2t',     loc:'八尾'},
+    {row:2, start:15,  end:16,  color:'c-cyan',    title:'PQR工務店',sub:'混合 3t',       loc:'柏原'},
+    {row:3, start:8,   end:9,   color:'c-magenta', title:'STU解体', sub:'廃プラ 2.5t',   loc:'高槻'},
+    {row:3, start:10,  end:11,  color:'c-lime',    title:'VWX建設', sub:'木くず 2t',     loc:'枚方'},
+    {row:3, start:14.5,end:15.5,color:'c-violet',  title:'BCD産業', sub:'金属 4t',       loc:'門真'},
+    {row:4, start:9,   end:10,  color:'c-lime',    title:'EFG建設', sub:'木くず 1.5t',   loc:'箕面'},
+    {row:4, start:13,  end:14,  color:'c-cyan',    title:'HIJ工務店',sub:'混合 2t',       loc:'池田'},
+  ];
+
+  const tl = document.getElementById('timeline');
+  drivers.forEach((d, i) => {
+    const row = document.createElement('div');
+    row.className = 'tl-row relative rounded-xl';
+    row.style.height = '64px';
+    row.style.background = 'rgba(255,255,255,0.02)';
+    row.dataset.row = i;
+    // driver tag on left
+    row.innerHTML = `
+      <div class="absolute left-2 top-1.5 text-[10px] uppercase tracking-[0.2em] z-10" style="color:var(--text-2);">${d.name.split(' ')[0]}</div>
+    `;
+    tl.appendChild(row);
+  });
+
+  function renderTasks(){
+    // clear cards
+    document.querySelectorAll('.task-card').forEach(n=>n.remove());
+    tasks.forEach((t, idx)=>{
+      const rowEl = tl.children[t.row];
+      const left = pct(t.start);
+      const width = pct(t.end) - pct(t.start);
+      const card = document.createElement('div');
+      card.className = 'task-card';
+      card.draggable = true;
+      card.style.left = left + '%';
+      card.style.width = `calc(${width}% - 4px)`;
+      card.dataset.idx = idx;
+      card.innerHTML = `
+        <div class="lb ${t.color}"></div>
+        <button class="notify-btn" data-notify="${idx}" title="顧客へ通知">
+          <i data-lucide="message-circle"></i>
+        </button>
+        <div class="pl-2 pr-6 h-full flex flex-col justify-center">
+          <div class="text-[11px] font-semibold truncate">${t.title}</div>
+          <div class="text-[10px] truncate" style="color:var(--text-2);">${t.sub} · ${t.loc}</div>
+        </div>
+        <div class="pop">
+          <div class="text-[10px] uppercase tracking-[0.2em] mb-1" style="color:var(--text-2);">${String(Math.floor(t.start)).padStart(2,'0')}:${t.start%1?'30':'00'} — ${String(Math.floor(t.end)).padStart(2,'0')}:${t.end%1?'30':'00'}</div>
+          <div class="text-xs font-bold mb-1">${t.title}</div>
+          <div class="text-[11px]" style="color:var(--text-2);">${t.sub}</div>
+          <div class="text-[11px] mt-1"><i data-lucide="map-pin" class="w-3 h-3 inline"></i> ${t.loc}</div>
+        </div>
+      `;
+      rowEl.appendChild(card);
+    });
+    if (window.lucide) lucide.createIcons();
+  }
+  renderTasks();
+
+  /* -------------- Drag from timeline (re-assign rows) -------------- */
+  let dragIdx = null;
+  document.addEventListener('dragstart', (e)=>{
+    const t = e.target.closest('.task-card, .pool-card');
+    if(!t) return;
+    if (t.classList.contains('task-card')){
+      dragIdx = +t.dataset.idx;
+      e.dataTransfer.setData('text/plain','task:'+dragIdx);
+    } else {
+      e.dataTransfer.setData('text/plain','pool:'+t.dataset.id);
+    }
+  });
+  document.querySelectorAll('.tl-row').forEach(row=>{
+    row.addEventListener('dragover', e=>{ e.preventDefault(); row.classList.add('drag-over'); });
+    row.addEventListener('dragleave', ()=> row.classList.remove('drag-over'));
+    row.addEventListener('drop', e=>{
+      e.preventDefault();
+      row.classList.remove('drag-over');
+      const data = e.dataTransfer.getData('text/plain');
+      if(data.startsWith('task:')){
+        const idx = +data.split(':')[1];
+        tasks[idx].row = +row.dataset.row;
+        renderTasks();
+      } else if (data.startsWith('pool:')){
+        const id = +data.split(':')[1];
+        const p = pool.find(x=>x.id===id);
+        if(p){
+          tasks.push({row:+row.dataset.row, start:p.start, end:p.end, color:p.color, title:p.title, sub:p.sub, loc:p.loc});
+          // remove from pool
+          const i = pool.findIndex(x=>x.id===id); pool.splice(i,1);
+          renderPool(); renderTasks();
+          updatePoolBadge();
+        }
+      }
+    });
+  });
+
+  /* -------------- AI Optimize -------------- */
+  const aiBtn = document.getElementById('aiOptimize');
+  aiBtn.addEventListener('click', ()=>{
+    if(aiBtn.classList.contains('loading')) return;
+    aiBtn.classList.add('loading');
+    const orig = aiBtn.innerHTML;
+    aiBtn.innerHTML = `<span class="spinner"></span><span>最適化中…</span>`;
+    setTimeout(()=>{
+      // capture old positions
+      const oldRects = new Map();
+      document.querySelectorAll('.task-card').forEach(el=>{
+        oldRects.set(el.dataset.idx, el.getBoundingClientRect());
+      });
+      // shuffle (deterministic: shift start by random small amount, occasionally swap rows for closer route)
+      tasks.forEach(t=>{
+        const dur = t.end - t.start;
+        let shift = (Math.random() - 0.4) * 1.2;
+        t.start = Math.max(7, Math.min(17, t.start + shift));
+        t.end = t.start + dur;
+        if (Math.random() < 0.25) t.row = (t.row + 1) % drivers.length;
+      });
+      renderTasks();
+      // FLIP
+      document.querySelectorAll('.task-card').forEach(el=>{
+        const oldR = oldRects.get(el.dataset.idx);
+        if(!oldR) return;
+        const newR = el.getBoundingClientRect();
+        const dx = oldR.left - newR.left;
+        const dy = oldR.top  - newR.top;
+        gsap.fromTo(el, {x:dx, y:dy, opacity:0.4}, {x:0, y:0, opacity:1, duration:0.7, ease:'power3.out', delay: Math.random()*0.2});
+      });
+      aiBtn.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i><span>最適化完了 · -18%</span>`;
+      if (window.lucide) lucide.createIcons();
+      setTimeout(()=>{
+        aiBtn.innerHTML = orig;
+        if (window.lucide) lucide.createIcons();
+        aiBtn.classList.remove('loading');
+      }, 2400);
+    }, 1500);
+  });
+
+  /* -------------- Counter -------------- */
+  function animateCount(){
+    document.querySelectorAll('.count').forEach(el=>{
+      const target = +el.dataset.target;
+      gsap.fromTo(el, {innerText:0}, {
+        innerText: target, duration: 1.6, ease:'power2.out', snap:{innerText:1},
+        onUpdate(){ el.innerText = Math.floor(this.targets()[0].innerText); }
+      });
+    });
+  }
+
+  /* -------------- Pool / FAB / Sheet -------------- */
+  let pool = [
+    {id:1, title:'NPO清掃センター', sub:'木くず 1t',   loc:'宝塚', start:9,   end:10,  color:'c-lime'},
+    {id:2, title:'XYZ建設',         sub:'混合 2t',     loc:'川西', start:11,  end:12,  color:'c-cyan'},
+    {id:3, title:'KOBE解体',        sub:'廃プラ 2.5t', loc:'神戸', start:13,  end:14.5,color:'c-magenta'},
+    {id:4, title:'SUMA産業',        sub:'金属 3t',     loc:'須磨', start:15,  end:16,  color:'c-violet'},
+    {id:5, title:'丹波建材',        sub:'木くず 2t',   loc:'丹波', start:8,   end:9.5, color:'c-lime'},
+    {id:6, title:'明石工務店',      sub:'混合 1.5t',   loc:'明石', start:14,  end:15,  color:'c-cyan'},
+  ];
+
+  const poolGrid = document.getElementById('poolGrid');
+  function renderPool(){
+    poolGrid.innerHTML = '';
+    pool.forEach(p=>{
+      const div = document.createElement('div');
+      div.className = 'pool-card flex items-center gap-3';
+      div.draggable = true;
+      div.dataset.id = p.id;
+      div.innerHTML = `
+        <div class="w-1.5 self-stretch rounded-full ${p.color}"></div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-semibold">${p.title}</div>
+          <div class="text-[11px]" style="color:var(--text-2);">${p.sub} · ${p.loc}</div>
+        </div>
+        <div class="text-[10px] glass px-2 py-1 rounded-full">${String(Math.floor(p.start)).padStart(2,'0')}:${p.start%1?'30':'00'}</div>
+      `;
+      poolGrid.appendChild(div);
+    });
+  }
+  renderPool();
+
+  function updatePoolBadge(){
+    const b = document.querySelector('.fab .badge');
+    b.textContent = pool.length;
+    b.style.display = pool.length ? '' : 'none';
+  }
+  updatePoolBadge();
+
+  const sheet = document.getElementById('sheet');
+  document.getElementById('fab').addEventListener('click', ()=> sheet.classList.toggle('open'));
+  document.getElementById('sheetClose').addEventListener('click', ()=> sheet.classList.remove('open'));
+
+  /* -------------- Map pin reveal -------------- */
+  function revealPins(){
+    const pins = document.querySelectorAll('.map-pin');
+    pins.forEach((p,i)=>{
+      gsap.fromTo(p, {scale:0, opacity:0}, {scale:1, opacity:1, duration:0.55, ease:'back.out(2)', delay: 0.15*i});
+    });
+    // dashed route animation
+    const path = document.getElementById('routeLine');
+    if (path){
+      const len = path.getTotalLength();
+      path.style.strokeDasharray = len + ' ' + len;
+      path.style.strokeDashoffset = len;
+      gsap.to(path, {strokeDashoffset:0, duration:1.6, ease:'power2.inOut', delay:0.3,
+        onComplete: ()=>{ path.style.strokeDasharray = '6 8'; path.style.strokeDashoffset = 0; }
+      });
+    }
+  }
+
+  /* ============ ADDED: GPS, Weather/Traffic, Notify ============ */
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* -------------- GPS Truck Animation -------------- */
+  // Map container uses %; we'll position via left/top in % of the map's inner box.
+  // Routes are arrays of points (x%, y%) cycled in a loop.
+  const gpsRoutes = [
+    // truck1 — long arc north→south through pins
+    [[17.5,19],[35,28],[50,40],[62,52],[72.5,66.5],[55,76],[32.5,81],[20,68],[14,46]],
+    // truck2 — east loop
+    [[88,24],[80,40],[68,52],[58,64],[70,78],[84,68],[92,50],[90,32]],
+    // truck3 — middle figure-8
+    [[30,55],[45,42],[55,30],[68,42],[60,58],[48,68],[36,60],[25,48]],
+  ];
+
+  function setupGpsTrucks(){
+    const mapBox = document.querySelector('.map-pin')?.parentElement;
+    if(!mapBox) return;
+    const tEls = [document.getElementById('truck1'), document.getElementById('truck2'), document.getElementById('truck3')];
+    const lEls = [document.getElementById('label1'), document.getElementById('label2'), document.getElementById('label3')];
+    const trailEls = [document.getElementById('trail1'), document.getElementById('trail2'), document.getElementById('trail3')];
+    const trails = [[], [], []]; // history of recent positions in svg coords (0-400, 0-420)
+    const TRAIL_LEN = 14;
+
+    // initial placement
+    tEls.forEach((el,i)=>{
+      if(!el) return;
+      const p = gpsRoutes[i][0];
+      el.style.left = p[0] + '%';
+      el.style.top  = p[1] + '%';
+      lEls[i].style.left = p[0] + '%';
+      lEls[i].style.top  = p[1] + '%';
+    });
+
+    if (reducedMotion) return; // static placement
+
+    tEls.forEach((el, i)=>{
+      if(!el) return;
+      const route = gpsRoutes[i];
+      // Build a GSAP tween that cycles through route waypoints
+      const proxy = { idx:0 };
+      const labEl = lEls[i];
+      const trailEl = trailEls[i];
+
+      function step(){
+        const from = route[proxy.idx];
+        const to   = route[(proxy.idx + 1) % route.length];
+        gsap.to({t:0}, {
+          t:1, duration: 4 + i*0.8, ease:'none',
+          onUpdate: function(){
+            const tt = this.targets()[0].t;
+            const x = from[0] + (to[0] - from[0]) * tt;
+            const y = from[1] + (to[1] - from[1]) * tt;
+            el.style.left = x + '%';
+            el.style.top  = y + '%';
+            labEl.style.left = x + '%';
+            labEl.style.top  = y + '%';
+            // push to trail (svg coords: 0-400 x, 0-420 y)
+            trails[i].push([x*4, y*4.2]);
+            if (trails[i].length > TRAIL_LEN) trails[i].shift();
+            if (trailEl){
+              const pts = trails[i];
+              if (pts.length > 1){
+                let d = `M ${pts[0][0]} ${pts[0][1]}`;
+                for (let k=1;k<pts.length;k++){ d += ` L ${pts[k][0]} ${pts[k][1]}`; }
+                trailEl.setAttribute('d', d);
+              }
+            }
+          },
+          onComplete: ()=>{
+            proxy.idx = (proxy.idx + 1) % route.length;
+            step();
+          }
+        });
+      }
+      step();
+    });
+  }
+
+  /* -------------- Weather / Traffic toggles -------------- */
+  function setupOverlays(){
+    const tglW = document.getElementById('tglWeather');
+    const tglT = document.getElementById('tglTraffic');
+    const ovW = document.getElementById('ovWeather');
+    const ovT = document.getElementById('ovTraffic');
+    const chips = document.getElementById('infoChips');
+    const recalc = document.getElementById('recalcBtn');
+
+    function refreshChips(){
+      const w = tglW.classList.contains('active');
+      const t = tglT.classList.contains('active');
+      // show/hide individual chips
+      chips.querySelectorAll('.info-chip').forEach(c=>{
+        const k = c.dataset.kind;
+        if ((k==='rain' && w) || (k==='jam' && t)){
+          c.style.display = '';
+        } else {
+          c.style.display = 'none';
+        }
+      });
+      if (w || t){ chips.classList.add('show'); recalc.classList.add('show'); }
+      else      { chips.classList.remove('show'); recalc.classList.remove('show'); }
+    }
+
+    tglW.addEventListener('click', ()=>{
+      tglW.classList.toggle('active');
+      ovW.classList.toggle('on');
+      refreshChips();
+    });
+    tglT.addEventListener('click', ()=>{
+      tglT.classList.toggle('active');
+      ovT.classList.toggle('on');
+      refreshChips();
+    });
+
+    recalc.addEventListener('click', ()=>{
+      if (recalc.classList.contains('loading')) return;
+      recalc.classList.add('loading');
+      const orig = recalc.innerHTML;
+      recalc.innerHTML = `<span class="spinner"></span><span>再計算中…</span>`;
+      setTimeout(()=>{
+        recalc.innerHTML = orig;
+        recalc.classList.remove('loading');
+        if (window.lucide) lucide.createIcons();
+        showToast('13分短縮ルートが見つかりました');
+      }, 1400);
+    });
+  }
+
+  function showToast(message){
+    const t = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = message;
+    t.classList.add('show');
+    clearTimeout(showToast._tm);
+    showToast._tm = setTimeout(()=> t.classList.remove('show'), 3200);
+  }
+
+  /* -------------- Notify Modal -------------- */
+  function setupNotify(){
+    const modal = document.getElementById('notifyModal');
+    const closeBtn = document.getElementById('notifyClose');
+    const sendBtn = document.getElementById('sendBtn');
+    const tabs = document.querySelectorAll('.ch-tab');
+    const msgBody = document.getElementById('msgBody');
+
+    function openNotify(taskIdx){
+      const t = tasks[taskIdx];
+      if(!t) return;
+      document.getElementById('notifyCustomer').textContent = t.title;
+      const driverName = (drivers[t.row] && drivers[t.row].name) || '担当者';
+      const hh = String(Math.floor(t.start)).padStart(2,'0');
+      const mm = (t.start % 1) ? '30' : '00';
+      msgBody.innerHTML = `いつもお世話になっております。<br>明日 ${hh}:${mm} に <span class="grad-text" style="font-weight:700;">${driverName}</span> が伺います。<br>引き取り品目: ${t.sub}<br>お立会いの程よろしくお願いいたします。`;
+      // reset send button
+      sendBtn.classList.remove('done');
+      sendBtn.innerHTML = `<i data-lucide="send" style="width:14px;height:14px;"></i><span>送信</span>`;
+      modal.classList.add('open');
+      if (window.lucide) lucide.createIcons();
+    }
+    window.openNotify = openNotify;
+
+    closeBtn.addEventListener('click', ()=> modal.classList.remove('open'));
+    modal.addEventListener('click', (e)=>{ if(e.target === modal) modal.classList.remove('open'); });
+
+    tabs.forEach(tab=>{
+      tab.addEventListener('click', ()=>{
+        tabs.forEach(x=>x.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+
+    sendBtn.addEventListener('click', ()=>{
+      if (sendBtn.classList.contains('loading') || sendBtn.classList.contains('done')) return;
+      sendBtn.classList.add('loading');
+      sendBtn.innerHTML = `<span class="spinner"></span><span>送信中…</span>`;
+      setTimeout(()=>{
+        sendBtn.classList.remove('loading');
+        sendBtn.classList.add('done');
+        sendBtn.innerHTML = `<span class="check-anim" style="display:inline-flex;align-items:center;gap:6px;"><i data-lucide="check" style="width:14px;height:14px;"></i> 送信完了</span>`;
+        if (window.lucide) lucide.createIcons();
+        // prepend to history
+        const ch = document.querySelector('.ch-tab.active')?.dataset.ch || 'line';
+        const chName = {line:'LINE', sms:'SMS', email:'Email'}[ch];
+        const who = document.getElementById('notifyCustomer').textContent;
+        const hist = document.getElementById('historySide');
+        const item = document.createElement('div');
+        item.className = 'hist-item';
+        item.innerHTML = `<div class="who">${who}</div><div class="meta">たった今 · ${chName} · <span class="unread">送信済</span></div>`;
+        hist.prepend(item);
+        gsap.from(item, {opacity:0, y:-8, duration:0.45, ease:'power2.out'});
+        showToast('送信完了 ✓');
+        // auto-close
+        setTimeout(()=> {
+          document.getElementById('notifyModal').classList.remove('open');
+        }, 1800);
+      }, 1100);
+    });
+
+    // delegate clicks on notify buttons (they re-render with tasks)
+    document.addEventListener('click', (e)=>{
+      const btn = e.target.closest('.notify-btn');
+      if(!btn) return;
+      e.stopPropagation();
+      const idx = +btn.dataset.notify;
+      openNotify(idx);
+    });
+  }
+
+  /* -------------- Init -------------- */
+  window.addEventListener('DOMContentLoaded', ()=>{
+    if (window.lucide) lucide.createIcons();
+    if (window.VanillaTilt){
+      VanillaTilt.init(document.querySelectorAll('[data-tilt]'), { max:6, glare:true, 'max-glare':0.15, speed:600 });
+    }
+    animateCount();
+    revealPins();
+    setupGpsTrucks();
+    setupOverlays();
+    setupNotify();
+    // Subtle entrance
+    gsap.from('#kpiGrid > *', {y:20, opacity:0, duration:0.7, stagger:0.08, ease:'power3.out'});
+    gsap.from('.driver-row', {x:-12, opacity:0, duration:0.5, stagger:0.06, ease:'power2.out', delay:0.2});
+    gsap.from('.task-card',  {y:8,  opacity:0, duration:0.5, stagger:0.03, ease:'power2.out', delay:0.3});
+    if (window.lucide) lucide.createIcons();
+  });
+</script>
+</body>
+</html>

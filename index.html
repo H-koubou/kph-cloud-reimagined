@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KPH Cloud Reimagined — Replacement Proposal</title>
+<meta name="description" content="環境プラットホームクラウドを、配車・経営・現場の3視点で再発明しました。" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+<style>
+  :root {
+    --bg-0: #070912;
+    --bg-1: #0A0E1A;
+    --bg-2: #13102B;
+    --cyan: #22D3EE;
+    --violet: #8B5CF6;
+    --magenta: #EC4899;
+    --lime: #A3E635;
+    --text: #F8FAFC;
+    --text-2: rgba(248,250,252,0.65);
+    --text-3: rgba(248,250,252,0.4);
+    --glass-bg: rgba(255,255,255,0.04);
+    --glass-border: rgba(255,255,255,0.08);
+    --shadow-deep: 0 0 60px rgba(139,92,246,0.15), 0 20px 80px rgba(0,0,0,0.5);
+  }
+
+  * { -webkit-font-smoothing: antialiased; }
+  html, body { background: var(--bg-0); color: var(--text); }
+  body {
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(34,211,238,0.10), transparent 60%),
+      radial-gradient(1000px 500px at 90% 10%, rgba(236,72,153,0.10), transparent 60%),
+      radial-gradient(900px 700px at 50% 110%, rgba(139,92,246,0.14), transparent 60%),
+      linear-gradient(180deg, #0A0E1A 0%, #13102B 50%, #070912 100%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+  }
+
+  .font-jp { font-family: 'Noto Sans JP','Inter',sans-serif; }
+
+  /* noise overlay */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.035;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  /* glass card base */
+  .glass {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border-radius: 28px;
+    box-shadow: var(--shadow-deep);
+    position: relative;
+    overflow: hidden;
+  }
+  .glass::after {
+    content: "";
+    position: absolute; inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0) 40%);
+    mix-blend-mode: overlay;
+  }
+
+  /* gradient text */
+  .grad-text {
+    background: linear-gradient(135deg,#22D3EE 0%,#8B5CF6 50%,#EC4899 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .grad-text-lime {
+    background: linear-gradient(135deg,#A3E635 0%,#22D3EE 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .magic-glow {
+    text-shadow:
+      0 0 24px rgba(139,92,246,0.35),
+      0 0 60px rgba(236,72,153,0.25);
+  }
+
+  /* hero heading */
+  .hero-title {
+    font-family: 'Inter','Noto Sans JP',sans-serif;
+    font-weight: 800;
+    font-size: clamp(48px, 6vw, 96px);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+  }
+
+  /* primary CTA */
+  .btn-primary {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 1rem 1.75rem;
+    border-radius: 999px;
+    color: #0A0E1A;
+    font-weight: 700;
+    background: linear-gradient(135deg,#22D3EE 0%,#8B5CF6 50%,#EC4899 100%);
+    box-shadow: 0 10px 40px rgba(139,92,246,0.45), 0 0 0 1px rgba(255,255,255,0.1) inset;
+    transition: transform .25s ease, box-shadow .25s ease;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .btn-primary::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.5), transparent 60%);
+    opacity: 0; transform: scale(0.5);
+    transition: opacity .35s ease, transform .35s ease;
+    z-index: -1;
+  }
+  .btn-primary:hover::before { opacity: 1; transform: scale(1.4); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 20px 60px rgba(139,92,246,0.6); }
+
+  @keyframes pulseGlow {
+    0%,100% { box-shadow: 0 10px 40px rgba(139,92,246,0.45), 0 0 0 0 rgba(139,92,246,0.45); }
+    50% { box-shadow: 0 10px 40px rgba(139,92,246,0.6), 0 0 0 12px rgba(139,92,246,0); }
+  }
+  .pulse-glow { animation: pulseGlow 2.6s ease-in-out infinite; }
+
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    padding: 1rem 1.5rem;
+    border-radius: 999px;
+    color: var(--text);
+    font-weight: 600;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.14);
+    backdrop-filter: blur(12px);
+    transition: all .25s ease;
+  }
+  .btn-ghost:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(34,211,238,0.5);
+    box-shadow: 0 0 24px rgba(34,211,238,0.25);
+  }
+
+  /* gradient border card */
+  .grad-border {
+    position: relative;
+    border-radius: 28px;
+    background: rgba(10,14,26,0.7);
+    overflow: hidden;
+  }
+  .grad-border::before {
+    content: "";
+    position: absolute; inset: 0;
+    border-radius: 28px;
+    padding: 1.5px;
+    background: linear-gradient(135deg,#22D3EE,#8B5CF6 50%,#EC4899);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* card hover gradient sweep */
+  .screen-card { position: relative; transition: transform .4s ease; }
+  .screen-card .sweep {
+    position: absolute; inset: -50%;
+    background: conic-gradient(from 0deg, transparent 0deg, rgba(34,211,238,0.18) 60deg, rgba(139,92,246,0.18) 140deg, rgba(236,72,153,0.18) 220deg, transparent 320deg);
+    opacity: 0; transition: opacity .5s ease;
+    animation: rotateSweep 10s linear infinite;
+    pointer-events: none;
+    filter: blur(28px);
+  }
+  .screen-card:hover .sweep { opacity: 1; }
+  @keyframes rotateSweep { to { transform: rotate(360deg); } }
+
+  /* nav */
+  .nav-glass {
+    background: rgba(10,14,26,0.55);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(140%);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  /* canvas */
+  #particles {
+    position: absolute; inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* scroll indicator */
+  .scroll-line {
+    width: 1px; height: 80px;
+    background: linear-gradient(180deg, transparent, rgba(34,211,238,0.8), transparent);
+    position: relative;
+    overflow: hidden;
+  }
+  .scroll-line::after {
+    content: "";
+    position: absolute; top: -30%; left: 0; right: 0;
+    height: 30%;
+    background: linear-gradient(180deg, transparent, #22D3EE, transparent);
+    animation: scrollFlow 2.2s ease-in-out infinite;
+  }
+  @keyframes scrollFlow {
+    0% { top: -30%; }
+    100% { top: 110%; }
+  }
+
+  /* cursor light */
+  .cursor-light {
+    position: fixed;
+    width: 380px; height: 380px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2;
+    background: radial-gradient(circle, rgba(139,92,246,0.18) 0%, rgba(236,72,153,0.08) 35%, transparent 60%);
+    mix-blend-mode: screen;
+    transform: translate(-50%, -50%);
+    transition: opacity .3s ease;
+    will-change: transform;
+  }
+
+  /* mini preview shapes */
+  .mini-dispatch {
+    background:
+      linear-gradient(180deg, rgba(34,211,238,0.08), rgba(139,92,246,0.04)),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 24px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 36px);
+  }
+  .mini-bar { background: linear-gradient(135deg,#22D3EE,#8B5CF6); border-radius: 4px; }
+  .mini-bar.alt { background: linear-gradient(135deg,#8B5CF6,#EC4899); }
+  .mini-bar.lime { background: linear-gradient(135deg,#A3E635,#22D3EE); }
+
+  .mini-dash {
+    background:
+      radial-gradient(circle at 20% 20%, rgba(34,211,238,0.18), transparent 50%),
+      radial-gradient(circle at 80% 60%, rgba(236,72,153,0.18), transparent 50%),
+      linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.0));
+  }
+  .spark {
+    height: 40px;
+    background: linear-gradient(180deg, rgba(34,211,238,0.3), transparent);
+    clip-path: polygon(0 70%, 10% 60%, 20% 65%, 30% 40%, 40% 50%, 50% 30%, 60% 35%, 70% 20%, 80% 28%, 90% 10%, 100% 22%, 100% 100%, 0 100%);
+  }
+
+  .phone-frame {
+    border-radius: 28px;
+    border: 1.5px solid rgba(255,255,255,0.12);
+    background: linear-gradient(180deg, #0A0E1A, #13102B);
+    position: relative;
+    overflow: hidden;
+  }
+  .phone-frame::before {
+    content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 60px; height: 14px; background: #000; border-radius: 0 0 12px 12px;
+  }
+
+  /* arrow animate */
+  .arrow-flow {
+    position: relative;
+    width: 80px; height: 2px;
+    background: linear-gradient(90deg, rgba(34,211,238,0.2), rgba(236,72,153,0.6));
+    border-radius: 2px;
+  }
+  .arrow-flow::after {
+    content: "";
+    position: absolute; right: -8px; top: 50%; transform: translateY(-50%) rotate(45deg);
+    width: 14px; height: 14px;
+    border-top: 2px solid #EC4899;
+    border-right: 2px solid #EC4899;
+  }
+  .arrow-pulse {
+    position: absolute; top: 50%; left: 0; transform: translateY(-50%);
+    width: 14px; height: 6px; border-radius: 6px;
+    background: #fff;
+    box-shadow: 0 0 12px #fff;
+    animation: arrowSlide 1.8s ease-in-out infinite;
+  }
+  @keyframes arrowSlide {
+    0% { left: 0; opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { left: 76px; opacity: 0; }
+  }
+
+  /* icon pulse */
+  @keyframes iconPulse {
+    0%,100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(139,92,246,0)); }
+    50% { transform: scale(1.12); filter: drop-shadow(0 0 12px rgba(139,92,246,0.6)); }
+  }
+  .issue-card:hover .issue-icon { animation: iconPulse 1.2s ease-in-out infinite; }
+
+  /* tag */
+  .tag {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .35rem .75rem;
+    border-radius: 999px;
+    font-size: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-2);
+  }
+  .tag .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #22D3EE;
+    box-shadow: 0 0 8px #22D3EE;
+  }
+
+  /* logo mark */
+  .logo-mark {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: linear-gradient(135deg,#22D3EE,#8B5CF6 50%,#EC4899);
+    position: relative;
+    box-shadow: 0 0 18px rgba(139,92,246,0.5);
+  }
+  .logo-mark::after {
+    content: ""; position: absolute; inset: 5px;
+    border-radius: 4px;
+    background: #0A0E1A;
+  }
+  .logo-mark::before {
+    content: ""; position: absolute; inset: 10px;
+    border-radius: 2px;
+    background: linear-gradient(135deg,#22D3EE,#EC4899);
+  }
+
+  /* reveal default */
+  .reveal { opacity: 0; transform: translateY(24px); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+    .reveal { opacity: 1 !important; transform: none !important; }
+    #particles { display: none; }
+    .cursor-light { display: none; }
+  }
+</style>
+</head>
+<body class="font-jp">
+
+<div class="cursor-light" id="cursorLight"></div>
+
+<!-- NAV -->
+<nav class="nav-glass fixed top-0 inset-x-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="logo-mark"></div>
+      <div class="leading-tight">
+        <div class="text-[11px] tracking-[0.2em] text-white/50 uppercase">KPH Cloud</div>
+        <div class="text-sm font-semibold">Reimagined</div>
+      </div>
+    </div>
+    <div class="hidden md:flex items-center gap-7 text-sm text-white/70">
+      <a href="#screens" class="hover:text-white transition">画面モック</a>
+      <a href="#kpi" class="hover:text-white transition">価値</a>
+      <a href="#issues" class="hover:text-white transition">課題</a>
+      <a href="#tech" class="hover:text-white transition">技術</a>
+    </div>
+    <a href="#screens" class="btn-ghost text-sm !py-2 !px-4">
+      <i data-lucide="sparkles" class="w-4 h-4"></i>
+      モックを見る
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="relative pt-32 pb-28 min-h-[100vh] flex items-center" id="hero">
+  <canvas id="particles"></canvas>
+
+  <div class="max-w-7xl mx-auto px-6 relative z-10 w-full">
+    <div class="text-center max-w-5xl mx-auto">
+      <div class="reveal inline-flex items-center gap-2 mb-8 tag">
+        <span class="dot"></span>
+        <span>Replacement Proposal — 産廃業界SaaSの再発明</span>
+      </div>
+
+      <h1 class="hero-title reveal">
+        業務システムに、<br class="md:hidden"/>
+        <span class="grad-text magic-glow">魔法</span>を。
+      </h1>
+
+      <p class="reveal mt-8 text-lg md:text-xl text-white/65 leading-relaxed max-w-3xl mx-auto">
+        環境プラットホームクラウドを、<span class="text-white">配車・経営・現場</span>の3視点で<br class="hidden md:block"/>
+        再発明しました。実画面・実データ・実体験で、未来をお見せします。
+      </p>
+
+      <div class="reveal mt-12 flex flex-col sm:flex-row gap-4 items-center justify-center">
+        <a href="#screens" class="btn-primary pulse-glow">
+          9画面のモックを見る
+          <i data-lucide="arrow-down" class="w-5 h-5"></i>
+        </a>
+        <a href="./proposal.html" class="btn-ghost">
+          <i data-lucide="file-text" class="w-4 h-4 text-cyan-300"></i>
+          提案書（PDF）を見る
+        </a>
+      </div>
+
+      <div class="reveal mt-16 grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto">
+        <div class="tag justify-center"><span class="dot" style="background:#22D3EE;box-shadow:0 0 8px #22D3EE"></span>Next.js 15</div>
+        <div class="tag justify-center"><span class="dot" style="background:#8B5CF6;box-shadow:0 0 8px #8B5CF6"></span>GSAP + Tilt</div>
+        <div class="tag justify-center"><span class="dot" style="background:#EC4899;box-shadow:0 0 8px #EC4899"></span>OR-Tools</div>
+        <div class="tag justify-center"><span class="dot" style="background:#A3E635;box-shadow:0 0 8px #A3E635"></span>JWNET連携</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- scroll indicator -->
+  <div class="absolute bottom-8 right-8 hidden md:flex flex-col items-center gap-3 z-10">
+    <div class="text-[10px] tracking-[0.3em] text-white/40 uppercase rotate-90 origin-center mb-6">Scroll</div>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- SCREENS -->
+<section id="screens" class="relative py-28">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16 reveal">
+      <div class="tag mb-5"><span class="dot"></span>3 Screens</div>
+      <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight">
+        現場・配車・経営、<br/>
+        <span class="grad-text">3つの視点で再設計</span>。
+      </h2>
+      <p class="mt-5 text-white/60 max-w-2xl mx-auto">
+        既存システムにない「動き」「速さ」「美しさ」を、それぞれの利用者の目線で実装しました。
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- 配車表 -->
+      <a href="./dispatch.html" data-tilt data-tilt-max="10" data-tilt-glare data-tilt-max-glare="0.15" class="screen-card glass reveal p-7 block group">
+        <span class="sweep"></span>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-5">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background:linear-gradient(135deg,rgba(34,211,238,0.2),rgba(139,92,246,0.2));border:1px solid rgba(34,211,238,0.3)">
+              <i data-lucide="calendar-clock" class="w-6 h-6 text-cyan-300"></i>
+            </div>
+            <span class="text-[10px] tracking-[0.25em] text-white/40 uppercase">01 / Dispatch</span>
+          </div>
+          <h3 class="text-2xl font-bold mb-2">配車表</h3>
+          <p class="text-sm text-white/55 mb-6">ドラッグ&ドロップ × AI最適化で配車時間を1/4に。</p>
+
+          <!-- mini preview: dispatch grid -->
+          <div class="mini-dispatch h-32 rounded-xl mb-6 relative overflow-hidden">
+            <div class="absolute top-3 left-3 mini-bar" style="width:60px;height:10px;"></div>
+            <div class="absolute top-3 left-[80px] mini-bar alt" style="width:90px;height:10px;"></div>
+            <div class="absolute top-7 left-[40px] mini-bar lime" style="width:50px;height:10px;"></div>
+            <div class="absolute top-12 left-3 mini-bar alt" style="width:120px;height:10px;"></div>
+            <div class="absolute top-16 left-[70px] mini-bar" style="width:40px;height:10px;"></div>
+            <div class="absolute top-20 left-[20px] mini-bar lime" style="width:80px;height:10px;"></div>
+            <div class="absolute top-24 left-[100px] mini-bar alt" style="width:60px;height:10px;"></div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="flex gap-2">
+              <span class="tag !text-[10px] !py-1">Before: Excel</span>
+              <span class="tag !text-[10px] !py-1" style="border-color:rgba(34,211,238,0.4);color:#22D3EE">After: DnD</span>
+            </div>
+            <span class="text-cyan-300 text-sm flex items-center gap-1 group-hover:translate-x-1 transition">
+              Open <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- 経営ダッシュボード -->
+      <a href="./dashboard.html" data-tilt data-tilt-max="10" data-tilt-glare data-tilt-max-glare="0.15" class="screen-card glass reveal p-7 block group">
+        <span class="sweep"></span>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-5">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(236,72,153,0.2));border:1px solid rgba(139,92,246,0.35)">
+              <i data-lucide="line-chart" class="w-6 h-6 text-violet-300"></i>
+            </div>
+            <span class="text-[10px] tracking-[0.25em] text-white/40 uppercase">02 / Insight</span>
+          </div>
+          <h3 class="text-2xl font-bold mb-2">経営ダッシュボード</h3>
+          <p class="text-sm text-white/55 mb-6">売上・原価・稼働率を一画面で。意思決定を高速化。</p>
+
+          <div class="mini-dash h-32 rounded-xl mb-6 p-3 flex flex-col gap-2">
+            <div class="flex gap-2">
+              <div class="flex-1 rounded-lg bg-white/5 p-2">
+                <div class="text-[9px] text-white/40">売上</div>
+                <div class="text-sm font-bold grad-text">¥48.2M</div>
+              </div>
+              <div class="flex-1 rounded-lg bg-white/5 p-2">
+                <div class="text-[9px] text-white/40">稼働率</div>
+                <div class="text-sm font-bold grad-text-lime">92.3%</div>
+              </div>
+            </div>
+            <div class="spark flex-1"></div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="flex gap-2">
+              <span class="tag !text-[10px] !py-1">Before: 月次</span>
+              <span class="tag !text-[10px] !py-1" style="border-color:rgba(139,92,246,0.4);color:#C4B5FD">After: Realtime</span>
+            </div>
+            <span class="text-violet-300 text-sm flex items-center gap-1 group-hover:translate-x-1 transition">
+              Open <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- ドライバーアプリ -->
+      <a href="./driver.html" data-tilt data-tilt-max="10" data-tilt-glare data-tilt-max-glare="0.15" class="screen-card glass reveal p-7 block group">
+        <span class="sweep"></span>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-5">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background:linear-gradient(135deg,rgba(236,72,153,0.2),rgba(163,230,53,0.18));border:1px solid rgba(236,72,153,0.35)">
+              <i data-lucide="smartphone" class="w-6 h-6 text-pink-300"></i>
+            </div>
+            <span class="text-[10px] tracking-[0.25em] text-white/40 uppercase">03 / Field</span>
+          </div>
+          <h3 class="text-2xl font-bold mb-2">ドライバーアプリ</h3>
+          <p class="text-sm text-white/55 mb-6">片手で完結。GPS・写真・電子マニフェスト全対応。</p>
+
+          <div class="h-32 flex items-center justify-center mb-6">
+            <div class="phone-frame w-20 h-32 p-2 pt-5">
+              <div class="rounded bg-gradient-to-br from-cyan-400/40 to-pink-400/40 h-8 mb-1.5"></div>
+              <div class="rounded bg-white/10 h-3 mb-1"></div>
+              <div class="rounded bg-white/10 h-3 mb-1 w-2/3"></div>
+              <div class="rounded mini-bar h-4 mt-2"></div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="flex gap-2">
+              <span class="tag !text-[10px] !py-1">Before: 紙</span>
+              <span class="tag !text-[10px] !py-1" style="border-color:rgba(236,72,153,0.4);color:#F9A8D4">After: PWA</span>
+            </div>
+            <span class="text-pink-300 text-sm flex items-center gap-1 group-hover:translate-x-1 transition">
+              Open <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- マニフェストAI（NEW） -->
+      <a href="./manifest.html" data-tilt data-tilt-max="10" data-tilt-glare data-tilt-max-glare="0.15" class="screen-card glass reveal p-7 block group relative">
+        <span class="absolute -top-2 -right-2 text-[10px] font-bold px-2.5 py-1 rounded-full z-20" style="background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);color:white;box-shadow:0 0 20px rgba(139,92,246,0.6)">NEW</span>
+        <span class="sweep"></span>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-5">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background:linear-gradient(135deg,rgba(163,230,53,0.2),rgba(34,211,238,0.2));border:1px solid rgba(163,230,53,0.35)">
+              <i data-lucide="scan-line" class="w-6 h-6 text-lime-300"></i>
+            </div>
+            <span class="text-[10px] tracking-[0.25em] text-white/40 uppercase">04 / AI</span>
+          </div>
+          <h3 class="text-2xl font-bold mb-2">マニフェストAI</h3>
+          <p class="text-sm text-white/55 mb-6">紙を撮影 → OCRで自動データ化 → JWNET連携。</p>
+
+          <div class="h-32 rounded-xl mb-6 relative overflow-hidden" style="background:linear-gradient(135deg,rgba(163,230,53,0.08),rgba(34,211,238,0.08));border:1px solid rgba(255,255,255,0.06)">
+            <!-- paper manifest -->
+            <div class="absolute inset-3 rounded-md bg-white/90 p-2">
+              <div class="h-1 bg-slate-300 mb-1 w-2/3 rounded"></div>
+              <div class="h-1 bg-slate-300 mb-1 w-1/2 rounded"></div>
+              <div class="h-1 bg-slate-300 mb-1 w-3/4 rounded"></div>
+              <div class="h-1 bg-slate-300 mb-1 w-2/5 rounded"></div>
+              <div class="h-1 bg-slate-300 mb-1 w-3/5 rounded"></div>
+            </div>
+            <!-- scan line -->
+            <div class="absolute inset-x-0 h-[2px]" style="background:linear-gradient(90deg,transparent,#22D3EE,transparent);box-shadow:0 0 12px #22D3EE;animation:scan 2.4s ease-in-out infinite;"></div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="flex gap-2">
+              <span class="tag !text-[10px] !py-1">Before: 手書き</span>
+              <span class="tag !text-[10px] !py-1" style="border-color:rgba(163,230,53,0.4);color:#BEF264">After: OCR+JWNET</span>
+            </div>
+            <span class="text-lime-300 text-sm flex items-center gap-1 group-hover:translate-x-1 transition">
+              Open <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- 撮るだけ Vision Intake（NEW） -->
+      <a href="./vision.html" data-tilt data-tilt-max="10" data-tilt-glare data-tilt-max-glare="0.15" class="screen-card glass reveal p-7 block group relative">
+        <span class="absolute -top-2 -right-2 text-[10px] font-bold px-2.5 py-1 rounded-full z-20" style="background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);color:white;box-shadow:0 0 20px rgba(139,92,246,0.6)">NEW</span>
+        <span class="sweep"></span>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-5">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background:linear-gradient(135deg,rgba(34,211,238,0.2),rgba(139,92,246,0.2));border:1px solid rgba(34,211,238,0.35)">
+              <i data-lucide="scan-eye" class="w-6 h-6 text-cyan-300"></i>
+            </div>
+            <span class="text-[10px] tracking-[0.25em] text-white/40 uppercase">05 / Vision</span>
+          </div>
+          <h3 class="text-2xl font-bold mb-2">撮るだけ</h3>
+          <p class="text-sm text-white/55 mb-6">現場を撮るだけ → 種類・量・不適物を判定 → 配車・伝票・請求へ自動連携。</p>
+
+          <div class="h-32 rounded-xl mb-6 relative overflow-hidden" style="background:radial-gradient(120% 90% at 50% 0%,rgba(43,51,68,0.6),rgba(12,15,24,0.6));border:1px solid rgba(255,255,255,0.06)">
+            <!-- mini viewfinder -->
+            <div class="absolute" style="left:10px;top:10px;width:14px;height:14px;border-left:2px solid rgba(34,211,238,0.7);border-top:2px solid rgba(34,211,238,0.7);border-radius:4px 0 0 0;"></div>
+            <div class="absolute" style="right:10px;bottom:10px;width:14px;height:14px;border-right:2px solid rgba(34,211,238,0.7);border-bottom:2px solid rgba(34,211,238,0.7);border-radius:0 0 4px 0;"></div>
+            <!-- detection box -->
+            <div class="absolute" style="left:32%;top:34%;width:42%;height:40%;border:1.5px solid #22D3EE;border-radius:6px;box-shadow:0 0 14px rgba(34,211,238,0.35);">
+              <span class="absolute -top-4 left-0 text-[9px] font-bold px-1.5 py-0.5 rounded" style="background:#22D3EE;color:#06121a;white-space:nowrap;">混合廃棄物 98%</span>
+            </div>
+            <!-- scan line -->
+            <div class="absolute inset-x-0 h-[2px]" style="background:linear-gradient(90deg,transparent,#22D3EE,transparent);box-shadow:0 0 12px #22D3EE;animation:scan 2.4s ease-in-out infinite;"></div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="flex gap-2">
+              <span class="tag !text-[10px] !py-1">Before: 手入力＋勘</span>
+              <span class="tag !text-[10px] !py-1" style="border-color:rgba(34,211,238,0.4);color:#67E8F9">After: 撮るだけ</span>
+            </div>
+            <span class="text-cyan-300 text-sm flex items-center gap-1 group-hover:translate-x-1 transition">
+              Open <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- 会社の頭脳 Operating Brain（NEW） -->
+      <a href="./mind.html" data-tilt data-tilt-max="10" data-tilt-glare data-tilt-max-glare="0.15" class="screen-card glass reveal p-7 block group relative">
+        <span class="absolute -top-2 -right-2 text-[10px] font-bold px-2.5 py-1 rounded-full z-20" style="background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);color:white;box-shadow:0 0 20px rgba(139,92,246,0.6)">NEW</span>
+        <span class="sweep"></span>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-5">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(236,72,153,0.2));border:1px solid rgba(139,92,246,0.4)">
+              <i data-lucide="brain-circuit" class="w-6 h-6 text-violet-300"></i>
+            </div>
+            <span class="text-[10px] tracking-[0.25em] text-white/40 uppercase">06 / Brain</span>
+          </div>
+          <h3 class="text-2xl font-bold mb-2">会社の頭脳</h3>
+          <p class="text-sm text-white/55 mb-6">ベテランの勘を働くだけで学習。属人化を溶かし、誰が抜けても回る。</p>
+
+          <div class="h-32 rounded-xl mb-6 relative overflow-hidden flex items-center justify-center gap-5" style="background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(236,72,153,0.06));border:1px solid rgba(255,255,255,0.06)">
+            <!-- mini gauge -->
+            <div class="relative" style="width:74px;height:74px;">
+              <svg width="74" height="74" viewBox="0 0 128 128">
+                <circle cx="64" cy="64" r="52" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="13"/>
+                <circle cx="64" cy="64" r="52" fill="none" stroke="url(#mg)" stroke-width="13" stroke-linecap="round" transform="rotate(-90 64 64)" stroke-dasharray="326.7" stroke-dashoffset="16.3"/>
+                <defs><linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22D3EE"/><stop offset="0.5" stop-color="#8B5CF6"/><stop offset="1" stop-color="#EC4899"/></linearGradient></defs>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-base font-extrabold leading-none" style="font-family:'JetBrains Mono',monospace">95%</span>
+                <span class="text-[8px] text-white/40 mt-0.5">一致率</span>
+              </div>
+            </div>
+            <div class="text-left">
+              <p class="text-[10px] text-white/40 tracking-wider">BUS FACTOR</p>
+              <p class="text-3xl font-black leading-none" style="font-family:'JetBrains Mono',monospace;color:#A3E635">∞</p>
+              <p class="text-[10px] text-white/45 mt-1">誰が抜けても回る</p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <div class="flex gap-2">
+              <span class="tag !text-[10px] !py-1">Before: 退職で停止</span>
+              <span class="tag !text-[10px] !py-1" style="border-color:rgba(139,92,246,0.4);color:#C4B5FD">After: 観察学習</span>
+            </div>
+            <span class="text-violet-300 text-sm flex items-center gap-1 group-hover:translate-x-1 transition">
+              Open <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- しゃべるだけ事務 Voice Office（NEW） -->
+      <a href="./office.html" data-tilt data-tilt-max="10" data-tilt-glare data-tilt-max-glare="0.15" class="screen-card glass reveal p-7 block group relative">
+        <span class="absolute -top-2 -right-2 text-[10px] font-bold px-2.5 py-1 rounded-full z-20" style="background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);color:white;box-shadow:0 0 20px rgba(139,92,246,0.6)">NEW</span>
+        <span class="sweep"></span>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-5">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background:linear-gradient(135deg,rgba(34,211,238,0.2),rgba(139,92,246,0.2));border:1px solid rgba(34,211,238,0.35)">
+              <i data-lucide="mic" class="w-6 h-6 text-cyan-300"></i>
+            </div>
+            <span class="text-[10px] tracking-[0.25em] text-white/40 uppercase">08 / Office</span>
+          </div>
+          <h3 class="text-2xl font-bold mb-2">しゃべるだけ事務</h3>
+          <p class="text-sm text-white/55 mb-6">行政報告・マニフェスト・契約更新を会話で。担当が休んでも書類は止まらない。</p>
+          <div class="h-32 rounded-xl mb-6 relative overflow-hidden p-3 flex flex-col justify-center gap-2" style="background:linear-gradient(135deg,rgba(34,211,238,0.06),rgba(139,92,246,0.06));border:1px solid rgba(255,255,255,0.06)">
+            <div class="self-end max-w-[80%] text-[11px] rounded-xl rounded-br-sm px-3 py-2" style="background:linear-gradient(135deg,rgba(34,211,238,0.18),rgba(139,92,246,0.18));border:1px solid rgba(34,211,238,0.3)">多量排出報告を作って</div>
+            <div class="self-start max-w-[88%] text-[11px] rounded-xl rounded-bl-sm px-3 py-2 text-white/80" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08)">✓ 報告書を生成しました（大阪府宛）</div>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex gap-2"><span class="tag !text-[10px] !py-1">Before: 担当依存</span><span class="tag !text-[10px] !py-1" style="border-color:rgba(34,211,238,0.4);color:#67E8F9">After: 会話で完了</span></div>
+            <span class="text-cyan-300 text-sm flex items-center gap-1 group-hover:translate-x-1 transition">Open <i data-lucide="arrow-up-right" class="w-4 h-4"></i></span>
+          </div>
+        </div>
+      </a>
+
+      <!-- 経営参謀 Business Advisor（NEW） -->
+      <a href="./advisor.html" data-tilt data-tilt-max="10" data-tilt-glare data-tilt-max-glare="0.15" class="screen-card glass reveal p-7 block group relative">
+        <span class="absolute -top-2 -right-2 text-[10px] font-bold px-2.5 py-1 rounded-full z-20" style="background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);color:white;box-shadow:0 0 20px rgba(139,92,246,0.6)">NEW</span>
+        <span class="sweep"></span>
+        <div class="relative z-10">
+          <div class="flex items-center justify-between mb-5">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(236,72,153,0.2));border:1px solid rgba(139,92,246,0.4)">
+              <i data-lucide="line-chart" class="w-6 h-6 text-violet-300"></i>
+            </div>
+            <span class="text-[10px] tracking-[0.25em] text-white/40 uppercase">09 / Advisor</span>
+          </div>
+          <h3 class="text-2xl font-bold mb-2">経営参謀</h3>
+          <p class="text-sm text-white/55 mb-6">採算・受け時/断り時・見積相場を根拠付きで。社長の判断を承継できる形に。</p>
+          <div class="h-32 rounded-xl mb-6 relative overflow-hidden p-4 flex items-center justify-around" style="background:linear-gradient(135deg,rgba(139,92,246,0.06),rgba(236,72,153,0.06));border:1px solid rgba(255,255,255,0.06)">
+            <div class="text-center"><p class="text-[9px] text-white/40">この案件</p><p class="text-lg font-black text-rose-300">断る</p><p class="text-[9px] text-white/40">許可対象外</p></div>
+            <div class="w-px h-12 bg-white/10"></div>
+            <div class="text-center"><p class="text-[9px] text-white/40">推奨見積</p><p class="text-lg font-black" style="font-family:'JetBrains Mono',monospace;color:#A3E635">¥84,500</p><p class="text-[9px] text-white/40">粗利+16%</p></div>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex gap-2"><span class="tag !text-[10px] !py-1">Before: 社長の勘</span><span class="tag !text-[10px] !py-1" style="border-color:rgba(139,92,246,0.4);color:#C4B5FD">After: 根拠で判断</span></div>
+            <span class="text-violet-300 text-sm flex items-center gap-1 group-hover:translate-x-1 transition">Open <i data-lucide="arrow-up-right" class="w-4 h-4"></i></span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  @keyframes scan { 0%{top:0;} 50%{top:calc(100% - 2px);} 100%{top:0;} }
+</style>
+
+<!-- KPI -->
+<section id="kpi" class="relative py-28">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16 reveal">
+      <div class="tag mb-5"><span class="dot" style="background:#A3E635;box-shadow:0 0 8px #A3E635"></span>Numbers</div>
+      <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight">
+        <span class="grad-text-lime">数字</span>で語る価値。
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+      <div class="glass reveal p-7">
+        <div class="text-xs text-white/40 mb-3 tracking-wider">配車調整時間</div>
+        <div class="flex items-end gap-1">
+          <span class="text-5xl font-extrabold grad-text counter" data-target="-73" data-suffix="%">0%</span>
+        </div>
+        <div class="mt-3 text-xs text-white/50">3時間 → 48分</div>
+      </div>
+      <div class="glass reveal p-7">
+        <div class="text-xs text-white/40 mb-3 tracking-wider">ドライバー稼働率</div>
+        <div class="flex items-end gap-1">
+          <span class="text-5xl font-extrabold grad-text-lime counter" data-target="28" data-prefix="+" data-suffix="%">0%</span>
+        </div>
+        <div class="mt-3 text-xs text-white/50">空車削減 × ルート最適化</div>
+      </div>
+      <div class="glass reveal p-7">
+        <div class="text-xs text-white/40 mb-3 tracking-wider">請求書発行</div>
+        <div class="flex items-end gap-1">
+          <span class="text-4xl font-extrabold grad-text">5分→<span class="counter" data-target="30" data-suffix="秒">0秒</span></span>
+        </div>
+        <div class="mt-3 text-xs text-white/50">PDF自動生成 + 一括送信</div>
+      </div>
+      <div class="glass reveal p-7">
+        <div class="text-xs text-white/40 mb-3 tracking-wider">許可証期限漏れ</div>
+        <div class="flex items-end gap-1">
+          <span class="text-5xl font-extrabold grad-text-lime counter" data-target="0" data-suffix="件">0件</span>
+        </div>
+        <div class="mt-3 text-xs text-white/50">アラート自動化で 100% 防止</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ISSUES -->
+<section id="issues" class="relative py-28">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16 reveal">
+      <div class="tag mb-5"><span class="dot" style="background:#EC4899;box-shadow:0 0 8px #EC4899"></span>8 Issues</div>
+      <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight">
+        kph-cloud.jp の<br/>
+        <span class="grad-text">8つの構造的課題</span>。
+      </h2>
+    </div>
+
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <!-- 8 issue cards -->
+      <div class="issue-card glass reveal p-6">
+        <div class="issue-icon w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:rgba(236,72,153,0.12);border:1px solid rgba(236,72,153,0.3)">
+          <i data-lucide="mouse-pointer-click" class="w-5 h-5 text-pink-300"></i>
+        </div>
+        <div class="text-sm font-semibold mb-1">ページ遷移が重い</div>
+        <div class="text-xs text-white/50">SPAなし、毎回フルロード。</div>
+      </div>
+      <div class="issue-card glass reveal p-6">
+        <div class="issue-icon w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.3)">
+          <i data-lucide="table" class="w-5 h-5 text-cyan-300"></i>
+        </div>
+        <div class="text-sm font-semibold mb-1">配車表の編集性が低い</div>
+        <div class="text-xs text-white/50">セル単位入力、D&D不可。</div>
+      </div>
+      <div class="issue-card glass reveal p-6">
+        <div class="issue-icon w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3)">
+          <i data-lucide="smartphone-charging" class="w-5 h-5 text-violet-300"></i>
+        </div>
+        <div class="text-sm font-semibold mb-1">スマホ最適化不足</div>
+        <div class="text-xs text-white/50">PC前提のUIで、現場のスマホでは操作しづらい。</div>
+      </div>
+      <div class="issue-card glass reveal p-6">
+        <div class="issue-icon w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:rgba(163,230,53,0.12);border:1px solid rgba(163,230,53,0.3)">
+          <i data-lucide="bar-chart-3" class="w-5 h-5 text-lime-300"></i>
+        </div>
+        <div class="text-sm font-semibold mb-1">経営指標が見えない</div>
+        <div class="text-xs text-white/50">CSVエクスポート前提、可視化なし。</div>
+      </div>
+      <div class="issue-card glass reveal p-6">
+        <div class="issue-icon w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:rgba(236,72,153,0.12);border:1px solid rgba(236,72,153,0.3)">
+          <i data-lucide="file-warning" class="w-5 h-5 text-pink-300"></i>
+        </div>
+        <div class="text-sm font-semibold mb-1">許可証管理が手動</div>
+        <div class="text-xs text-white/50">期限切れアラートが弱い。</div>
+      </div>
+      <div class="issue-card glass reveal p-6">
+        <div class="issue-icon w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.3)">
+          <i data-lucide="map" class="w-5 h-5 text-cyan-300"></i>
+        </div>
+        <div class="text-sm font-semibold mb-1">地図/ルート最適化なし</div>
+        <div class="text-xs text-white/50">ベテランの暗黙知に依存。</div>
+      </div>
+      <div class="issue-card glass reveal p-6">
+        <div class="issue-icon w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.3)">
+          <i data-lucide="receipt" class="w-5 h-5 text-violet-300"></i>
+        </div>
+        <div class="text-sm font-semibold mb-1">請求/会計連携が弱い</div>
+        <div class="text-xs text-white/50">freee/MFへの自動連携なし。</div>
+      </div>
+      <div class="issue-card glass reveal p-6">
+        <div class="issue-icon w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background:rgba(163,230,53,0.12);border:1px solid rgba(163,230,53,0.3)">
+          <i data-lucide="palette" class="w-5 h-5 text-lime-300"></i>
+        </div>
+        <div class="text-sm font-semibold mb-1">UIが古い</div>
+        <div class="text-xs text-white/50">jQuery + Bootstrap 3 世代の見た目。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH BEFORE/AFTER -->
+<section id="tech" class="relative py-28">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16 reveal">
+      <div class="tag mb-5"><span class="dot" style="background:#22D3EE;box-shadow:0 0 8px #22D3EE"></span>Stack</div>
+      <h2 class="text-4xl md:text-5xl font-extrabold tracking-tight">
+        技術構成、<span class="grad-text">10年分のアップデート</span>。
+      </h2>
+    </div>
+
+    <div class="grid md:grid-cols-[1fr_auto_1fr] gap-6 md:gap-8 items-center">
+      <!-- Before -->
+      <div class="glass reveal p-7">
+        <div class="text-[10px] tracking-[0.3em] text-white/40 uppercase mb-3">Before</div>
+        <div class="text-xl font-bold mb-5 text-white/70">既存 kph-cloud.jp</div>
+        <ul class="space-y-3 text-sm text-white/60">
+          <li class="flex items-center gap-2"><i data-lucide="x" class="w-4 h-4 text-white/30"></i> jQuery 1.x + Bootstrap 3</li>
+          <li class="flex items-center gap-2"><i data-lucide="x" class="w-4 h-4 text-white/30"></i> PHP + 生SQL</li>
+          <li class="flex items-center gap-2"><i data-lucide="x" class="w-4 h-4 text-white/30"></i> サーバーサイドレンダリングのみ</li>
+          <li class="flex items-center gap-2"><i data-lucide="x" class="w-4 h-4 text-white/30"></i> CSVエクスポート前提</li>
+          <li class="flex items-center gap-2"><i data-lucide="x" class="w-4 h-4 text-white/30"></i> 地図/最適化なし</li>
+        </ul>
+      </div>
+
+      <!-- Arrow -->
+      <div class="flex justify-center reveal">
+        <div class="hidden md:block">
+          <div class="arrow-flow">
+            <div class="arrow-pulse"></div>
+          </div>
+        </div>
+        <div class="md:hidden text-violet-300 text-3xl">↓</div>
+      </div>
+
+      <!-- After -->
+      <div class="grad-border reveal p-7">
+        <div class="text-[10px] tracking-[0.3em] text-pink-300 uppercase mb-3">After</div>
+        <div class="text-xl font-bold mb-5">KPH Cloud Reimagined</div>
+        <ul class="space-y-3 text-sm text-white/75">
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-cyan-300"></i> Next.js 15 + TypeScript</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-cyan-300"></i> GSAP + Vanilla Tilt</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-cyan-300"></i> OR-Tools (CVRPTW)</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-cyan-300"></i> JWNET 電子マニフェスト連携</li>
+          <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-cyan-300"></i> Google Maps + Recharts</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="relative py-28">
+  <div class="max-w-4xl mx-auto px-6 text-center">
+    <div class="grad-border reveal p-12 md:p-16 relative">
+      <div class="absolute inset-0 rounded-[28px] pointer-events-none" style="background:radial-gradient(circle at 50% 0%, rgba(139,92,246,0.25), transparent 70%);"></div>
+      <div class="relative z-10">
+        <div class="tag mb-6 mx-auto"><span class="dot"></span>Ready</div>
+        <h3 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-6">
+          さあ、<span class="grad-text">魔法</span>を体験してください。
+        </h3>
+        <p class="text-white/60 mb-10 max-w-xl mx-auto">
+          配車・経営・現場、3つの世界がそれぞれ別の哲学で再設計されています。
+        </p>
+        <a href="#screens" class="btn-primary pulse-glow text-base">
+          3画面のモックを見る
+          <i data-lucide="sparkles" class="w-5 h-5"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="relative py-12 border-t border-white/5">
+  <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-white/40">
+    <div class="flex items-center gap-3">
+      <div class="logo-mark" style="width:20px;height:20px;border-radius:5px;"></div>
+      <span>KPH Cloud Reimagined / Replacement Proposal</span>
+    </div>
+    <div>© 2026 Higuchi Kobo — Crafted with gsap + tailwind + magic</div>
+  </div>
+</footer>
+
+<script>
+  // ============= particles =============
+  (function() {
+    const canvas = document.getElementById('particles');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+
+    let w, h, particles = [];
+    const COUNT = 110;
+    const COLORS = [
+      [34, 211, 238],
+      [139, 92, 246],
+      [236, 72, 153],
+      [163, 230, 53]
+    ];
+
+    function resize() {
+      const hero = document.getElementById('hero');
+      w = canvas.width = hero.offsetWidth;
+      h = canvas.height = hero.offsetHeight;
+    }
+
+    function rand(a, b) { return a + Math.random() * (b - a); }
+
+    function init() {
+      resize();
+      particles = [];
+      for (let i = 0; i < COUNT; i++) {
+        const c = COLORS[Math.floor(Math.random() * COLORS.length)];
+        particles.push({
+          x: rand(0, w),
+          y: rand(0, h),
+          vx: rand(-0.15, 0.15),
+          vy: rand(-0.15, 0.15),
+          r: rand(0.8, 2.4),
+          a: rand(0.2, 0.7),
+          phase: rand(0, Math.PI * 2),
+          color: c
+        });
+      }
+    }
+
+    let t = 0;
+    function frame() {
+      ctx.clearRect(0, 0, w, h);
+      t += 0.015;
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < -10) p.x = w + 10;
+        if (p.x > w + 10) p.x = -10;
+        if (p.y < -10) p.y = h + 10;
+        if (p.y > h + 10) p.y = -10;
+
+        const flicker = (Math.sin(t + p.phase) + 1) / 2;
+        const alpha = p.a * (0.5 + 0.5 * flicker);
+        const [r, g, b] = p.color;
+
+        // glow
+        const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 6);
+        grd.addColorStop(0, `rgba(${r},${g},${b},${alpha})`);
+        grd.addColorStop(1, `rgba(${r},${g},${b},0)`);
+        ctx.fillStyle = grd;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r * 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // core
+        ctx.fillStyle = `rgba(${r},${g},${b},${Math.min(1, alpha + 0.2)})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      requestAnimationFrame(frame);
+    }
+
+    init();
+    frame();
+    window.addEventListener('resize', init);
+  })();
+
+  // ============= cursor light =============
+  (function() {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+    const el = document.getElementById('cursorLight');
+    let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+    let cx = mx, cy = my;
+    window.addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; });
+    function loop() {
+      cx += (mx - cx) * 0.12;
+      cy += (my - cy) * 0.12;
+      el.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`;
+      requestAnimationFrame(loop);
+    }
+    loop();
+  })();
+
+  // ============= tilt =============
+  if (window.VanillaTilt) {
+    VanillaTilt.init(document.querySelectorAll('[data-tilt]'), {
+      max: 10, speed: 600, glare: true, 'max-glare': 0.15, perspective: 1000
+    });
+  }
+
+  // ============= GSAP =============
+  if (window.gsap && window.ScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!reduce) {
+      // hero reveal
+      gsap.utils.toArray('#hero .reveal').forEach((el, i) => {
+        gsap.to(el, {
+          opacity: 1, y: 0, duration: 1.1, ease: 'power3.out', delay: 0.15 + i * 0.12
+        });
+      });
+
+      // section reveals
+      gsap.utils.toArray('section:not(#hero) .reveal').forEach((el) => {
+        gsap.to(el, {
+          opacity: 1, y: 0, duration: 1, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 88%' }
+        });
+      });
+
+      // counters
+      gsap.utils.toArray('.counter').forEach((el) => {
+        const target = parseFloat(el.dataset.target);
+        const prefix = el.dataset.prefix || '';
+        const suffix = el.dataset.suffix || '';
+        const obj = { v: 0 };
+        gsap.to(obj, {
+          v: target,
+          duration: 1.6,
+          ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 90%' },
+          onUpdate: () => {
+            const n = Math.round(obj.v);
+            el.textContent = `${prefix}${n}${suffix}`;
+          }
+        });
+      });
+    } else {
+      // reveal everything immediately
+      document.querySelectorAll('.reveal').forEach(el => {
+        el.style.opacity = 1; el.style.transform = 'none';
+      });
+    }
+  }
+
+  // ============= smooth scroll =============
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      const id = a.getAttribute('href');
+      if (id.length > 1) {
+        const target = document.querySelector(id);
+        if (target) {
+          e.preventDefault();
+          window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 64, behavior: 'smooth' });
+        }
+      }
+    });
+  });
+
+  // ============= lucide =============
+  if (window.lucide) lucide.createIcons();
+</script>
+
+</body>
+</html>

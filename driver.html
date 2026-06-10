@@ -1,0 +1,1296 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>KPHクラウド Replace — ドライバー用スマホアプリ</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root {
+    --bg:#070912;
+    --cyan:#22D3EE;
+    --violet:#8B5CF6;
+    --magenta:#EC4899;
+    --lime:#A3E635;
+    --text:#F8FAFC;
+    --text2:rgba(248,250,252,0.65);
+    --glass:rgba(255,255,255,0.04);
+    --glass-b:rgba(255,255,255,0.08);
+  }
+  *{ -webkit-font-smoothing:antialiased; }
+  html,body{ background:var(--bg); color:var(--text); font-family:'Inter','Noto Sans JP',system-ui,sans-serif; }
+  body{
+    background:
+      radial-gradient(1200px 700px at 15% -10%, rgba(139,92,246,0.20), transparent 60%),
+      radial-gradient(1000px 700px at 90% 10%, rgba(34,211,238,0.16), transparent 60%),
+      radial-gradient(900px 700px at 50% 110%, rgba(236,72,153,0.14), transparent 60%),
+      linear-gradient(180deg,#0A0E1A 0%, #13102B 45%, #070912 100%);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  .font-jp{ font-family:'Noto Sans JP',sans-serif; }
+  .grad-text{ background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .grad-bg{ background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899); }
+  .glass{ background:var(--glass); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border:1px solid var(--glass-b); }
+  .neon-cyan{ box-shadow:0 0 24px rgba(34,211,238,0.35), 0 0 60px rgba(34,211,238,0.15); }
+  .neon-mag{ box-shadow:0 0 24px rgba(236,72,153,0.40), 0 0 60px rgba(236,72,153,0.18); }
+  .neon-vio{ box-shadow:0 0 24px rgba(139,92,246,0.40), 0 0 60px rgba(139,92,246,0.18); }
+  .neon-lime{ box-shadow:0 0 18px rgba(163,230,53,0.35); }
+
+  /* ===== Particles ===== */
+  #particles{ position:fixed; inset:0; pointer-events:none; z-index:0; }
+  .p{ position:absolute; border-radius:9999px; filter:blur(0.5px); opacity:.55; }
+
+  /* ===== Header ===== */
+  .topbar a:hover{ color:#22D3EE; }
+  .pill{ transition:all .35s cubic-bezier(.2,.7,.2,1); }
+  .pill.active{ background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899); color:#0b0b14; box-shadow:0 10px 40px rgba(139,92,246,0.4), 0 0 30px rgba(34,211,238,0.35); }
+
+  /* ===== iPhone Frame (CSS only) ===== */
+  .iphone{
+    position:relative;
+    width:300px;
+    height:620px;
+    border-radius:56px;
+    background:
+      linear-gradient(160deg,#1c1f2a 0%, #0b0d15 70%);
+    padding:14px;
+    box-shadow:
+      0 50px 100px -20px rgba(0,0,0,0.7),
+      0 30px 60px -30px rgba(139,92,246,0.45),
+      inset 0 0 0 2px rgba(255,255,255,0.06),
+      inset 0 0 0 4px rgba(0,0,0,0.6);
+  }
+  .iphone::before{
+    /* outer bezel highlight */
+    content:""; position:absolute; inset:-2px; border-radius:58px;
+    background:linear-gradient(135deg,rgba(255,255,255,0.18),rgba(255,255,255,0) 30%, rgba(255,255,255,0) 70%, rgba(255,255,255,0.10));
+    z-index:-1; filter:blur(0.5px);
+  }
+  .iphone .screen{
+    position:relative; width:100%; height:100%;
+    border-radius:42px; overflow:hidden;
+    background:#0A0E1A;
+  }
+  .notch{
+    position:absolute; top:10px; left:50%; transform:translateX(-50%);
+    width:108px; height:30px; background:#000; border-radius:18px; z-index:30;
+    display:flex; align-items:center; justify-content:flex-end; gap:6px; padding:0 10px;
+  }
+  .notch::before{ content:""; width:8px; height:8px; border-radius:50%; background:#1a1a1a; box-shadow:inset 0 0 0 1px #222; }
+  .notch::after{ content:""; width:4px; height:4px; border-radius:50%; background:#0d2a36; box-shadow:0 0 4px #22D3EE; }
+  .side-btn{ position:absolute; background:#0b0d15; border-radius:2px; box-shadow:inset 0 0 0 1px rgba(255,255,255,0.04); }
+  .btn-mute{ left:-3px; top:110px; width:3px; height:28px; }
+  .btn-vol1{ left:-3px; top:160px; width:3px; height:50px; }
+  .btn-vol2{ left:-3px; top:220px; width:3px; height:50px; }
+  .btn-power{ right:-3px; top:170px; width:3px; height:80px; }
+
+  /* iPhone status bar */
+  .status{
+    position:relative; height:46px; padding:14px 22px 4px;
+    display:flex; align-items:flex-end; justify-content:space-between;
+    font-size:14px; font-weight:600; color:#F8FAFC;
+    z-index:20;
+  }
+  .status .right{ display:flex; gap:6px; align-items:center; }
+
+  /* Light theme inner screen for Before */
+  .light-inner{ background:#F4F6FA; color:#0F172A; }
+
+  /* iPhone bob animation */
+  @keyframes bob1 { 0%,100%{ transform:translateY(0) rotateY(14deg) rotateZ(-2deg);} 50%{ transform:translateY(-10px) rotateY(14deg) rotateZ(-2deg);} }
+  @keyframes bob2 { 0%,100%{ transform:translateY(0) rotateY(0deg) rotateZ(0deg);} 50%{ transform:translateY(-14px) rotateY(0deg) rotateZ(0deg);} }
+  @keyframes bob3 { 0%,100%{ transform:translateY(0) rotateY(-14deg) rotateZ(2deg);} 50%{ transform:translateY(-10px) rotateY(-14deg) rotateZ(2deg);} }
+  .phone-stage{ perspective:1800px; }
+  .phone-tilt-l{ animation:bob1 6.5s ease-in-out infinite; transform-style:preserve-3d; }
+  .phone-tilt-c{ animation:bob2 7.5s ease-in-out infinite; transform-style:preserve-3d; }
+  .phone-tilt-r{ animation:bob3 6.8s ease-in-out infinite; transform-style:preserve-3d; }
+
+  /* Halo behind phones */
+  .halo{
+    position:absolute; inset:-40px; border-radius:80px; filter:blur(40px); z-index:-1; opacity:.55;
+  }
+  .halo.cyan{ background:radial-gradient(closest-side, rgba(34,211,238,0.55), transparent 70%); }
+  .halo.violet{ background:radial-gradient(closest-side, rgba(139,92,246,0.55), transparent 70%); }
+  .halo.magenta{ background:radial-gradient(closest-side, rgba(236,72,153,0.45), transparent 70%); }
+
+  /* Annotation pin */
+  .annot{ position:absolute; padding:8px 12px; font-size:11px; font-weight:600; border-radius:10px;
+    background:rgba(239,68,68,0.10); border:1px solid rgba(239,68,68,0.35); color:#fecaca;
+    box-shadow:0 0 24px rgba(239,68,68,0.25); white-space:nowrap; backdrop-filter:blur(8px);
+  }
+  .annot::after{
+    content:""; position:absolute; width:10px; height:10px; background:#ef4444; border-radius:50%;
+    box-shadow:0 0 12px rgba(239,68,68,0.8);
+    animation:pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{ transform:scale(1); opacity:.8 } 50%{ transform:scale(1.4); opacity:.4 } }
+
+  /* Status Chip */
+  .chip{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:4px 10px; border-radius:9999px; font-size:11px; font-weight:600;
+    transition:all .35s cubic-bezier(.2,.7,.2,1);
+  }
+  .chip[data-s="0"]{ background:linear-gradient(135deg,rgba(34,211,238,0.18),rgba(34,211,238,0.08)); color:#67e8f9; border:1px solid rgba(34,211,238,0.4); }
+  .chip[data-s="1"]{ background:linear-gradient(135deg,rgba(139,92,246,0.22),rgba(139,92,246,0.08)); color:#c4b5fd; border:1px solid rgba(139,92,246,0.4); }
+  .chip[data-s="2"]{ background:linear-gradient(135deg,rgba(236,72,153,0.22),rgba(236,72,153,0.08)); color:#fbcfe8; border:1px solid rgba(236,72,153,0.4); }
+  .chip[data-s="3"]{ background:linear-gradient(135deg,rgba(163,230,53,0.22),rgba(163,230,53,0.08)); color:#d9f99d; border:1px solid rgba(163,230,53,0.45); }
+
+  /* Bottom nav indicator */
+  .nav-tab{ position:relative; }
+  .nav-ind{
+    position:absolute; bottom:-2px; left:0; width:36px; height:36px; border-radius:50%;
+    background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);
+    box-shadow:0 8px 24px rgba(139,92,246,0.5);
+    transition:transform .45s cubic-bezier(.2,.7,.2,1);
+    z-index:0;
+  }
+
+  /* Progress bar */
+  .progress-fill{
+    height:100%; border-radius:9999px;
+    background:linear-gradient(90deg,#22D3EE,#8B5CF6);
+    box-shadow:0 0 12px rgba(34,211,238,0.6);
+  }
+
+  /* Signature canvas */
+  .sig-pad{ background:#0E1424; border:1px dashed rgba(255,255,255,0.15); border-radius:14px; touch-action:none; }
+
+  /* Flash effect */
+  .flash{ position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:50; }
+
+  /* Toggle switch */
+  .switch{
+    position:relative; width:38px; height:22px; border-radius:9999px; background:rgba(255,255,255,0.08);
+    transition:background .3s; cursor:pointer;
+  }
+  .switch.on{ background:linear-gradient(135deg,#22D3EE,#8B5CF6); box-shadow:0 0 12px rgba(34,211,238,0.5); }
+  .switch::after{
+    content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff;
+    transition:transform .3s;
+  }
+  .switch.on::after{ transform:translateX(16px); }
+
+  /* Hide scrollbars inside phone */
+  .phone-scroll::-webkit-scrollbar{ display:none; }
+  .phone-scroll{ scrollbar-width:none; }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; }
+    .phone-tilt-l{ transform:rotateY(14deg) rotateZ(-2deg); }
+    .phone-tilt-r{ transform:rotateY(-14deg) rotateZ(2deg); }
+  }
+
+  /* Before screenshot mock */
+  .b-table{ width:680px; font-size:9px; }
+  .b-table th,.b-table td{ padding:4px 6px; border:1px solid #d6dbe3; }
+  .vertical{ writing-mode:vertical-rl; text-orientation:upright; letter-spacing:2px; }
+
+  /* Footer accent */
+  .footer-grad{ background:linear-gradient(180deg,transparent,rgba(139,92,246,0.08)); }
+
+  .ring-grad{ position:relative; }
+  .ring-grad::before{
+    content:""; position:absolute; inset:-1px; border-radius:inherit; padding:1px;
+    background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none;
+  }
+
+  /* ===== Voice Input ===== */
+  .voice-input{ position:relative; }
+  .mic-btn{
+    position:relative; width:64px; height:64px; border-radius:50%;
+    background:linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);
+    box-shadow:0 8px 24px rgba(139,92,246,0.5), 0 0 0 0 rgba(34,211,238,0.5);
+    display:flex; align-items:center; justify-content:center;
+    color:#070912; cursor:pointer; transition:transform .2s;
+    border:none; outline:none;
+  }
+  .mic-btn:active{ transform:scale(.95); }
+  .mic-btn.recording{
+    animation:micPulse 1.4s ease-in-out infinite;
+  }
+  @keyframes micPulse{
+    0%,100%{ box-shadow:0 8px 24px rgba(139,92,246,0.5), 0 0 0 0 rgba(34,211,238,0.5); }
+    50%{ box-shadow:0 8px 24px rgba(139,92,246,0.7), 0 0 0 14px rgba(34,211,238,0); }
+  }
+  .mic-ring{
+    position:absolute; inset:-4px; border-radius:50%;
+    border:2px solid rgba(34,211,238,0.6); opacity:0; pointer-events:none;
+  }
+  .mic-btn.recording .mic-ring{ animation:micWave 1.6s ease-out infinite; }
+  .mic-btn.recording .mic-ring.r2{ animation-delay:.5s; }
+  .mic-btn.recording .mic-ring.r3{ animation-delay:1s; }
+  @keyframes micWave{
+    0%{ transform:scale(1); opacity:.7; }
+    100%{ transform:scale(2.2); opacity:0; }
+  }
+  .waveform{
+    display:flex; align-items:flex-end; justify-content:center; gap:4px;
+    height:34px; margin-top:14px; opacity:0; transition:opacity .3s;
+  }
+  .waveform.active{ opacity:1; }
+  .wave-bar{
+    width:4px; min-height:4px; border-radius:2px;
+    background:linear-gradient(180deg,#22D3EE,#8B5CF6);
+    box-shadow:0 0 6px rgba(34,211,238,0.6);
+    transition:height .12s ease-out;
+  }
+  .transcript{
+    margin-top:12px; padding:10px 12px; border-radius:10px;
+    background:rgba(34,211,238,0.06); border:1px solid rgba(34,211,238,0.18);
+    font-size:11px; min-height:36px; color:#e0f7fa;
+    font-family:'Noto Sans JP',sans-serif; line-height:1.6;
+    opacity:0; transition:opacity .3s;
+  }
+  .transcript.active{ opacity:1; }
+  .transcript .cursor{
+    display:inline-block; width:2px; height:11px; background:#22D3EE;
+    margin-left:1px; vertical-align:middle;
+    animation:blink 0.9s steps(2) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .parsed-card{
+    margin-top:12px; padding:12px; border-radius:12px;
+    background:linear-gradient(135deg,rgba(139,92,246,0.10),rgba(34,211,238,0.06));
+    border:1px solid rgba(139,92,246,0.30);
+    box-shadow:0 0 24px rgba(139,92,246,0.18);
+  }
+  .parsed-item{
+    display:flex; align-items:center; gap:6px; font-size:11px;
+    padding:3px 0; color:#e9d5ff; font-family:'Noto Sans JP',sans-serif;
+  }
+  .parsed-item .ck{
+    width:14px; height:14px; border-radius:50%;
+    background:linear-gradient(135deg,#A3E635,#22D3EE);
+    display:inline-flex; align-items:center; justify-content:center;
+    color:#070912; font-weight:900; font-size:9px;
+    box-shadow:0 0 8px rgba(163,230,53,0.5);
+  }
+  .apply-btn{
+    margin-top:10px; width:100%; padding:8px; border-radius:10px;
+    background:linear-gradient(135deg,#22D3EE,#8B5CF6);
+    color:#070912; font-size:11px; font-weight:800; border:none; cursor:pointer;
+    box-shadow:0 0 16px rgba(139,92,246,0.4);
+    font-family:'Noto Sans JP',sans-serif;
+  }
+
+  /* ===== AI Camera ===== */
+  .ai-btn{
+    background:linear-gradient(135deg,#8B5CF6,#22D3EE);
+    color:#070912; font-weight:800;
+    box-shadow:0 0 16px rgba(34,211,238,0.4);
+  }
+  .scan-overlay{
+    position:absolute; inset:0; pointer-events:none; z-index:45;
+    opacity:0; transition:opacity .2s;
+    background:
+      linear-gradient(rgba(34,211,238,0.02) 1px, transparent 1px) 0 0/12px 12px,
+      linear-gradient(90deg, rgba(34,211,238,0.02) 1px, transparent 1px) 0 0/12px 12px;
+  }
+  .scan-overlay.active{ opacity:1; }
+  .scan-line{
+    position:absolute; left:0; right:0; height:2px; top:0;
+    background:linear-gradient(90deg, transparent, #22D3EE 50%, transparent);
+    box-shadow:0 0 18px #22D3EE, 0 0 36px rgba(34,211,238,0.6);
+  }
+  .scan-line::before{
+    content:""; position:absolute; left:0; right:0; top:2px; height:60px;
+    background:linear-gradient(180deg, rgba(34,211,238,0.18), transparent);
+  }
+  .scan-label{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:11px; font-weight:700; color:#22D3EE;
+    background:rgba(7,9,18,0.6); padding:6px 12px; border-radius:8px;
+    border:1px solid rgba(34,211,238,0.4); backdrop-filter:blur(8px);
+    font-family:'Noto Sans JP',sans-serif;
+    display:flex; align-items:center; gap:6px;
+  }
+  .scan-spinner{
+    width:12px; height:12px; border-radius:50%;
+    border:2px solid rgba(34,211,238,0.25);
+    border-top-color:#22D3EE;
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .ai-result{
+    margin-top:12px; padding:12px; border-radius:12px;
+    background:linear-gradient(135deg,rgba(34,211,238,0.08),rgba(139,92,246,0.08));
+    border:1px solid rgba(34,211,238,0.30);
+    box-shadow:0 0 24px rgba(34,211,238,0.18);
+  }
+  .ai-item{
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:11px; padding:4px 0;
+    font-family:'Noto Sans JP',sans-serif;
+  }
+  .ai-item .left{ display:flex; align-items:center; gap:6px; }
+  .ai-item .dot{ width:8px; height:8px; border-radius:50%; }
+  .ai-item .conf{
+    font-size:9px; color:var(--text2); margin-left:4px; font-weight:600;
+  }
+  .ai-bar{
+    margin-top:8px; height:6px; border-radius:3px; overflow:hidden;
+    display:flex; background:rgba(255,255,255,0.05);
+  }
+  .ai-bar span{ height:100%; }
+  .ai-apply{
+    margin-top:10px; width:100%; padding:8px; border-radius:10px;
+    background:linear-gradient(135deg,#EC4899,#8B5CF6);
+    color:#fff; font-size:11px; font-weight:800; border:none; cursor:pointer;
+    box-shadow:0 0 16px rgba(236,72,153,0.4);
+    font-family:'Noto Sans JP',sans-serif;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .mic-btn.recording{ animation:none !important; }
+    .mic-btn.recording .mic-ring{ animation:none !important; }
+    .scan-spinner{ animation:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Particles -->
+<div id="particles" aria-hidden="true"></div>
+
+<!-- Top Nav -->
+<header class="relative z-20 topbar">
+  <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+    <a href="./index.html" class="flex items-center gap-2.5 group">
+      <span class="w-9 h-9 rounded-xl grad-bg flex items-center justify-center text-[#070912] font-extrabold">K</span>
+      <span class="font-extrabold tracking-tight text-lg">KPH<span class="grad-text">.Replace</span></span>
+    </a>
+    <nav class="hidden md:flex items-center gap-7 text-sm text-[var(--text2)]">
+      <a href="./index.html">概要</a>
+      <a href="./dispatch.html">配車</a>
+      <a href="./driver.html" class="text-white font-semibold">ドライバー</a>
+      <a href="./manifest.html">マニフェスト</a>
+      <a href="./vision.html">撮るだけ</a>
+      <a href="./mind.html">会社の頭脳</a>
+      <a href="./dashboard.html">経営ダッシュボード</a>
+    </nav>
+    <a href="./index.html" class="text-sm text-[var(--text2)] hover:text-white">← 戻る</a>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="relative z-10 max-w-7xl mx-auto px-6 pt-8 pb-12">
+  <div class="flex items-center gap-2 text-xs text-[var(--text2)] mb-4">
+    <span class="w-1.5 h-1.5 rounded-full bg-[#A3E635] neon-lime"></span>
+    <span class="font-jp tracking-widest">DRIVER · MOBILE-FIRST</span>
+  </div>
+  <h1 class="font-jp font-black text-4xl md:text-6xl leading-tight tracking-tight">
+    現場が、<span class="grad-text">ようやく使える。</span><br/>
+    <span class="text-[var(--text2)] font-bold text-2xl md:text-3xl">ドライバー用スマホアプリ — Before / After</span>
+  </h1>
+  <p class="mt-5 text-[var(--text2)] max-w-2xl">既存KPHクラウドは <b class="text-white">PCでの利用を前提</b>に作られており、運転席のスマホでは操作しづらい場面があります。Replaceでは<b class="text-white">スマホ専用UI</b>を1画面ずつ作り込み、写真・GPS・電子サインまで現場で完結します。</p>
+
+  <!-- Tabs -->
+  <div class="mt-8 inline-flex p-1.5 rounded-2xl glass">
+    <button data-tab="before" class="pill px-6 py-2.5 rounded-xl text-sm font-semibold text-[var(--text2)]">Before — 既存KPHクラウド</button>
+    <button data-tab="after" class="pill active px-6 py-2.5 rounded-xl text-sm font-semibold">After — Replace</button>
+  </div>
+</section>
+
+<!-- ============== AFTER ============== -->
+<section id="tab-after" class="relative z-10 max-w-7xl mx-auto px-6 pb-24">
+  <div class="phone-stage relative flex flex-col lg:flex-row items-center justify-center gap-16 lg:gap-8 py-12">
+
+    <!-- Phone 1: Home -->
+    <div class="relative phone-tilt-l">
+      <div class="halo cyan"></div>
+      <div class="iphone" data-tilt data-tilt-max="6" data-tilt-glare data-tilt-max-glare="0.25">
+        <div class="screen">
+          <div class="notch"></div>
+          <span class="side-btn btn-mute"></span><span class="side-btn btn-vol1"></span><span class="side-btn btn-vol2"></span><span class="side-btn btn-power"></span>
+
+          <div class="status">
+            <span>9:41</span>
+            <span class="right">
+              <i data-lucide="signal" class="w-3.5 h-3.5"></i>
+              <i data-lucide="wifi" class="w-3.5 h-3.5"></i>
+              <i data-lucide="battery-full" class="w-4 h-4"></i>
+            </span>
+          </div>
+
+          <div class="phone-scroll overflow-y-auto h-[calc(100%-46px)] pb-20">
+            <!-- Greeting -->
+            <div class="px-5 pt-2">
+              <div class="text-[11px] text-[var(--text2)] font-jp">2026.05.27 火曜日</div>
+              <div class="font-jp font-bold text-xl mt-0.5">おはよう、<span class="grad-text">拓哉</span> さん</div>
+              <div class="text-[11px] text-[var(--text2)] mt-1 font-jp">本日 5件 · 完了 2件</div>
+
+              <!-- Progress -->
+              <div class="mt-3 h-1.5 rounded-full bg-white/8 overflow-hidden">
+                <div class="progress-fill" style="width:40%"></div>
+              </div>
+            </div>
+
+            <!-- Next job card -->
+            <div class="mx-4 mt-5 p-4 rounded-2xl glass ring-grad">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold tracking-wider text-[#22D3EE]">NEXT JOB</span>
+                <span class="text-[10px] text-[var(--text2)]">JOB-0247</span>
+              </div>
+              <div class="mt-2 font-jp font-bold text-base">○○建設 株式会社</div>
+              <div class="mt-1 text-[11px] text-[var(--text2)] font-jp flex items-start gap-1">
+                <i data-lucide="map-pin" class="w-3 h-3 mt-0.5 text-[#EC4899]"></i>
+                大阪市淀川区西中島6-3-32
+              </div>
+
+              <!-- mini map -->
+              <div class="mt-3 h-24 rounded-xl relative overflow-hidden" style="background:linear-gradient(135deg,#0E1424,#15182a);">
+                <svg viewBox="0 0 240 96" class="absolute inset-0 w-full h-full">
+                  <defs>
+                    <linearGradient id="rt1" x1="0" x2="1"><stop offset="0" stop-color="#22D3EE"/><stop offset="1" stop-color="#EC4899"/></linearGradient>
+                  </defs>
+                  <path d="M0 80 L40 70 L70 60 L110 55 L150 40 L190 30 L240 18" stroke="url(#rt1)" stroke-width="2" fill="none" stroke-linecap="round"/>
+                  <circle cx="40" cy="70" r="4" fill="#22D3EE"/>
+                  <circle cx="190" cy="30" r="5" fill="#EC4899"/>
+                  <g stroke="rgba(255,255,255,0.05)" stroke-width="1">
+                    <line x1="0" y1="20" x2="240" y2="20"/><line x1="0" y1="50" x2="240" y2="50"/>
+                    <line x1="60" y1="0" x2="60" y2="96"/><line x1="160" y1="0" x2="160" y2="96"/>
+                  </g>
+                </svg>
+              </div>
+
+              <div class="mt-3 grid grid-cols-2 gap-2 text-[10px]">
+                <div class="p-2 rounded-lg bg-white/5">
+                  <div class="text-[var(--text2)] font-jp">品目</div>
+                  <div class="text-white font-jp font-bold mt-0.5">木くず 2t</div>
+                </div>
+                <div class="p-2 rounded-lg bg-white/5">
+                  <div class="text-[var(--text2)] font-jp">到着予定</div>
+                  <div class="text-[#22D3EE] font-bold mt-0.5">10:30</div>
+                </div>
+              </div>
+
+              <button class="mt-3 w-full py-2.5 rounded-xl grad-bg text-[#070912] text-xs font-bold flex items-center justify-center gap-1.5 neon-vio">
+                <i data-lucide="navigation" class="w-3.5 h-3.5"></i>
+                ナビ起動
+              </button>
+            </div>
+
+            <!-- Upcoming list -->
+            <div class="mt-5 px-4">
+              <div class="text-[10px] font-bold tracking-wider text-[var(--text2)] mb-2 font-jp">本日の予定</div>
+              <div class="space-y-2">
+                <div class="p-3 rounded-xl glass flex items-center justify-between">
+                  <div>
+                    <div class="text-[11px] font-jp font-bold">△△工務店</div>
+                    <div class="text-[10px] text-[var(--text2)] font-jp">廃プラ 1.5t</div>
+                  </div>
+                  <span class="chip" data-s="0">13:00</span>
+                </div>
+                <div class="p-3 rounded-xl glass flex items-center justify-between">
+                  <div>
+                    <div class="text-[11px] font-jp font-bold">□□建材</div>
+                    <div class="text-[10px] text-[var(--text2)] font-jp">混合廃棄物 3t</div>
+                  </div>
+                  <span class="chip" data-s="0">15:30</span>
+                </div>
+                <div class="p-3 rounded-xl glass flex items-center justify-between opacity-60">
+                  <div>
+                    <div class="text-[11px] font-jp font-bold">▽▽製作所</div>
+                    <div class="text-[10px] text-[var(--text2)] font-jp">金属くず 0.8t</div>
+                  </div>
+                  <span class="chip" data-s="3"><i data-lucide="check" class="w-3 h-3"></i>完了</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom nav -->
+          <div class="absolute bottom-0 inset-x-0 h-16 px-2 pb-2 bg-gradient-to-t from-[#070912] to-transparent">
+            <div class="relative h-full glass rounded-2xl flex items-center justify-around">
+              <div class="nav-ind" style="transform:translate(12px,-4px)"></div>
+              <button class="nav-tab relative z-10 w-9 h-9 flex items-center justify-center text-[#070912]"><i data-lucide="home" class="w-4 h-4"></i></button>
+              <button class="nav-tab relative z-10 w-9 h-9 flex items-center justify-center text-[var(--text2)]"><i data-lucide="list-checks" class="w-4 h-4"></i></button>
+              <button class="nav-tab relative z-10 w-9 h-9 flex items-center justify-center text-[var(--text2)]"><i data-lucide="file-text" class="w-4 h-4"></i></button>
+              <button class="nav-tab relative z-10 w-9 h-9 flex items-center justify-center text-[var(--text2)]"><i data-lucide="truck" class="w-4 h-4"></i></button>
+              <button class="nav-tab relative z-10 w-9 h-9 flex items-center justify-center text-[var(--text2)]"><i data-lucide="settings" class="w-4 h-4"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-6 text-center text-xs font-jp text-[var(--text2)]"><span class="grad-text font-bold">01</span> · ホーム / 次のジョブ</div>
+    </div>
+
+    <!-- Phone 2: Job detail / Report -->
+    <div class="relative phone-tilt-c lg:-mt-8">
+      <div class="halo violet"></div>
+      <div class="iphone" data-tilt data-tilt-max="6" data-tilt-glare data-tilt-max-glare="0.25">
+        <div class="screen">
+          <div class="notch"></div>
+          <span class="side-btn btn-mute"></span><span class="side-btn btn-vol1"></span><span class="side-btn btn-vol2"></span><span class="side-btn btn-power"></span>
+
+          <div class="status">
+            <span>9:41</span>
+            <span class="right">
+              <i data-lucide="signal" class="w-3.5 h-3.5"></i>
+              <i data-lucide="wifi" class="w-3.5 h-3.5"></i>
+              <i data-lucide="battery-full" class="w-4 h-4"></i>
+            </span>
+          </div>
+
+          <!-- Flash overlay -->
+          <div class="flash" id="flash"></div>
+
+          <!-- AI Scan overlay -->
+          <div class="scan-overlay" id="scanOverlay">
+            <div class="scan-line" id="scanLine"></div>
+            <div class="scan-label" id="scanLabel" style="display:none;">
+              <span class="scan-spinner"></span>
+              <span>AI解析中…</span>
+            </div>
+          </div>
+
+          <div class="phone-scroll overflow-y-auto h-[calc(100%-46px)] pb-20">
+            <!-- Header -->
+            <div class="px-4 pt-2 flex items-center justify-between">
+              <button class="w-8 h-8 rounded-full glass flex items-center justify-center"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+              <div class="text-[11px] text-[var(--text2)] font-mono">JOB-0247</div>
+              <button id="statusChip" class="chip" data-s="1"><span class="w-1.5 h-1.5 rounded-full bg-current"></span><span id="statusText" class="font-jp">移動中</span></button>
+            </div>
+
+            <!-- Customer card -->
+            <div class="mx-4 mt-3 p-3 rounded-xl glass">
+              <div class="text-[10px] text-[var(--text2)] font-jp">顧客</div>
+              <div class="font-jp font-bold text-sm mt-0.5">○○建設 株式会社</div>
+              <div class="text-[10px] text-[var(--text2)] font-jp mt-1 flex items-center gap-1"><i data-lucide="phone" class="w-3 h-3"></i>06-1234-5678</div>
+            </div>
+
+            <!-- Camera section -->
+            <div class="mx-4 mt-4">
+              <div class="text-[10px] font-bold tracking-wider text-[var(--text2)] mb-2 font-jp">現場写真</div>
+              <div class="grid grid-cols-2 gap-2">
+                <button id="shutter" class="py-3 rounded-xl grad-bg text-[#070912] text-xs font-bold flex items-center justify-center gap-1.5 neon-mag">
+                  <i data-lucide="camera" class="w-4 h-4"></i>
+                  写真を撮る
+                </button>
+                <button id="aiCam" class="ai-btn py-3 rounded-xl text-xs flex items-center justify-center gap-1.5">
+                  <i data-lucide="sparkles" class="w-4 h-4"></i>
+                  AI判定
+                </button>
+              </div>
+              <div id="thumbs" class="mt-3 grid grid-cols-4 gap-2"></div>
+              <div id="aiResult" style="display:none;"></div>
+            </div>
+
+            <!-- Voice Input section -->
+            <div class="mx-4 mt-4 p-3 rounded-xl glass voice-input">
+              <div class="text-[10px] font-bold tracking-wider text-[var(--text2)] mb-2 font-jp flex items-center gap-1">
+                <i data-lucide="mic" class="w-3 h-3"></i>
+                音声で日報入力
+              </div>
+              <div class="flex flex-col items-center">
+                <button id="micBtn" class="mic-btn" aria-label="音声入力開始">
+                  <span class="mic-ring r1"></span>
+                  <span class="mic-ring r2"></span>
+                  <span class="mic-ring r3"></span>
+                  <i data-lucide="mic" class="w-6 h-6"></i>
+                </button>
+                <div id="micLabel" class="mt-2 text-[10px] font-jp text-[var(--text2)] font-bold">話しかける</div>
+              </div>
+              <div class="waveform" id="waveform">
+                <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+                <div class="wave-bar"></div>
+              </div>
+              <div class="transcript" id="transcript"></div>
+              <div id="parsedCard" style="display:none;"></div>
+            </div>
+
+            <!-- Weight input -->
+            <div class="mx-4 mt-4 p-3 rounded-xl glass">
+              <div class="flex items-center justify-between mb-2">
+                <div class="text-[10px] font-bold tracking-wider text-[var(--text2)] font-jp">重量</div>
+                <div class="inline-flex p-0.5 rounded-lg bg-white/5">
+                  <button class="unit-btn px-2 py-0.5 rounded-md text-[10px] font-bold bg-white/10" data-u="kg">kg</button>
+                  <button class="unit-btn px-2 py-0.5 rounded-md text-[10px] font-bold text-[var(--text2)]" data-u="t">t</button>
+                </div>
+              </div>
+              <div class="flex items-baseline gap-1">
+                <input id="weight" type="text" value="1,820" class="bg-transparent border-none outline-none text-3xl font-bold w-full" />
+                <span id="unit" class="text-sm text-[var(--text2)] font-bold">kg</span>
+              </div>
+            </div>
+
+            <!-- Signature -->
+            <div class="mx-4 mt-4">
+              <div class="flex items-center justify-between mb-2">
+                <div class="text-[10px] font-bold tracking-wider text-[var(--text2)] font-jp">電子サイン</div>
+                <button id="clearSig" class="text-[10px] text-[#22D3EE] font-jp">消去</button>
+              </div>
+              <canvas id="sig" class="sig-pad w-full" height="90"></canvas>
+            </div>
+
+            <!-- GPS switch -->
+            <div class="mx-4 mt-4 p-3 rounded-xl glass flex items-center justify-between">
+              <div>
+                <div class="text-[11px] font-jp font-bold flex items-center gap-1.5"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-[#A3E635]"></i>GPS自動記録</div>
+                <div class="text-[9px] text-[var(--text2)] font-jp mt-0.5">大阪市淀川区西中島6-3-32</div>
+              </div>
+              <div id="gpsSwitch" class="switch on"></div>
+            </div>
+
+            <!-- FAB -->
+            <div class="mx-4 mt-4 mb-2">
+              <button class="w-full py-3.5 rounded-xl grad-bg text-[#070912] text-sm font-extrabold flex items-center justify-center gap-2 neon-vio">
+                <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                完了報告
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-6 text-center text-xs font-jp text-[var(--text2)]"><span class="grad-text font-bold">02</span> · ジョブ詳細 / 日報入力</div>
+    </div>
+
+    <!-- Phone 3: Daily summary -->
+    <div class="relative phone-tilt-r">
+      <div class="halo magenta"></div>
+      <div class="iphone" data-tilt data-tilt-max="6" data-tilt-glare data-tilt-max-glare="0.25">
+        <div class="screen">
+          <div class="notch"></div>
+          <span class="side-btn btn-mute"></span><span class="side-btn btn-vol1"></span><span class="side-btn btn-vol2"></span><span class="side-btn btn-power"></span>
+
+          <div class="status">
+            <span>9:41</span>
+            <span class="right">
+              <i data-lucide="signal" class="w-3.5 h-3.5"></i>
+              <i data-lucide="wifi" class="w-3.5 h-3.5"></i>
+              <i data-lucide="battery-full" class="w-4 h-4"></i>
+            </span>
+          </div>
+
+          <div class="phone-scroll overflow-y-auto h-[calc(100%-46px)] pb-6">
+            <div class="px-5 pt-2">
+              <div class="text-[10px] tracking-wider text-[var(--text2)] font-jp">本日のサマリー</div>
+              <div class="font-jp font-black text-2xl mt-0.5">5/27<span class="text-sm text-[var(--text2)] ml-1">(火)</span></div>
+            </div>
+
+            <!-- KPIs -->
+            <div class="mx-4 mt-4 grid grid-cols-3 gap-2">
+              <div class="p-2.5 rounded-xl glass">
+                <div class="text-[9px] text-[var(--text2)] font-jp">走行距離</div>
+                <div class="text-base font-extrabold mt-0.5">82<span class="text-[10px] text-[var(--text2)] ml-0.5">km</span></div>
+              </div>
+              <div class="p-2.5 rounded-xl glass">
+                <div class="text-[9px] text-[var(--text2)] font-jp">完了件数</div>
+                <div class="text-base font-extrabold grad-text mt-0.5">5<span class="text-[10px] text-[var(--text2)] ml-0.5">件</span></div>
+              </div>
+              <div class="p-2.5 rounded-xl glass">
+                <div class="text-[9px] text-[var(--text2)] font-jp">稼働</div>
+                <div class="text-base font-extrabold mt-0.5">7.4<span class="text-[10px] text-[var(--text2)] ml-0.5">h</span></div>
+              </div>
+            </div>
+
+            <!-- Job list -->
+            <div class="mx-4 mt-4">
+              <div class="text-[10px] font-bold tracking-wider text-[var(--text2)] mb-2 font-jp">完了ジョブ</div>
+              <div class="space-y-2">
+                <div class="p-3 rounded-xl glass">
+                  <div class="flex items-center justify-between">
+                    <div class="text-[11px] font-jp font-bold">○○建設</div>
+                    <span class="chip" data-s="3"><i data-lucide="check" class="w-3 h-3"></i>完了</span>
+                  </div>
+                  <div class="text-[10px] text-[var(--text2)] font-jp mt-0.5">木くず 2.0t · 10:42</div>
+                </div>
+                <div class="p-3 rounded-xl glass">
+                  <div class="flex items-center justify-between">
+                    <div class="text-[11px] font-jp font-bold">△△工務店</div>
+                    <span class="chip" data-s="3"><i data-lucide="check" class="w-3 h-3"></i>完了</span>
+                  </div>
+                  <div class="text-[10px] text-[var(--text2)] font-jp mt-0.5">廃プラ 1.5t · 13:18</div>
+                </div>
+                <div class="p-3 rounded-xl glass">
+                  <div class="flex items-center justify-between">
+                    <div class="text-[11px] font-jp font-bold">□□建材</div>
+                    <span class="chip" data-s="3"><i data-lucide="check" class="w-3 h-3"></i>完了</span>
+                  </div>
+                  <div class="text-[10px] text-[var(--text2)] font-jp mt-0.5">混合廃棄物 3.0t · 15:48</div>
+                </div>
+                <div class="p-3 rounded-xl glass">
+                  <div class="flex items-center justify-between">
+                    <div class="text-[11px] font-jp font-bold">▽▽製作所</div>
+                    <span class="chip" data-s="3"><i data-lucide="check" class="w-3 h-3"></i>完了</span>
+                  </div>
+                  <div class="text-[10px] text-[var(--text2)] font-jp mt-0.5">金属くず 0.8t · 17:02</div>
+                </div>
+                <div class="p-3 rounded-xl glass">
+                  <div class="flex items-center justify-between">
+                    <div class="text-[11px] font-jp font-bold">◇◇興産</div>
+                    <span class="chip" data-s="3"><i data-lucide="check" class="w-3 h-3"></i>完了</span>
+                  </div>
+                  <div class="text-[10px] text-[var(--text2)] font-jp mt-0.5">紙くず 0.4t · 17:55</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Send -->
+            <div class="mx-4 mt-4">
+              <button class="w-full py-3 rounded-xl grad-bg text-[#070912] text-xs font-bold flex items-center justify-center gap-2 neon-cyan">
+                <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                管理者に送信
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-6 text-center text-xs font-jp text-[var(--text2)]"><span class="grad-text font-bold">03</span> · 日報サマリー</div>
+    </div>
+
+  </div>
+
+  <!-- Feature highlights -->
+  <div class="mt-12 grid md:grid-cols-4 gap-4">
+    <div class="p-5 rounded-2xl glass">
+      <div class="w-10 h-10 rounded-xl grad-bg flex items-center justify-center text-[#070912]"><i data-lucide="smartphone" class="w-5 h-5"></i></div>
+      <div class="mt-3 font-jp font-bold">完全モバイル設計</div>
+      <div class="mt-1 text-xs text-[var(--text2)] font-jp">運転席のスマホで1タップ操作。PC不要。</div>
+    </div>
+    <div class="p-5 rounded-2xl glass">
+      <div class="w-10 h-10 rounded-xl grad-bg flex items-center justify-center text-[#070912]"><i data-lucide="camera" class="w-5 h-5"></i></div>
+      <div class="mt-3 font-jp font-bold">写真・GPS自動添付</div>
+      <div class="mt-1 text-xs text-[var(--text2)] font-jp">撮影と同時に位置情報をジョブに紐付け。</div>
+    </div>
+    <div class="p-5 rounded-2xl glass">
+      <div class="w-10 h-10 rounded-xl grad-bg flex items-center justify-center text-[#070912]"><i data-lucide="pen-tool" class="w-5 h-5"></i></div>
+      <div class="mt-3 font-jp font-bold">電子サイン</div>
+      <div class="mt-1 text-xs text-[var(--text2)] font-jp">受領印は不要、現場でその場でサイン完結。</div>
+    </div>
+    <div class="p-5 rounded-2xl glass">
+      <div class="w-10 h-10 rounded-xl grad-bg flex items-center justify-center text-[#070912]"><i data-lucide="zap" class="w-5 h-5"></i></div>
+      <div class="mt-3 font-jp font-bold">オフライン対応</div>
+      <div class="mt-1 text-xs text-[var(--text2)] font-jp">圏外でも入力可、復帰時に自動同期。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== BEFORE ============== -->
+<section id="tab-before" class="relative z-10 max-w-7xl mx-auto px-6 pb-24" style="display:none">
+  <div class="phone-stage relative flex flex-col items-center justify-center py-12">
+    <div class="relative">
+      <div class="halo" style="background:radial-gradient(closest-side, rgba(239,68,68,0.35), transparent 70%);"></div>
+      <div class="iphone">
+        <div class="screen light-inner">
+          <div class="notch"></div>
+          <span class="side-btn btn-mute"></span><span class="side-btn btn-vol1"></span><span class="side-btn btn-vol2"></span><span class="side-btn btn-power"></span>
+
+          <div class="status" style="color:#0F172A;">
+            <span>9:41</span>
+            <span class="right">
+              <i data-lucide="signal" class="w-3.5 h-3.5"></i>
+              <i data-lucide="wifi" class="w-3.5 h-3.5"></i>
+              <i data-lucide="battery-full" class="w-4 h-4"></i>
+            </span>
+          </div>
+
+          <!-- Fake legacy admin -->
+          <div class="phone-scroll overflow-auto h-[calc(100%-46px)]" style="background:#F4F6FA;">
+            <div style="background:#0d6efd; color:#fff; padding:8px 10px; font-size:11px; font-weight:700;">KPHクラウド v3.2 ／ 管理メニュー</div>
+            <div style="background:#fff; padding:10px; border-bottom:1px solid #d6dbe3;">
+              <div style="font-size:10px; color:#64748b;">運行管理 ＞ 日報入力</div>
+              <div style="font-size:13px; color:#0F172A; font-weight:700; margin-top:2px;">ユーザー名 <input style="border:1px solid #94a3b8; width:80px; font-size:10px; padding:1px 4px;" placeholder="ID" /> パスワード <input style="border:1px solid #94a3b8; width:60px; font-size:10px; padding:1px 4px;" placeholder="****" /></div>
+            </div>
+
+            <div style="padding:8px; overflow-x:auto;">
+              <table class="b-table" style="border-collapse:collapse; background:#fff; color:#0F172A;">
+                <thead style="background:#e9eef5;">
+                  <tr>
+                    <th class="vertical">ジョブID</th>
+                    <th class="vertical">顧客名</th>
+                    <th class="vertical">住所</th>
+                    <th class="vertical">品目</th>
+                    <th class="vertical">数量</th>
+                    <th class="vertical">単位</th>
+                    <th class="vertical">予定時刻</th>
+                    <th class="vertical">実績時刻</th>
+                    <th class="vertical">担当者</th>
+                    <th class="vertical">車輌</th>
+                    <th class="vertical">状況</th>
+                    <th class="vertical">備考</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>JOB-0247</td><td>○○建設</td><td>大阪市淀川区西中島6-3-32</td><td>木くず</td><td>2.0</td><td>t</td><td>10:30</td><td>—</td><td>田中拓哉</td><td>大阪101あ12-34</td><td>未着手</td><td></td></tr>
+                  <tr><td>JOB-0248</td><td>△△工務店</td><td>大阪市西区江戸堀1-1-1</td><td>廃プラ</td><td>1.5</td><td>t</td><td>13:00</td><td>—</td><td>田中拓哉</td><td>大阪101あ12-34</td><td>未着手</td><td></td></tr>
+                  <tr><td>JOB-0249</td><td>□□建材</td><td>東大阪市長田中3-2-1</td><td>混合廃棄物</td><td>3.0</td><td>t</td><td>15:30</td><td>—</td><td>田中拓哉</td><td>大阪101あ12-34</td><td>未着手</td><td></td></tr>
+                  <tr><td>JOB-0250</td><td>▽▽製作所</td><td>大阪市住之江区南港北2-1</td><td>金属くず</td><td>0.8</td><td>t</td><td>17:00</td><td>—</td><td>田中拓哉</td><td>大阪101あ12-34</td><td>未着手</td><td></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div style="background:#1e293b; color:#fff; padding:14px 10px; font-size:10px; position:absolute; bottom:0; left:0; right:0;">
+              <div>Copyright © KPHクラウド システム ／ お問い合わせ 03-XXXX-XXXX</div>
+              <div style="margin-top:2px; color:#94a3b8;">推奨環境: Internet Explorer 11 / Google Chrome</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Annotations -->
+      <div class="annot" style="top:-10px; left:-200px;">PCログイン前提 <span style="left:auto; right:-14px; top:8px; position:absolute;"></span></div>
+      <div class="annot" style="top:120px; left:-220px;">テーブル縦書きで崩壊 <span style="left:auto; right:-14px; top:8px; position:absolute;"></span></div>
+      <div class="annot" style="top:260px; left:-180px;">写真添付なし</div>
+      <div class="annot" style="top:60px; right:-180px;">フッターが本文に被る</div>
+      <div class="annot" style="top:220px; right:-160px;">GPS連携なし</div>
+      <div class="annot" style="top:380px; right:-200px;">IE11推奨という化石</div>
+    </div>
+
+    <div class="mt-16 max-w-2xl text-center">
+      <div class="font-jp font-bold text-xl">運転席のスマホで開いた瞬間に、現場が諦める。</div>
+      <p class="mt-2 text-[var(--text2)] font-jp text-sm">これがいま、ドライバーが直面している現実です。日報は紙に書いて、帰社後にPCで再入力。GPS実績も、写真も、サインも紐付かない。</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="relative z-10 max-w-5xl mx-auto px-6 pb-24">
+  <div class="p-8 md:p-10 rounded-3xl glass ring-grad text-center">
+    <div class="text-xs tracking-widest text-[var(--text2)] font-jp">NEXT</div>
+    <div class="mt-2 font-jp font-black text-2xl md:text-3xl">配車画面の Before / After も見る</div>
+    <p class="mt-2 text-sm text-[var(--text2)] font-jp">ドライバーが現場で快適に使えるのは、配車側で正しいジョブが組まれてこそ。</p>
+    <div class="mt-6 flex flex-wrap gap-3 justify-center">
+      <a href="./dispatch.html" class="px-6 py-3 rounded-xl grad-bg text-[#070912] font-bold text-sm neon-vio">配車画面へ →</a>
+      <a href="./dashboard.html" class="px-6 py-3 rounded-xl glass text-sm font-bold">経営ダッシュボードへ</a>
+    </div>
+  </div>
+</section>
+
+<footer class="relative z-10 footer-grad">
+  <div class="max-w-7xl mx-auto px-6 py-10 text-xs text-[var(--text2)] font-jp flex flex-wrap items-center justify-between gap-4">
+    <div>© 2026 KPH.Replace — 産廃SaaSリプレイス提案モック</div>
+    <div class="flex gap-5">
+      <a href="./index.html">概要</a>
+      <a href="./dispatch.html">配車</a>
+      <a href="./driver.html" class="text-white">ドライバー</a>
+      <a href="./dashboard.html">経営DB</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Particles
+  (function(){
+    const root = document.getElementById('particles');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const n = 70;
+    const colors = ['#22D3EE','#8B5CF6','#EC4899'];
+    for (let i=0;i<n;i++){
+      const d = document.createElement('div');
+      d.className = 'p';
+      const s = Math.random()*3 + 1;
+      d.style.width = s+'px'; d.style.height = s+'px';
+      d.style.left = (Math.random()*100)+'%';
+      d.style.top = (Math.random()*100)+'%';
+      d.style.background = colors[i%3];
+      d.style.boxShadow = `0 0 ${6+s*2}px ${colors[i%3]}`;
+      root.appendChild(d);
+      if(!reduce){
+        gsap.to(d, {
+          y: (Math.random()*40 - 20),
+          x: (Math.random()*40 - 20),
+          opacity: Math.random()*0.4 + 0.3,
+          duration: 6 + Math.random()*8,
+          repeat: -1, yoyo: true, ease: 'sine.inOut',
+          delay: Math.random()*4
+        });
+      }
+    }
+  })();
+
+  // Lucide
+  lucide.createIcons();
+
+  // Tabs
+  const tabBefore = document.querySelector('[data-tab="before"]');
+  const tabAfter  = document.querySelector('[data-tab="after"]');
+  const secBefore = document.getElementById('tab-before');
+  const secAfter  = document.getElementById('tab-after');
+  function setTab(t){
+    if (t==='before'){
+      tabBefore.classList.add('active'); tabAfter.classList.remove('active');
+      secBefore.style.display=''; secAfter.style.display='none';
+    } else {
+      tabAfter.classList.add('active'); tabBefore.classList.remove('active');
+      secAfter.style.display=''; secBefore.style.display='none';
+    }
+    window.scrollTo({ top: window.scrollY, behavior:'instant' });
+  }
+  tabBefore.addEventListener('click', ()=>setTab('before'));
+  tabAfter.addEventListener('click',  ()=>setTab('after'));
+
+  // Vanilla Tilt
+  VanillaTilt.init(document.querySelectorAll('[data-tilt]'), {
+    max: 6, speed: 800, glare: true, 'max-glare': 0.25, transition: true, perspective: 1600
+  });
+
+  // GSAP entrance
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.from('.phone-tilt-l, .phone-tilt-c, .phone-tilt-r', {
+    y: 80, opacity: 0, rotateX: -30, duration: 1.1, ease: 'power3.out', stagger: 0.18,
+    scrollTrigger: { trigger: '.phone-stage', start: 'top 80%' }
+  });
+
+  // Status chip cycle
+  const chip = document.getElementById('statusChip');
+  const text = document.getElementById('statusText');
+  const states = [
+    { s:'0', t:'到着' },
+    { s:'1', t:'移動中' },
+    { s:'2', t:'作業中' },
+    { s:'3', t:'完了' },
+  ];
+  let si = 1;
+  chip?.addEventListener('click', ()=>{
+    si = (si+1) % states.length;
+    chip.setAttribute('data-s', states[si].s);
+    text.textContent = states[si].t;
+    gsap.fromTo(chip, { scale: 0.9 }, { scale: 1, duration: 0.4, ease: 'back.out(2)' });
+  });
+
+  // Shutter
+  const shutter = document.getElementById('shutter');
+  const thumbs = document.getElementById('thumbs');
+  const flash = document.getElementById('flash');
+  const palette = [
+    'linear-gradient(135deg,#22D3EE,#8B5CF6)',
+    'linear-gradient(135deg,#8B5CF6,#EC4899)',
+    'linear-gradient(135deg,#EC4899,#A3E635)',
+    'linear-gradient(135deg,#A3E635,#22D3EE)',
+  ];
+  let shot = 0;
+  shutter?.addEventListener('click', ()=>{
+    gsap.fromTo(flash, { opacity: 0.9 }, { opacity: 0, duration: 0.5, ease: 'power2.out' });
+    const t = document.createElement('div');
+    t.style.aspectRatio = '1';
+    t.style.borderRadius = '8px';
+    t.style.background = palette[shot % palette.length];
+    t.style.boxShadow = '0 6px 16px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.1)';
+    t.style.position = 'relative';
+    t.innerHTML = '<i data-lucide="image" class="w-3 h-3 absolute bottom-1 right-1 text-white/80"></i>';
+    thumbs.appendChild(t);
+    lucide.createIcons();
+    gsap.fromTo(t, { y: 30, opacity: 0, scale: 0.7 }, { y:0, opacity:1, scale:1, duration:0.55, ease:'back.out(1.8)' });
+    shot++;
+  });
+
+  // Weight unit toggle
+  document.querySelectorAll('.unit-btn').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      document.querySelectorAll('.unit-btn').forEach(x=>{ x.classList.remove('bg-white/10'); x.classList.add('text-[var(--text2)]'); });
+      b.classList.add('bg-white/10'); b.classList.remove('text-[var(--text2)]');
+      const u = b.getAttribute('data-u');
+      const w = document.getElementById('weight'); const uEl = document.getElementById('unit');
+      if (u==='t'){ w.value = '1.82'; uEl.textContent = 't'; }
+      else { w.value = '1,820'; uEl.textContent = 'kg'; }
+    });
+  });
+
+  // GPS switch
+  const gps = document.getElementById('gpsSwitch');
+  gps?.addEventListener('click', ()=> gps.classList.toggle('on'));
+
+  // Signature canvas
+  const sig = document.getElementById('sig');
+  if (sig){
+    const fit = ()=>{
+      const r = sig.getBoundingClientRect();
+      sig.width = r.width * devicePixelRatio;
+      sig.height = 90 * devicePixelRatio;
+    };
+    fit(); window.addEventListener('resize', fit);
+    const ctx = sig.getContext('2d');
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+    ctx.strokeStyle = '#22D3EE'; ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    let drawing = false, last = null;
+    const pos = (e)=>{
+      const r = sig.getBoundingClientRect();
+      const p = e.touches ? e.touches[0] : e;
+      return { x: p.clientX - r.left, y: p.clientY - r.top };
+    };
+    const start = (e)=>{ drawing = true; last = pos(e); e.preventDefault(); };
+    const move = (e)=>{
+      if(!drawing) return;
+      const p = pos(e);
+      ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+      last = p; e.preventDefault();
+    };
+    const end = ()=>{ drawing = false; };
+    sig.addEventListener('mousedown', start); sig.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', end);
+    sig.addEventListener('touchstart', start); sig.addEventListener('touchmove', move);
+    window.addEventListener('touchend', end);
+    document.getElementById('clearSig')?.addEventListener('click', ()=> ctx.clearRect(0,0,sig.width,sig.height));
+  }
+
+  // Bottom nav indicator
+  document.querySelectorAll('.nav-tab').forEach((b, i)=>{
+    b.addEventListener('click', ()=>{
+      const ind = b.parentElement.querySelector('.nav-ind');
+      const x = b.offsetLeft + (b.offsetWidth - 36)/2;
+      gsap.to(ind, { x: x, duration: 0.5, ease: 'power3.out' });
+      document.querySelectorAll('.nav-tab').forEach(x=> x.classList.replace('text-[#070912]','text-[var(--text2)]'));
+      b.classList.remove('text-[var(--text2)]'); b.classList.add('text-[#070912]');
+    });
+  });
+
+  // ===== Voice Input =====
+  (function(){
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const micBtn = document.getElementById('micBtn');
+    const micLabel = document.getElementById('micLabel');
+    const waveform = document.getElementById('waveform');
+    const bars = waveform.querySelectorAll('.wave-bar');
+    const transcript = document.getElementById('transcript');
+    const parsedCard = document.getElementById('parsedCard');
+    if (!micBtn) return;
+
+    const sample = '○○建設、木くず、二トン、混合廃棄物、一トン、完了です';
+    let recording = false;
+    let rafId = null;
+    let typingTimer = null;
+    let parseTimer = null;
+
+    function animateWave(){
+      bars.forEach(b=>{
+        const h = 6 + Math.random()*28;
+        b.style.height = h+'px';
+      });
+      rafId = setTimeout(()=> requestAnimationFrame(animateWave), 90);
+    }
+    function stopWave(){
+      if (rafId){ clearTimeout(rafId); rafId = null; }
+      bars.forEach(b=> b.style.height = '4px');
+    }
+
+    function typeText(text, idx=0){
+      if (idx > text.length){
+        transcript.innerHTML = text;
+        // After typing complete, show parsed card
+        parseTimer = setTimeout(showParsed, 600);
+        return;
+      }
+      transcript.innerHTML = text.slice(0, idx) + '<span class="cursor"></span>';
+      typingTimer = setTimeout(()=> typeText(text, idx+1), 70);
+    }
+
+    function showParsed(){
+      parsedCard.style.display = 'block';
+      parsedCard.innerHTML = `
+        <div class="parsed-card">
+          <div class="text-[10px] font-bold tracking-wider mb-1.5 font-jp" style="color:#c4b5fd;">自動解析結果</div>
+          <div class="parsed-item"><span class="ck">✓</span><span>顧客: ○○建設</span></div>
+          <div class="parsed-item"><span class="ck">✓</span><span>木くず: 2.0 t</span></div>
+          <div class="parsed-item"><span class="ck">✓</span><span>混合廃棄物: 1.0 t</span></div>
+          <div class="parsed-item"><span class="ck">✓</span><span>ステータス: 完了</span></div>
+          <button class="apply-btn" id="applyVoice">データを反映する</button>
+        </div>
+      `;
+      gsap.from(parsedCard.querySelector('.parsed-card'), {
+        y: 14, opacity: 0, duration: 0.5, ease: 'power3.out'
+      });
+      gsap.from(parsedCard.querySelectorAll('.parsed-item'), {
+        x: -10, opacity: 0, duration: 0.35, stagger: 0.08, delay: 0.15, ease: 'power2.out'
+      });
+      document.getElementById('applyVoice').addEventListener('click', applyVoiceData);
+    }
+
+    function applyVoiceData(){
+      const w = document.getElementById('weight');
+      const uEl = document.getElementById('unit');
+      // Set to ton mode + 3.0t (2.0 + 1.0)
+      document.querySelectorAll('.unit-btn').forEach(x=>{ x.classList.remove('bg-white/10'); x.classList.add('text-[var(--text2)]'); });
+      const tBtn = document.querySelector('.unit-btn[data-u="t"]');
+      tBtn.classList.add('bg-white/10'); tBtn.classList.remove('text-[var(--text2)]');
+      uEl.textContent = 't';
+      // Animate weight number
+      const target = 3.0;
+      gsap.fromTo({n:0}, {n:0}, {
+        n: target, duration: 0.9, ease: 'power2.out',
+        onUpdate: function(){ w.value = this.targets()[0].n.toFixed(2); }
+      });
+      // Update status chip to 完了
+      const chipEl = document.getElementById('statusChip');
+      const textEl = document.getElementById('statusText');
+      if (chipEl && textEl){
+        chipEl.setAttribute('data-s', '3');
+        textEl.textContent = '完了';
+        gsap.fromTo(chipEl, {scale:0.85}, {scale:1, duration:0.4, ease:'back.out(2)'});
+      }
+      // Flash highlight on weight card
+      const wCard = w.closest('.glass');
+      if (wCard){
+        gsap.fromTo(wCard, { boxShadow:'0 0 0 0 rgba(163,230,53,0)' }, {
+          boxShadow:'0 0 32px rgba(163,230,53,0.5)', duration:0.4, yoyo:true, repeat:1
+        });
+      }
+      // Reset apply button
+      const ab = document.getElementById('applyVoice');
+      ab.textContent = '✓ 反映済み';
+      ab.disabled = true;
+      ab.style.opacity = '0.7';
+    }
+
+    function startRecording(){
+      recording = true;
+      micBtn.classList.add('recording');
+      micLabel.textContent = '聴いています…';
+      waveform.classList.add('active');
+      transcript.classList.add('active');
+      transcript.innerHTML = '<span class="cursor"></span>';
+      parsedCard.style.display = 'none';
+      parsedCard.innerHTML = '';
+      if (!reduce) animateWave();
+      // start typing after a short delay
+      typingTimer = setTimeout(()=> typeText(sample), 700);
+    }
+    function stopRecording(){
+      recording = false;
+      micBtn.classList.remove('recording');
+      micLabel.textContent = '話しかける';
+      waveform.classList.remove('active');
+      stopWave();
+      if (typingTimer){ clearTimeout(typingTimer); typingTimer = null; }
+      if (parseTimer){ clearTimeout(parseTimer); parseTimer = null; }
+    }
+
+    micBtn.addEventListener('click', ()=>{
+      if (recording) stopRecording();
+      else startRecording();
+    });
+  })();
+
+  // ===== AI Camera =====
+  (function(){
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const aiBtn = document.getElementById('aiCam');
+    const flashEl = document.getElementById('flash');
+    const overlay = document.getElementById('scanOverlay');
+    const scanLine = document.getElementById('scanLine');
+    const scanLabel = document.getElementById('scanLabel');
+    const aiResult = document.getElementById('aiResult');
+    if (!aiBtn) return;
+
+    let running = false;
+
+    aiBtn.addEventListener('click', ()=>{
+      if (running) return;
+      running = true;
+
+      // 1. flash
+      gsap.fromTo(flashEl, { opacity: 0.95 }, { opacity: 0, duration: 0.45, ease: 'power2.out' });
+
+      // 2. scan overlay
+      overlay.classList.add('active');
+      scanLabel.style.display = 'none';
+      gsap.set(scanLine, { top: 0 });
+
+      const scanDur = reduce ? 0.1 : 1.2;
+      gsap.to(scanLine, {
+        top: '100%', duration: scanDur, ease: 'none', repeat: 1, yoyo: true,
+        onComplete: ()=>{
+          scanLabel.style.display = 'flex';
+          // 3. spinner shown briefly, then result
+          setTimeout(()=>{
+            overlay.classList.remove('active');
+            scanLabel.style.display = 'none';
+            showResult();
+          }, reduce ? 100 : 700);
+        }
+      });
+    });
+
+    function showResult(){
+      const items = [
+        { name:'木くず',       w:2.1, c:96, color:'#A3E635' },
+        { name:'紙くず',       w:0.3, c:88, color:'#22D3EE' },
+        { name:'廃プラスチック', w:0.5, c:92, color:'#EC4899' },
+      ];
+      const total = items.reduce((s,i)=> s+i.w, 0);
+      const barSegs = items.map(i=>{
+        const pct = (i.w/total)*100;
+        return `<span style="width:${pct}%; background:${i.color}; box-shadow:0 0 8px ${i.color};"></span>`;
+      }).join('');
+      const itemsHTML = items.map(i=>`
+        <div class="ai-item">
+          <span class="left">
+            <span class="dot" style="background:${i.color}; box-shadow:0 0 6px ${i.color};"></span>
+            <span>${i.name}</span>
+            <span class="conf">信頼度 ${i.c}%</span>
+          </span>
+          <span style="font-weight:800;">${i.w.toFixed(1)} t</span>
+        </div>
+      `).join('');
+
+      aiResult.style.display = 'block';
+      aiResult.innerHTML = `
+        <div class="ai-result">
+          <div class="text-[10px] font-bold tracking-wider mb-1.5 font-jp flex items-center gap-1" style="color:#67e8f9;">
+            <i data-lucide="bar-chart-3" class="w-3 h-3"></i>
+            検出された品目
+          </div>
+          ${itemsHTML}
+          <div class="ai-bar">${barSegs}</div>
+          <div class="flex items-center justify-between mt-2 text-[10px] font-jp" style="color:var(--text2);">
+            <span>合計重量</span>
+            <span style="color:#fff; font-weight:800;">${total.toFixed(1)} t</span>
+          </div>
+          <button class="ai-apply" id="aiApply">マニフェストに反映</button>
+        </div>
+      `;
+      lucide.createIcons();
+
+      gsap.from(aiResult.querySelector('.ai-result'), {
+        y: 24, opacity: 0, duration: 0.55, ease: 'power3.out'
+      });
+      gsap.from(aiResult.querySelectorAll('.ai-item'), {
+        x: -10, opacity: 0, duration: 0.35, stagger: 0.08, delay: 0.2, ease: 'power2.out'
+      });
+
+      document.getElementById('aiApply').addEventListener('click', ()=>{
+        const w = document.getElementById('weight');
+        const uEl = document.getElementById('unit');
+        document.querySelectorAll('.unit-btn').forEach(x=>{ x.classList.remove('bg-white/10'); x.classList.add('text-[var(--text2)]'); });
+        const tBtn = document.querySelector('.unit-btn[data-u="t"]');
+        tBtn.classList.add('bg-white/10'); tBtn.classList.remove('text-[var(--text2)]');
+        uEl.textContent = 't';
+        gsap.fromTo({n:0}, {n:0}, {
+          n: total, duration: 0.9, ease: 'power2.out',
+          onUpdate: function(){ w.value = this.targets()[0].n.toFixed(2); }
+        });
+        const wCard = w.closest('.glass');
+        if (wCard){
+          gsap.fromTo(wCard, { boxShadow:'0 0 0 0 rgba(34,211,238,0)' }, {
+            boxShadow:'0 0 32px rgba(34,211,238,0.55)', duration:0.4, yoyo:true, repeat:1
+          });
+        }
+        const ab = document.getElementById('aiApply');
+        ab.textContent = '✓ 反映済み';
+        ab.disabled = true;
+        ab.style.opacity = '0.7';
+      });
+
+      running = false;
+    }
+  })();
+
+  // Re-create icons after dynamic additions
+  lucide.createIcons();
+</script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KPH Cloud Reimagined — リプレイス提案書</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root{ --ink:#0f172a; --ink-2:#475569; --ink-3:#94a3b8; --line:#e2e8f0; --bg:#f1f5f9; --paper:#ffffff;
+    --cyan:#0891b2; --violet:#7c3aed; --magenta:#db2777; --lime:#65a30d; --red:#dc2626; --amber:#d97706; }
+  *{ box-sizing:border-box; -webkit-font-smoothing:antialiased; }
+  html,body{ margin:0; background:var(--bg); color:var(--ink); font-family:'Noto Sans JP','Inter',sans-serif; }
+  .grad{ background:linear-gradient(135deg,#0891b2,#7c3aed 55%,#db2777); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .grad-bg{ background:linear-gradient(135deg,#0891b2,#7c3aed 55%,#db2777); }
+
+  /* toolbar */
+  .toolbar{ position:sticky; top:0; z-index:50; background:#0b1220; color:#fff; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .toolbar .t-btn{ display:inline-flex;align-items:center;gap:7px;border:none;cursor:pointer;border-radius:10px;padding:9px 16px;font-family:'Noto Sans JP',sans-serif;font-weight:700;font-size:13px; }
+  .t-btn.primary{ background:linear-gradient(135deg,#22D3EE,#8B5CF6);color:#06121a; }
+  .t-btn.ghost{ background:rgba(255,255,255,0.08);color:#e2e8f0; }
+  .toolbar a{ color:inherit;text-decoration:none; }
+
+  .sheet{ max-width:880px; margin:24px auto; background:var(--paper); border:1px solid var(--line); border-radius:6px; box-shadow:0 10px 40px rgba(15,23,42,0.08); overflow:hidden; }
+  .pad{ padding:48px 56px; }
+  .cover{ background:linear-gradient(135deg,#0b1220,#1e1b4b 60%,#3b0764); color:#fff; padding:64px 56px; }
+  .cover .kicker{ font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:#a5b4fc; font-weight:700; }
+  .cover h1{ font-size:40px; font-weight:900; line-height:1.2; margin:14px 0 6px; }
+  .cover .sub{ font-size:17px; color:#cbd5e1; }
+  .cover .metarow{ margin-top:34px; display:flex; gap:32px; flex-wrap:wrap; font-size:13px; color:#cbd5e1; }
+  .cover .metarow b{ color:#fff; display:block; font-size:14px; }
+
+  h2.sec{ font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--violet); font-weight:800; margin:0 0 6px; }
+  h3.t{ font-size:26px; font-weight:900; margin:0 0 18px; line-height:1.3; }
+  p.lead{ font-size:15px; line-height:1.9; color:var(--ink-2); margin:0 0 14px; }
+  .divider{ height:1px; background:var(--line); margin:0 56px; }
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; } .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .card{ border:1px solid var(--line); border-radius:14px; padding:18px; }
+  .card .ic{ width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;margin-bottom:12px; }
+  .card h4{ font-size:16px; font-weight:800; margin:0 0 6px; } .card p{ font-size:13.5px; line-height:1.75; color:var(--ink-2); margin:0; }
+
+  ul.clean{ list-style:none; padding:0; margin:0; } ul.clean li{ font-size:14px; line-height:1.85; color:var(--ink-2); display:flex; gap:10px; margin-bottom:6px; }
+  ul.clean li .b{ color:var(--ink); font-weight:700; }
+  .x{ color:var(--red); font-weight:900; } .c{ color:var(--lime); font-weight:900; }
+
+  .feature{ display:grid; grid-template-columns:46px 1fr; gap:16px; align-items:start; margin-bottom:22px; }
+  .feature .num{ width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:18px; }
+  .feature h4{ font-size:18px; font-weight:800; margin:2px 0 6px; } .feature p{ font-size:14px; line-height:1.8; color:var(--ink-2); margin:0; }
+
+  table.screens{ width:100%; border-collapse:collapse; font-size:13.5px; } table.screens td,table.screens th{ border-bottom:1px solid var(--line); padding:10px 8px; text-align:left; }
+  table.screens th{ color:var(--ink-3); font-weight:700; font-size:12px; } table.screens .nm{ font-weight:800; } table.screens a{ color:var(--cyan); text-decoration:none; font-weight:700; }
+
+  .effect{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  .effect .e{ border:1px solid var(--line); border-radius:14px; padding:18px; text-align:center; }
+  .effect .big{ font-size:26px; font-weight:900; } .effect .cap{ font-size:12px; color:var(--ink-3); margin-top:4px; }
+
+  table.cost{ width:100%; border-collapse:collapse; font-size:14px; } table.cost td,table.cost th{ border:1px solid var(--line); padding:12px 14px; text-align:left; } table.cost th{ background:#f8fafc; font-weight:800; font-size:13px; } table.cost .amt{ text-align:right; font-weight:800; white-space:nowrap; }
+  .note{ font-size:12px; color:var(--ink-3); margin-top:10px; line-height:1.7; }
+  .callout{ background:linear-gradient(135deg,rgba(8,145,178,0.07),rgba(124,58,237,0.07)); border:1px solid #c7d2fe; border-radius:14px; padding:18px 20px; font-size:14px; line-height:1.8; color:var(--ink-2); }
+  .step{ display:flex; gap:14px; align-items:flex-start; margin-bottom:14px; } .step .n{ width:28px;height:28px;border-radius:50%;background:var(--violet);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0; }
+  .footer{ background:#0b1220; color:#94a3b8; padding:28px 56px; font-size:12px; text-align:center; }
+
+  @media print{
+    @page{ size:A4; margin:14mm; }
+    body{ background:#fff; } .toolbar{ display:none !important; } .sheet{ box-shadow:none; border:none; margin:0; max-width:none; border-radius:0; }
+    .page-break{ break-before:page; } section{ break-inside:avoid; }
+    .cover{ -webkit-print-color-adjust:exact; print-color-adjust:exact; } .grad-bg,.card .ic,.feature .num,.step .n,.footer{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  }
+  @media (max-width:640px){ .pad{ padding:30px 22px; } .cover{ padding:40px 24px; } .grid2,.grid3,.effect{ grid-template-columns:1fr; } .cover h1{ font-size:30px; } }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <a href="./index.html" style="display:inline-flex;align-items:center;gap:7px;font-size:13px;"><i data-lucide="arrow-left" class="w-4 h-4"></i>モックに戻る</a>
+  <div style="display:flex;gap:10px;">
+    <a class="t-btn ghost" href="./index.html"><i data-lucide="layout-grid" class="w-4 h-4"></i>画面デモを見る</a>
+    <button class="t-btn primary" onclick="window.print()"><i data-lucide="printer" class="w-4 h-4"></i>PDFで保存 / 印刷</button>
+  </div>
+</div>
+
+<div class="sheet">
+
+  <!-- cover -->
+  <div class="cover">
+    <p class="kicker">Replacement Proposal</p>
+    <h1>環境プラットフォームクラウド<br>リプレイス提案</h1>
+    <p class="sub">KPH Cloud Reimagined — 産廃業界SaaSの再発明</p>
+    <div class="metarow">
+      <div>提案先<b>KPHクラウド ご担当者様</b></div>
+      <div>提案<b>樋口工房</b></div>
+      <div>日付<b>2026年6月</b></div>
+      <div>対象<b>kph-cloud.jp 全面刷新</b></div>
+    </div>
+  </div>
+
+  <!-- 課題 -->
+  <section class="pad">
+    <h2 class="sec">01 — 現場の課題と伸びしろ</h2>
+    <h3 class="t">現場の声から見えた、<span class="grad">これからの改善ポイント</span></h3>
+    <div class="grid2">
+      <ul class="clean">
+        <li><span class="x">✕</span><span><span class="b">基盤の刷新余地</span>：当時の標準（Bootstrap 3）で構築。グラフ・KPI表示や、運転席スマホでの操作（推奨環境IE11）に伸びしろがある。</span></li>
+        <li><span class="x">✕</span><span><span class="b">配車表が編集しづらい</span>：密集テーブルの手作業。配車調整に時間がかかる。</span></li>
+      </ul>
+      <ul class="clean">
+        <li><span class="x">✕</span><span><span class="b">属人化</span>：配車・客先対応・事務手続きがベテランの頭の中。辞めたら会社が止まる。</span></li>
+        <li><span class="x">✕</span><span><span class="b">二重入力の負担</span>：現場・配車・経理で同じ情報を入力。会計連携にも改善の余地。</span></li>
+      </ul>
+    </div>
+  </section>
+  <div class="divider"></div>
+
+  <!-- 全体像 -->
+  <section class="pad">
+    <h2 class="sec">02 — 提案の全体像</h2>
+    <h3 class="t">現場・配車・経営の3視点で再発明し、<span class="grad">2つの魔法</span>を載せる</h3>
+    <p class="lead">単なる作り直しではありません。「魔法のように使える」を体現する2つの核——<b>撮るだけ写真AI</b>と<b>会社の頭脳</b>——を中心に、現場の入力負荷をゼロに近づけ、属人化を溶かします。</p>
+    <div class="grid2" style="margin-top:8px;">
+      <div class="card"><div class="ic grad-bg"><i data-lucide="scan-eye" class="w-5 h-5"></i></div><h4>魔法① 撮るだけ写真AI</h4><p>現場を撮るだけで、廃棄物の種類・量・不適物を判定し、配車・マニフェスト・請求まで自動で流れる。</p></div>
+      <div class="card"><div class="ic grad-bg"><i data-lucide="brain-circuit" class="w-5 h-5"></i></div><h4>魔法② 会社の頭脳</h4><p>ベテランの勘を働くだけで学習し、必ず“なぜ”を説明。誰が抜けても回る（Bus factor ∞）。</p></div>
+    </div>
+  </section>
+  <div class="divider"></div>
+
+  <!-- 魔法① -->
+  <section class="pad page-break">
+    <h2 class="sec">03 — 魔法① 撮るだけ写真AI</h2>
+    <h3 class="t">撮った1枚が、すべての入口になる</h3>
+    <div class="feature"><div class="num grad-bg">A</div><div><h4>種類・量・不適物を、撮るだけで判定</h4><p>廃棄物の種類を候補限定で提示、量はレンジで推定、混入禁止物（バッテリー等）を積む前に赤フラグ。処分場での荷降ろし拒否＝積み戻しを未然に防ぐ。</p></div></div>
+    <div class="feature"><div class="num grad-bg">B</div><div><h4>1枚から、配車・マニフェスト・請求へ自動連携</h4><p>撮った瞬間に現場・配車・経理が同じデータで動き出す。二重入力ゼロ。</p></div></div>
+    <div class="callout" style="margin-top:6px;">
+      <b>精度はどう担保するか：</b>AIの精度を100%にするのではなく、<b>AIの誤りが法的記録に化けない設計</b>に。①確信度で出し分け（自信がある所は自動、迷う所だけ人に聞く）②契約・許可で候補を絞り精度を上げる ③量は計量実測で上書き ④使うほど学習で賢くなる ⑤本番前にシャドーモードで実測し、合格ラインを超えてから稼働。法的な確定者は人間のまま。
+    </div>
+  </section>
+  <div class="divider"></div>
+
+  <!-- 魔法② -->
+  <section class="pad">
+    <h2 class="sec">04 — 魔法② 会社の頭脳</h2>
+    <h3 class="t">「あの人がいないと回らない」を、終わらせる</h3>
+    <div class="feature"><div class="num grad-bg">A</div><div><h4>入力ゼロで覚える（観察学習）</h4><p>誰の作業も増やさない。配車の手直し・走った道・出した見積・埋めた伝票——その全部が勝手に教師データになり、会社の頭脳が育つ。</p></div></div>
+    <div class="feature"><div class="num grad-bg">B</div><div><h4>必ず“なぜ”を言う</h4><p>「田中を回したのは客先指名＋この路地は4t不可だから」。根拠が言語化されるので、人にも継承でき、信頼でき、監査もできる。</p></div></div>
+    <div class="feature"><div class="num grad-bg">C</div><div><h4>Bus factor を ∞ に</h4><p>退職予告ゼロでも、明日いなくなっても、頭脳が本人の判断を継承済み。教育コスト・品質ムラ・退職リスクが消える。</p></div></div>
+  </section>
+  <div class="divider"></div>
+
+  <!-- その他の魔法 -->
+  <section class="pad">
+    <h2 class="sec">05 — さらに属人化を溶かす</h2>
+    <h3 class="t">事務も、経営判断も、引き継げる形に</h3>
+    <div class="grid2">
+      <div class="card"><div class="ic grad-bg"><i data-lucide="mic" class="w-5 h-5"></i></div><h4>しゃべるだけ事務</h4><p>マニフェスト・JWNET・行政報告・契約更新を会話と自動監視で。手順の暗記が不要に。締切はシステムが先回りで監視。</p></div>
+      <div class="card"><div class="ic grad-bg"><i data-lucide="line-chart" class="w-5 h-5"></i></div><h4>経営参謀</h4><p>儲かる客・損する客、車の増減、受け時/断り時、見積相場を根拠付きで提示。社長の判断を承継できる会社へ。</p></div>
+    </div>
+  </section>
+  <div class="divider"></div>
+
+  <!-- 画面一覧 -->
+  <section class="pad page-break">
+    <h2 class="sec">06 — 画面デモ（動くモック）</h2>
+    <h3 class="t">9画面、すべて触って確かめられます</h3>
+    <table class="screens">
+      <tr><th>画面</th><th>役割</th><th>デモ</th></tr>
+      <tr><td class="nm">提案トップ</td><td>全画面へのハブ</td><td><a href="./index.html">index</a></td></tr>
+      <tr><td class="nm">撮るだけ（写真AI）</td><td>種類・量・不適物 → 配車/伝票/請求へ</td><td><a href="./vision.html">vision</a></td></tr>
+      <tr><td class="nm">会社の頭脳</td><td>配車脳コピー・退職シミュ・現場メモリ</td><td><a href="./mind.html">mind</a></td></tr>
+      <tr><td class="nm">しゃべるだけ事務</td><td>行政報告・督促・契約・コンプラ監視</td><td><a href="./office.html">office</a></td></tr>
+      <tr><td class="nm">経営参謀</td><td>採算・受け/断り判定・見積脳</td><td><a href="./advisor.html">advisor</a></td></tr>
+      <tr><td class="nm">配車表</td><td>D&D × AI最適化の管制官UI</td><td><a href="./dispatch.html">dispatch</a></td></tr>
+      <tr><td class="nm">ドライバーアプリ</td><td>スマホ専用・写真/GPS/電子サイン</td><td><a href="./driver.html">driver</a></td></tr>
+      <tr><td class="nm">マニフェスト</td><td>紙→電子化・JWNET連携</td><td><a href="./manifest.html">manifest</a></td></tr>
+      <tr><td class="nm">経営ダッシュボード</td><td>KPI・アラート・AIコパイロット</td><td><a href="./dashboard.html">dashboard</a></td></tr>
+    </table>
+  </section>
+  <div class="divider"></div>
+
+  <!-- 効果 -->
+  <section class="pad">
+    <h2 class="sec">07 — 導入効果（イメージ）</h2>
+    <h3 class="t">入力を消し、属人化を消す</h3>
+    <div class="effect">
+      <div class="e"><div class="big grad">1/4</div><div class="cap">配車調整の時間</div></div>
+      <div class="e"><div class="big grad">月4h</div><div class="cap">事務作業（月40h→）</div></div>
+      <div class="e"><div class="big grad">∞</div><div class="cap">Bus factor</div></div>
+      <div class="e"><div class="big grad">0件</div><div class="cap">提出漏れ・荷降ろし拒否</div></div>
+    </div>
+    <p class="note">※ 数値は同種業務での想定イメージです。導入前にシャドーモードで実測し、御社の実データで効果を確認したうえで本番稼働します。</p>
+  </section>
+  <div class="divider"></div>
+
+  <!-- 費用 -->
+  <section class="pad page-break">
+    <h2 class="sec">08 — 費用感（概算・たたき台）</h2>
+    <h3 class="t">段階導入で、リスクを抑えて進める</h3>
+    <table class="cost">
+      <tr><th>フェーズ</th><th>内容</th><th class="amt">概算費用</th><th class="amt">期間</th></tr>
+      <tr><td>Phase 0｜要件・PoC</td><td>業務ヒアリング・データ設計・写真AIの精度検証（シャドーモード）</td><td class="amt">¥要相談</td><td class="amt">1〜2ヶ月</td></tr>
+      <tr><td>Phase 1｜コア刷新</td><td>配車・ドライバー・マニフェスト・ダッシュボードの再構築</td><td class="amt">¥要相談</td><td class="amt">3〜5ヶ月</td></tr>
+      <tr><td>Phase 2｜魔法の実装</td><td>撮るだけ写真AI・会社の頭脳・事務/経営参謀</td><td class="amt">¥要相談</td><td class="amt">3〜6ヶ月</td></tr>
+      <tr><td>ランニング</td><td>保守・AI/インフラ・JWNET連携維持</td><td class="amt">¥要相談/月</td><td class="amt">継続</td></tr>
+    </table>
+    <p class="note">※ 金額は具体化前のたたき台です（要件確定後に確定見積）。現行データ移行・JWNET連携の範囲・利用台数で変動します。スモールスタート（Phase 0→1）からの段階契約を推奨。</p>
+  </section>
+  <div class="divider"></div>
+
+  <!-- 次のステップ -->
+  <section class="pad">
+    <h2 class="sec">09 — 次のステップ</h2>
+    <h3 class="t">まずは動くデモで、体感してください</h3>
+    <div class="step"><div class="n">1</div><div><b>デモ確認</b>：本提案の9画面を実際に触っていただく（特に「撮るだけ」「会社の頭脳」）。</div></div>
+    <div class="step"><div class="n">2</div><div><b>業務ヒアリング</b>：現場の手作業・属人化ポイント・既存データの棚卸し。</div></div>
+    <div class="step"><div class="n">3</div><div><b>PoC（精度検証）</b>：写真AIをシャドーモードで実測し、合格ラインを合意。</div></div>
+    <div class="step"><div class="n">4</div><div><b>段階導入</b>：コア刷新 → 魔法の実装へ。確定見積のうえ着手。</div></div>
+    <div class="callout" style="margin-top:18px;"><b>本デモ・資料はご関係者内でのご確認をお願いします。</b>内容は提案段階のものであり、第三者への再配布はお控えください。</div>
+  </section>
+
+  <div class="footer">© 2026 樋口工房 — KPH Cloud Reimagined リプレイス提案 / 本資料および付属モックの無断転載・再配布を禁じます。</div>
+</div>
+
+<script> lucide.createIcons(); </script>
+</body>
+</html>

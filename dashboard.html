@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KPH Cockpit | Executive Command Center</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.8.1/dist/vanilla-tilt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root {
+    --bg-0: #070912;
+    --bg-1: #0A0E1A;
+    --bg-2: #13102B;
+    --cyan: #22D3EE;
+    --violet: #8B5CF6;
+    --magenta: #EC4899;
+    --lime: #A3E635;
+    --yellow: #FACC15;
+    --red: #F87171;
+    --text: #F8FAFC;
+    --muted: rgba(248,250,252,0.65);
+    --glass: rgba(255,255,255,0.04);
+    --glass-strong: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.08);
+  }
+  * { -webkit-font-smoothing: antialiased; }
+  html, body {
+    font-family: 'Inter', 'Noto Sans JP', system-ui, sans-serif;
+    background: var(--bg-0);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+  .font-jp { font-family: 'Noto Sans JP', sans-serif; }
+  .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-feature-settings: 'tnum'; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* Background layers */
+  .bg-cosmos {
+    position: fixed; inset: 0; z-index: -3;
+    background:
+      radial-gradient(1200px 800px at 15% 10%, rgba(34,211,238,0.15), transparent 60%),
+      radial-gradient(1000px 700px at 90% 30%, rgba(139,92,246,0.18), transparent 60%),
+      radial-gradient(900px 600px at 50% 95%, rgba(236,72,153,0.12), transparent 60%),
+      linear-gradient(180deg, #070912 0%, #0A0E1A 40%, #13102B 75%, #070912 100%);
+  }
+  .bg-grid {
+    position: fixed; inset: 0; z-index: -2;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+  #particles { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+
+  /* Glass */
+  .glass {
+    background: var(--glass);
+    backdrop-filter: blur(24px) saturate(130%);
+    -webkit-backdrop-filter: blur(24px) saturate(130%);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+  }
+  .glass-strong {
+    background: var(--glass-strong);
+    backdrop-filter: blur(28px) saturate(140%);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+  }
+  .glass-pill {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 999px;
+    backdrop-filter: blur(20px);
+  }
+
+  /* Gradient text */
+  .grad-text {
+    background: linear-gradient(135deg,#22D3EE 0%,#8B5CF6 50%,#EC4899 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .grad-bg {
+    background: linear-gradient(135deg,#22D3EE 0%,#8B5CF6 50%,#EC4899 100%);
+  }
+  .grad-border {
+    position: relative;
+  }
+  .grad-border::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
+    background: linear-gradient(135deg, rgba(34,211,238,0.5), rgba(139,92,246,0.4), rgba(236,72,153,0.3));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Glow */
+  .glow-cyan { box-shadow: 0 0 40px rgba(34,211,238,0.25), 0 0 80px rgba(34,211,238,0.1); }
+  .glow-red  { box-shadow: 0 0 30px rgba(248,113,113,0.35), 0 0 70px rgba(248,113,113,0.15); }
+  .glow-yellow { box-shadow: 0 0 24px rgba(250,204,21,0.25); }
+
+  /* Tilt cards inner light */
+  .card-shine::after {
+    content:""; position:absolute; inset:0; border-radius: inherit; pointer-events:none;
+    background: radial-gradient(600px circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.06), transparent 40%);
+    opacity: 0; transition: opacity .3s;
+  }
+  .card-shine:hover::after { opacity: 1; }
+
+  /* Tabs */
+  .tab-pill {
+    padding: 10px 24px; border-radius: 999px; font-weight: 600; font-size: 14px;
+    color: var(--muted); cursor: pointer; transition: all .3s;
+    border: 1px solid transparent;
+  }
+  .tab-pill:hover { color: var(--text); }
+  .tab-pill.active {
+    background: linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);
+    color: #0a0a0a; box-shadow: 0 8px 32px rgba(139,92,246,0.45), 0 0 0 1px rgba(255,255,255,0.1) inset;
+  }
+
+  /* Period chips */
+  .chip {
+    padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 600;
+    color: var(--muted); cursor: pointer; transition: all .25s;
+    border: 1px solid transparent;
+  }
+  .chip:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  .chip.active {
+    background: linear-gradient(135deg,#22D3EE,#8B5CF6);
+    color: #0a0a0a; font-weight: 700;
+  }
+
+  /* Search */
+  .search-bar {
+    transition: all .35s cubic-bezier(.2,.7,.2,1);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .search-bar:focus-within {
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(34,211,238,0.5);
+    box-shadow: 0 0 0 4px rgba(34,211,238,0.12), 0 0 40px rgba(34,211,238,0.2);
+    transform: translateY(-1px);
+  }
+
+  /* Alert card hover */
+  .alert-card { position: relative; transition: all .3s; }
+  .alert-card .view-chip {
+    position: absolute; right: 14px; top: 50%; transform: translate(20px,-50%); opacity: 0;
+    background: linear-gradient(135deg,#22D3EE,#8B5CF6);
+    color:#0a0a0a; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+    transition: all .3s;
+    display: flex; align-items:center; gap: 4px;
+  }
+  .alert-card:hover .view-chip { transform: translate(0,-50%); opacity: 1; }
+  .alert-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.18); }
+
+  /* Pulse */
+  @keyframes pulse-soft {
+    0%,100% { box-shadow: 0 0 0 0 rgba(34,211,238,0.5); }
+    50% { box-shadow: 0 0 0 10px rgba(34,211,238,0); }
+  }
+  .pulse-dot { animation: pulse-soft 2s infinite; }
+
+  @keyframes pulse-tile {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.015); }
+  }
+  .pulse-tile { animation: pulse-tile 3.2s ease-in-out infinite; }
+
+  /* Donut ring (KPI 達成率) */
+  .ring-bg { stroke: rgba(255,255,255,0.08); }
+  .ring-fg { stroke-linecap: round; }
+
+  /* Before annotation */
+  .annot {
+    font-family: 'Caveat', 'Comic Sans MS', cursive;
+    color: #F87171;
+    text-shadow: 0 0 14px rgba(248,113,113,0.6);
+    pointer-events: none;
+    transform: rotate(-6deg);
+  }
+  .annot-arrow {
+    stroke: #F87171; fill: none; stroke-width: 2.5; stroke-linecap: round;
+    filter: drop-shadow(0 0 8px rgba(248,113,113,0.6));
+  }
+
+  /* Before iframe-like screen */
+  .before-screen {
+    background: #f4f6fa;
+    color: #1f2937;
+    border-radius: 16px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06);
+  }
+  .before-btn {
+    display:inline-block; background:#1976d2; color:#fff; padding: 8px 14px; border-radius: 6px;
+    font-size: 12px; font-weight: 600; margin: 4px;
+  }
+  .before-btn.alt { background:#0d47a1; }
+  .before-table th { background: #eceff1; color:#37474f; font-weight: 700; padding: 8px 10px; font-size: 12px; border-bottom: 1px solid #cfd8dc;}
+  .before-table td { padding: 8px 10px; font-size: 12px; border-bottom: 1px solid #eceff1; }
+
+  /* Driver avatar gradient */
+  .avatar {
+    width: 36px; height: 36px; border-radius: 999px;
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size: 13px; color:#0a0a0a;
+  }
+  .avatar.g1 { background: linear-gradient(135deg,#22D3EE,#8B5CF6); }
+  .avatar.g2 { background: linear-gradient(135deg,#8B5CF6,#EC4899); }
+  .avatar.g3 { background: linear-gradient(135deg,#A3E635,#22D3EE); }
+  .avatar.g4 { background: linear-gradient(135deg,#FACC15,#EC4899); }
+  .avatar.g5 { background: linear-gradient(135deg,#EC4899,#8B5CF6); }
+
+  /* Bars */
+  .bar-track { background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; }
+  .bar-fill {
+    height: 100%; border-radius: 999px;
+    background: linear-gradient(90deg,#22D3EE 0%, #8B5CF6 60%, #EC4899 100%);
+    box-shadow: 0 0 16px rgba(139,92,246,0.45);
+    width: 0%;
+  }
+
+  /* Nav links */
+  .navlink { color: var(--muted); font-size: 13px; font-weight: 500; transition: color .2s; }
+  .navlink:hover { color: var(--text); }
+
+  /* Section reveal */
+  .reveal { opacity: 0; transform: translateY(24px); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pulse-tile, .pulse-dot { animation: none !important; }
+    .reveal { opacity: 1 !important; transform: none !important; }
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+  /* ========== AI Copilot ========== */
+  #copilot-fab {
+    position: fixed; right: 28px; bottom: 28px; z-index: 90;
+    width: 64px; height: 64px; border-radius: 50%;
+    background: linear-gradient(135deg,#22D3EE 0%,#8B5CF6 50%,#EC4899 100%);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; border: none;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.12),
+      0 12px 40px rgba(139,92,246,0.45),
+      0 0 60px rgba(34,211,238,0.35);
+    transition: transform .25s ease, box-shadow .35s ease;
+  }
+  #copilot-fab::before {
+    content: ""; position: absolute; inset: -6px; border-radius: 50%;
+    background: linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);
+    filter: blur(14px); opacity: .55; z-index: -1;
+    animation: copilotPulse 2.8s ease-in-out infinite;
+  }
+  @keyframes copilotPulse {
+    0%,100% { opacity: .45; transform: scale(1); }
+    50% { opacity: .85; transform: scale(1.12); }
+  }
+  #copilot-fab:hover {
+    transform: scale(1.08);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.2),
+      0 16px 60px rgba(139,92,246,0.65),
+      0 0 90px rgba(34,211,238,0.55);
+  }
+  #copilot-fab svg { color:#fff; width: 28px; height: 28px; }
+  .copilot-chip-fab {
+    position: fixed; right: 100px; bottom: 42px; z-index: 89;
+    background: rgba(10,14,26,0.85);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #F8FAFC; font-size: 12px; padding: 8px 14px;
+    border-radius: 999px; backdrop-filter: blur(12px);
+    pointer-events: none;
+    animation: chipFloat 3s ease-in-out infinite;
+  }
+  @keyframes chipFloat {
+    0%,100% { transform: translateY(0); opacity: .9; }
+    50% { transform: translateY(-4px); opacity: 1; }
+  }
+
+  #copilot-panel {
+    position: fixed; top: 0; right: -460px; width: 420px; height: 100vh;
+    z-index: 100;
+    background:
+      radial-gradient(600px 400px at 100% 0%, rgba(34,211,238,0.10), transparent 60%),
+      radial-gradient(500px 400px at 0% 100%, rgba(236,72,153,0.10), transparent 60%),
+      rgba(10,14,26,0.78);
+    backdrop-filter: blur(36px) saturate(150%);
+    -webkit-backdrop-filter: blur(36px) saturate(150%);
+    border-left: 1px solid rgba(255,255,255,0.10);
+    box-shadow: -20px 0 60px rgba(0,0,0,0.5);
+    display: flex; flex-direction: column;
+  }
+  #copilot-panel::before {
+    content:""; position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 28px 28px;
+    mask-image: radial-gradient(ellipse at top right, black 20%, transparent 80%);
+  }
+  .copilot-header {
+    padding: 20px 22px 16px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    position: relative; z-index: 1;
+  }
+  .copilot-ai-badge {
+    width: 36px; height: 36px; border-radius: 12px;
+    background: linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 24px rgba(139,92,246,0.55);
+  }
+  .copilot-ai-badge svg { color:#fff; width: 18px; height: 18px; }
+  .copilot-close {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: #F8FAFC; transition: background .2s;
+  }
+  .copilot-close:hover { background: rgba(255,255,255,0.10); }
+
+  .copilot-suggestions {
+    padding: 14px 18px 6px; display: flex; flex-wrap: wrap; gap: 8px;
+    position: relative; z-index: 1;
+  }
+  .copilot-suggest-chip {
+    font-size: 11.5px; padding: 7px 12px; border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: rgba(248,250,252,0.85); cursor: pointer;
+    transition: all .2s ease;
+  }
+  .copilot-suggest-chip:hover {
+    background: rgba(139,92,246,0.15);
+    border-color: rgba(139,92,246,0.45);
+    color: #fff;
+  }
+
+  .copilot-messages {
+    flex: 1; overflow-y: auto; padding: 14px 18px 18px;
+    display: flex; flex-direction: column; gap: 14px;
+    position: relative; z-index: 1;
+  }
+  .msg-row { display: flex; gap: 10px; max-width: 100%; }
+  .msg-row.user { justify-content: flex-end; }
+  .msg-bubble {
+    padding: 12px 14px; border-radius: 14px; font-size: 13px;
+    line-height: 1.65; max-width: 86%; word-break: break-word;
+  }
+  .msg-row.user .msg-bubble {
+    background: linear-gradient(135deg, rgba(34,211,238,0.18), rgba(139,92,246,0.22));
+    border: 1px solid rgba(139,92,246,0.35);
+    color: #F8FAFC;
+    border-bottom-right-radius: 4px;
+  }
+  .msg-row.ai .msg-bubble {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    color: #F8FAFC;
+    border-bottom-left-radius: 4px;
+  }
+  .msg-ai-icon {
+    width: 28px; height: 28px; flex: 0 0 28px; border-radius: 8px;
+    background: linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 16px rgba(139,92,246,0.4);
+  }
+  .msg-ai-icon svg { color:#fff; width: 14px; height: 14px; }
+
+  .typing-dots { display: inline-flex; gap: 4px; align-items: center; }
+  .typing-dots span {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: linear-gradient(135deg,#22D3EE,#EC4899);
+    animation: typingBounce 1.2s infinite ease-in-out;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: .15s; }
+  .typing-dots span:nth-child(3) { animation-delay: .3s; }
+  @keyframes typingBounce {
+    0%,80%,100% { transform: translateY(0); opacity: .4; }
+    40% { transform: translateY(-4px); opacity: 1; }
+  }
+
+  .ai-mini-bars { display: flex; gap: 4px; align-items: flex-end; height: 36px; margin-top: 10px; }
+  .ai-mini-bars div {
+    flex: 1; border-radius: 3px 3px 0 0;
+    background: linear-gradient(180deg,#22D3EE,#8B5CF6);
+    opacity: .85;
+  }
+  .ai-list { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .ai-list-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 10px; border-radius: 8px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    font-size: 12px;
+  }
+  .ai-list-item .num { color: #A3E635; font-weight: 600; }
+  .ai-alert {
+    margin-top: 8px; padding: 8px 12px; border-radius: 10px;
+    background: rgba(248,113,113,0.10);
+    border: 1px solid rgba(248,113,113,0.30);
+    color: #FCA5A5; font-size: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ai-forecast {
+    margin-top: 8px; padding: 10px 12px; border-radius: 10px;
+    background: linear-gradient(135deg, rgba(34,211,238,0.10), rgba(139,92,246,0.10));
+    border: 1px solid rgba(139,92,246,0.30);
+    font-size: 12px;
+  }
+  .ai-forecast .big { font-size: 18px; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; }
+  .ai-forecast .ci { color: rgba(248,250,252,0.65); font-size: 11px; margin-top: 2px; }
+
+  .ai-actions { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .ai-action-chip {
+    font-size: 11px; padding: 6px 10px; border-radius: 999px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    color: rgba(248,250,252,0.88); cursor: pointer;
+    transition: all .2s ease;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .ai-action-chip:hover {
+    background: rgba(34,211,238,0.14);
+    border-color: rgba(34,211,238,0.45);
+    color: #fff;
+  }
+  .ai-action-chip svg { width: 12px; height: 12px; }
+
+  .copilot-input-wrap {
+    padding: 14px 16px 18px; border-top: 1px solid rgba(255,255,255,0.06);
+    position: relative; z-index: 1;
+  }
+  .copilot-input-row {
+    display: flex; gap: 8px; align-items: center;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 14px; padding: 6px 6px 6px 14px;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .copilot-input-row:focus-within {
+    border-color: rgba(139,92,246,0.55);
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.18);
+  }
+  #copilot-input {
+    flex: 1; background: transparent; border: none; outline: none;
+    color: #F8FAFC; font-size: 13px; padding: 8px 0;
+    font-family: inherit;
+  }
+  #copilot-input::placeholder { color: rgba(248,250,252,0.4); }
+  #copilot-send {
+    background: linear-gradient(135deg,#22D3EE,#8B5CF6,#EC4899);
+    border: none; border-radius: 10px;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: #fff;
+    box-shadow: 0 4px 16px rgba(139,92,246,0.4);
+    transition: transform .15s ease, box-shadow .2s ease;
+  }
+  #copilot-send:hover { transform: scale(1.06); box-shadow: 0 6px 22px rgba(139,92,246,0.6); }
+  #copilot-send:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+  #copilot-send svg { width: 16px; height: 16px; }
+
+  #copilot-backdrop {
+    position: fixed; inset: 0; z-index: 95;
+    background: rgba(7,9,18,0.55);
+    backdrop-filter: blur(2px);
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s ease;
+  }
+  #copilot-backdrop.is-open { opacity: 1; pointer-events: auto; }
+
+  .copilot-toast {
+    position: fixed; left: 50%; bottom: 110px; transform: translateX(-50%) translateY(20px);
+    z-index: 200;
+    background: rgba(10,14,26,0.92);
+    border: 1px solid rgba(34,211,238,0.4);
+    color: #F8FAFC; font-size: 13px;
+    padding: 10px 18px; border-radius: 999px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 30px rgba(34,211,238,0.25);
+    opacity: 0; transition: all .35s ease;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .copilot-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .copilot-toast svg { color:#A3E635; width: 14px; height: 14px; }
+
+  .chart-highlight {
+    animation: chartFlash 1.4s ease-in-out 2;
+    border-radius: 20px;
+  }
+  @keyframes chartFlash {
+    0%,100% { box-shadow: 0 0 0 0 rgba(34,211,238,0); }
+    50% { box-shadow: 0 0 0 3px rgba(34,211,238,0.55), 0 0 40px rgba(34,211,238,0.5); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #copilot-fab::before, .copilot-chip-fab,
+    .typing-dots span, .chart-highlight { animation: none !important; }
+  }
+
+  @media (max-width: 520px) {
+    #copilot-panel { width: 100vw; right: -100vw; }
+    .copilot-chip-fab { display: none; }
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="bg-cosmos"></div>
+<div class="bg-grid"></div>
+<canvas id="particles"></canvas>
+
+<!-- ============ TOP NAV ============ -->
+<header class="sticky top-0 z-40 backdrop-blur-xl" style="background: rgba(7,9,18,0.6); border-bottom: 1px solid var(--border);">
+  <div class="max-w-[1480px] mx-auto px-8 py-4 flex items-center gap-8">
+    <a href="./index.html" class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl grad-bg flex items-center justify-center font-black text-[#0a0a0a] text-lg">K</div>
+      <div class="leading-tight">
+        <div class="font-bold text-[15px] tracking-wide">KPH Cockpit</div>
+        <div class="text-[10px] uppercase tracking-[0.18em]" style="color: var(--muted);">Executive Command</div>
+      </div>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-6 ml-4">
+      <a href="./index.html" class="navlink" style="color: var(--text);">ダッシュボード</a>
+      <a href="./dispatch.html" class="navlink">配車管理</a>
+      <a href="./driver.html" class="navlink">ドライバー</a>
+      <a href="./vision.html" class="navlink">撮るだけ</a>
+      <a href="./mind.html" class="navlink">会社の頭脳</a>
+      <a href="#" class="navlink">業者・案件</a>
+      <a href="#" class="navlink">マニフェスト</a>
+    </nav>
+
+    <!-- Search -->
+    <div class="flex-1 max-w-xl mx-auto">
+      <div class="search-bar flex items-center gap-3 px-5 py-2.5 rounded-full">
+        <i data-lucide="search" class="w-4 h-4" style="color: var(--muted);"></i>
+        <input type="text" placeholder="業者・案件・マニフェスト番号で横断検索" class="bg-transparent outline-none text-sm flex-1 placeholder:text-white/40" />
+        <kbd class="text-[10px] px-2 py-0.5 rounded border border-white/10 text-white/50 font-mono">⌘K</kbd>
+      </div>
+    </div>
+
+    <!-- Period chips -->
+    <div class="hidden lg:flex items-center gap-1 p-1 rounded-full" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border);">
+      <button class="chip" data-period>今日</button>
+      <button class="chip" data-period>週</button>
+      <button class="chip active" data-period>月</button>
+      <button class="chip" data-period>年</button>
+    </div>
+
+    <!-- Right icons -->
+    <div class="flex items-center gap-3">
+      <button class="relative w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-white/5">
+        <i data-lucide="bell" class="w-4 h-4"></i>
+        <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#F87171] pulse-dot"></span>
+      </button>
+      <div class="avatar g2">HK</div>
+    </div>
+  </div>
+
+  <!-- Before/After tab switcher -->
+  <div class="max-w-[1480px] mx-auto px-8 pb-4 flex items-center gap-3">
+    <div class="text-[11px] uppercase tracking-[0.2em]" style="color: var(--muted);">View Mode</div>
+    <div class="flex items-center gap-1 p-1 rounded-full glass-pill">
+      <button id="tab-before" class="tab-pill">Before — 現行KPHクラウド</button>
+      <button id="tab-after" class="tab-pill active">After — KPH Cockpit</button>
+    </div>
+    <div class="ml-auto flex items-center gap-2 text-[11px]" style="color: var(--muted);">
+      <span class="w-1.5 h-1.5 rounded-full bg-[#A3E635] pulse-dot"></span>
+      Live · 最終同期 2秒前
+    </div>
+  </div>
+</header>
+
+<!-- ============ BEFORE TAB ============ -->
+<section id="view-before" class="hidden max-w-[1480px] mx-auto px-8 py-10">
+  <div class="mb-6 flex items-end justify-between">
+    <div>
+      <div class="text-[11px] uppercase tracking-[0.25em] font-bold" style="color:#F87171;">Before</div>
+      <h2 class="text-3xl font-black mt-2">現行 KPHクラウド <span class="text-base font-normal" style="color: var(--muted);">— Bootstrap 3 / グラフなし / KPIなし</span></h2>
+    </div>
+    <div class="text-sm" style="color: var(--muted);">クリックしないと数字にたどり着かない、経営判断に5分かかる現状</div>
+  </div>
+
+  <div class="relative">
+    <!-- Annotations layer -->
+    <svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 5;" viewBox="0 0 1400 900" preserveAspectRatio="none">
+      <path class="annot-arrow" d="M 220 110 Q 280 60 360 80" />
+      <polygon points="356,72 372,82 354,90" fill="#F87171" />
+      <path class="annot-arrow" d="M 1180 200 Q 1100 230 980 220" />
+      <polygon points="985,212 970,222 988,228" fill="#F87171" />
+      <path class="annot-arrow" d="M 700 760 Q 680 820 580 820" />
+      <polygon points="586,812 570,822 586,832" fill="#F87171" />
+      <path class="annot-arrow" d="M 80 540 Q 60 460 160 440" />
+      <polygon points="156,432 168,446 152,452" fill="#F87171" />
+    </svg>
+
+    <div class="annot absolute text-2xl font-bold" style="left: 60px; top: 30px;">グラフなし!!</div>
+    <div class="annot absolute text-2xl font-bold" style="right: 60px; top: 160px; transform: rotate(5deg);">KPIゼロ</div>
+    <div class="annot absolute text-2xl font-bold" style="right: 380px; bottom: 80px; transform: rotate(-3deg);">期限管理なし</div>
+    <div class="annot absolute text-2xl font-bold" style="left: 20px; top: 400px;">業者別構成不明</div>
+
+    <!-- Faked legacy screen -->
+    <div class="before-screen p-8 relative">
+      <!-- header -->
+      <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-300">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded bg-[#1976d2] text-white font-bold flex items-center justify-center">K</div>
+          <div class="font-bold text-gray-800">KPHクラウド <span class="text-xs font-normal text-gray-500">v3.2.1</span></div>
+        </div>
+        <div class="text-xs text-gray-500">ログイン: 樋口工房</div>
+      </div>
+
+      <!-- 12 blue buttons -->
+      <div class="grid grid-cols-6 gap-2 mb-6">
+        <a class="before-btn">案件登録</a>
+        <a class="before-btn">配車入力</a>
+        <a class="before-btn">計量入力</a>
+        <a class="before-btn">マニフェスト</a>
+        <a class="before-btn">売上一覧</a>
+        <a class="before-btn">業者マスタ</a>
+        <a class="before-btn alt">請求書発行</a>
+        <a class="before-btn alt">支払管理</a>
+        <a class="before-btn alt">ドライバー</a>
+        <a class="before-btn alt">車両管理</a>
+        <a class="before-btn alt">許可証</a>
+        <a class="before-btn alt">設定</a>
+      </div>
+
+      <!-- Salaes list -->
+      <div class="text-sm font-bold text-gray-700 mb-2">売上一覧（2026年5月）</div>
+      <table class="w-full before-table">
+        <thead>
+          <tr>
+            <th class="text-left">日付</th>
+            <th class="text-left">案件番号</th>
+            <th class="text-left">業者</th>
+            <th class="text-left">品目</th>
+            <th class="text-right">金額</th>
+            <th class="text-left">担当</th>
+            <th class="text-center">状態</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>2026/05/26</td><td>K-2026-0512</td><td>○○建設</td><td>混合廃棄物</td><td class="text-right">¥84,500</td><td>田中</td><td class="text-center">完了</td></tr>
+          <tr><td>2026/05/26</td><td>K-2026-0511</td><td>××工務店</td><td>木くず</td><td class="text-right">¥62,300</td><td>佐藤</td><td class="text-center">完了</td></tr>
+          <tr><td>2026/05/25</td><td>K-2026-0510</td><td>△△解体</td><td>廃プラ</td><td class="text-right">¥128,000</td><td>山田</td><td class="text-center">完了</td></tr>
+          <tr><td>2026/05/25</td><td>K-2026-0509</td><td>□□リフォーム</td><td>汚泥</td><td class="text-right">¥45,800</td><td>鈴木</td><td class="text-center">完了</td></tr>
+          <tr><td>2026/05/24</td><td>K-2026-0508</td><td>☆☆塗装</td><td>紙くず</td><td class="text-right">¥28,400</td><td>高橋</td><td class="text-center">完了</td></tr>
+          <tr><td>2026/05/24</td><td>K-2026-0507</td><td>○○建設</td><td>混合廃棄物</td><td class="text-right">¥96,200</td><td>田中</td><td class="text-center">完了</td></tr>
+          <tr><td>2026/05/23</td><td>K-2026-0506</td><td>××工務店</td><td>木くず</td><td class="text-right">¥71,500</td><td>佐藤</td><td class="text-center">完了</td></tr>
+          <tr><td>2026/05/23</td><td>K-2026-0505</td><td>△△解体</td><td>廃プラ</td><td class="text-right">¥152,800</td><td>山田</td><td class="text-center">完了</td></tr>
+        </tbody>
+      </table>
+
+      <div class="mt-4 text-xs text-gray-500 flex justify-between">
+        <span>1 - 8 / 248件</span>
+        <span>« 1 2 3 ... 31 »</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-8 glass p-5 flex items-center gap-4">
+    <div class="w-12 h-12 rounded-xl grad-bg flex items-center justify-center"><i data-lucide="sparkles" class="w-5 h-5 text-[#0a0a0a]"></i></div>
+    <div class="flex-1">
+      <div class="font-bold">After タブで、同じデータが "経営司令室" に変わります</div>
+      <div class="text-sm" style="color: var(--muted);">クリック数 0 で KPI / 推移 / 期限 / 業者構成 / ドライバー稼働をひと目で把握</div>
+    </div>
+    <button id="goto-after" class="px-5 py-2.5 rounded-full grad-bg font-bold text-[#0a0a0a] text-sm flex items-center gap-2">
+      After を見る <i data-lucide="arrow-right" class="w-4 h-4"></i>
+    </button>
+  </div>
+</section>
+
+<!-- ============ AFTER TAB ============ -->
+<section id="view-after" class="max-w-[1480px] mx-auto px-8 py-10">
+
+  <!-- Hero stripe -->
+  <div class="reveal flex items-end justify-between mb-8">
+    <div>
+      <div class="flex items-center gap-2 text-[11px] uppercase tracking-[0.25em] font-bold" style="color:#22D3EE;">
+        <span class="w-1.5 h-1.5 rounded-full bg-[#22D3EE] pulse-dot"></span> Executive Cockpit · 2026 May
+      </div>
+      <h1 class="text-4xl font-black mt-3 tracking-tight">おはようございます、<span class="grad-text">樋口さん</span></h1>
+      <p class="mt-2 text-sm" style="color: var(--muted);">今月は目標を 8% 上回るペース。期限切れ間近のアラートが 3 件あります。</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button class="glass px-4 py-2.5 rounded-full text-xs font-semibold flex items-center gap-2 hover:bg-white/5">
+        <i data-lucide="download" class="w-4 h-4"></i> 月次レポート出力
+      </button>
+      <button class="grad-bg text-[#0a0a0a] px-5 py-2.5 rounded-full text-xs font-bold flex items-center gap-2">
+        <i data-lucide="plus" class="w-4 h-4"></i> 新規案件
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI 4 cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+
+    <!-- KPI 1: 今月売上 -->
+    <div class="reveal kpi-card glass card-shine relative p-6 grad-border overflow-hidden" data-tilt data-tilt-max="6" data-tilt-glare data-tilt-max-glare="0.1">
+      <div class="absolute -top-12 -right-12 w-44 h-44 rounded-full" style="background: radial-gradient(circle, rgba(34,211,238,0.25), transparent 70%);"></div>
+      <div class="flex items-center justify-between relative">
+        <div class="text-[11px] uppercase tracking-[0.18em] font-bold" style="color: var(--muted);">今月売上</div>
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(34,211,238,0.12); border: 1px solid rgba(34,211,238,0.25);">
+          <i data-lucide="trending-up" class="w-4 h-4" style="color:#22D3EE;"></i>
+        </div>
+      </div>
+      <div class="mt-4 flex items-baseline gap-2">
+        <span class="text-[10px] font-mono" style="color: var(--muted);">¥</span>
+        <span class="text-4xl font-black num countup" data-target="13420000" data-prefix="">0</span>
+      </div>
+      <div class="mt-2 flex items-center gap-2 text-xs">
+        <span class="px-1.5 py-0.5 rounded text-[10px] font-bold" style="background: rgba(163,230,53,0.15); color:#A3E635;">▲ 12.4%</span>
+        <span style="color: var(--muted);">前月 ¥11,940,000</span>
+      </div>
+      <div class="mt-4 h-10"><canvas id="spark1"></canvas></div>
+    </div>
+
+    <!-- KPI 2: 達成率 -->
+    <div class="reveal kpi-card glass card-shine relative p-6 grad-border overflow-hidden" data-tilt data-tilt-max="6" data-tilt-glare data-tilt-max-glare="0.1">
+      <div class="absolute -top-12 -right-12 w-44 h-44 rounded-full" style="background: radial-gradient(circle, rgba(139,92,246,0.28), transparent 70%);"></div>
+      <div class="flex items-center justify-between relative">
+        <div class="text-[11px] uppercase tracking-[0.18em] font-bold" style="color: var(--muted);">前月比 目標達成率</div>
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(139,92,246,0.14); border: 1px solid rgba(139,92,246,0.3);">
+          <i data-lucide="target" class="w-4 h-4" style="color:#8B5CF6;"></i>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center gap-4">
+        <svg width="76" height="76" viewBox="0 0 76 76" class="-rotate-90">
+          <defs>
+            <linearGradient id="rg1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#22D3EE"/>
+              <stop offset="100%" stop-color="#8B5CF6"/>
+            </linearGradient>
+          </defs>
+          <circle cx="38" cy="38" r="32" fill="none" class="ring-bg" stroke-width="6"/>
+          <circle id="ring-fg-1" cx="38" cy="38" r="32" fill="none" stroke="url(#rg1)" class="ring-fg" stroke-width="6" stroke-dasharray="201" stroke-dashoffset="201"/>
+        </svg>
+        <div>
+          <div class="text-4xl font-black num countup" data-target="108" data-suffix="%">0%</div>
+          <div class="text-xs mt-1" style="color: var(--muted);">目標 ¥12.4M に対し +8%</div>
+        </div>
+      </div>
+      <div class="mt-4 h-10"><canvas id="spark2"></canvas></div>
+    </div>
+
+    <!-- KPI 3: ドライバー稼働 -->
+    <div class="reveal kpi-card glass card-shine relative p-6 grad-border overflow-hidden" data-tilt data-tilt-max="6" data-tilt-glare data-tilt-max-glare="0.1">
+      <div class="absolute -top-12 -right-12 w-44 h-44 rounded-full" style="background: radial-gradient(circle, rgba(163,230,53,0.22), transparent 70%);"></div>
+      <div class="flex items-center justify-between relative">
+        <div class="text-[11px] uppercase tracking-[0.18em] font-bold" style="color: var(--muted);">稼働ドライバー</div>
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(163,230,53,0.12); border: 1px solid rgba(163,230,53,0.3);">
+          <i data-lucide="users" class="w-4 h-4" style="color:#A3E635;"></i>
+        </div>
+      </div>
+      <div class="mt-4 flex items-baseline gap-2">
+        <span class="text-4xl font-black num countup" data-target="18">0</span>
+        <span class="text-lg font-bold" style="color: var(--muted);">/ 22名</span>
+      </div>
+      <div class="mt-3 bar-track h-2"><div class="bar-fill" data-bar="82"></div></div>
+      <div class="mt-2 flex items-center justify-between text-xs">
+        <span style="color: var(--muted);">稼働率 82%</span>
+        <span style="color:#A3E635;" class="font-semibold">残 4名 待機中</span>
+      </div>
+      <div class="mt-3 h-10"><canvas id="spark3"></canvas></div>
+    </div>
+
+    <!-- KPI 4: 期限切れ -->
+    <div class="reveal kpi-card glass card-shine relative p-6 grad-border overflow-hidden glow-red" data-tilt data-tilt-max="6" data-tilt-glare data-tilt-max-glare="0.1">
+      <div class="absolute -top-12 -right-12 w-44 h-44 rounded-full" style="background: radial-gradient(circle, rgba(248,113,113,0.35), transparent 70%);"></div>
+      <div class="flex items-center justify-between relative">
+        <div class="text-[11px] uppercase tracking-[0.18em] font-bold" style="color:#F87171;">期限切れ間近</div>
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: rgba(248,113,113,0.14); border: 1px solid rgba(248,113,113,0.35);">
+          <i data-lucide="alert-triangle" class="w-4 h-4" style="color:#F87171;"></i>
+        </div>
+      </div>
+      <div class="mt-4 flex items-baseline gap-2">
+        <span class="text-4xl font-black num countup" data-target="3">0</span>
+        <span class="text-sm font-semibold" style="color: var(--muted);">件 / 90日以内</span>
+      </div>
+      <div class="mt-2 text-xs" style="color:#F87171;">許可証 1 · 契約 1 · 車検 1</div>
+      <div class="mt-4 flex gap-1">
+        <div class="h-1.5 flex-1 rounded-full" style="background:#F87171;"></div>
+        <div class="h-1.5 flex-1 rounded-full" style="background:#FACC15;"></div>
+        <div class="h-1.5 flex-1 rounded-full" style="background:#FACC15;"></div>
+        <div class="h-1.5 flex-1 rounded-full bg-white/10"></div>
+        <div class="h-1.5 flex-1 rounded-full bg-white/10"></div>
+        <div class="h-1.5 flex-1 rounded-full bg-white/10"></div>
+      </div>
+      <button class="mt-4 text-xs font-semibold flex items-center gap-1.5 hover:gap-2.5 transition-all" style="color:#F87171;">
+        対応プランを開く <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Main 2 col: graph + alerts -->
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-5 mb-8">
+
+    <!-- 売上推移 -->
+    <div class="reveal xl:col-span-2 glass card-shine p-6 grad-border relative overflow-hidden">
+      <div class="flex items-start justify-between mb-1">
+        <div>
+          <div class="text-[11px] uppercase tracking-[0.18em] font-bold" style="color: var(--muted);">Revenue Trend</div>
+          <h3 class="text-xl font-bold mt-1">売上推移 <span class="text-xs font-normal" style="color: var(--muted);">— 直近12ヶ月 (実績 vs 目標)</span></h3>
+        </div>
+        <div class="flex items-center gap-4 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-sm" style="background: linear-gradient(135deg,#22D3EE,#8B5CF6);"></span>
+            <span>実績</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-0.5" style="background: #8B5CF6; border-top: 2px dashed #8B5CF6;"></span>
+            <span style="color: var(--muted);">目標</span>
+          </div>
+        </div>
+      </div>
+      <div class="mt-2 flex items-baseline gap-3">
+        <div class="text-3xl font-black num">¥139,820,000</div>
+        <div class="px-2 py-0.5 rounded text-[11px] font-bold" style="background: rgba(163,230,53,0.15); color:#A3E635;">YTD ▲ 18.2%</div>
+      </div>
+      <div class="mt-5 h-[340px] relative">
+        <canvas id="chart-revenue"></canvas>
+      </div>
+    </div>
+
+    <!-- Alerts -->
+    <div class="reveal glass card-shine p-6 grad-border relative overflow-hidden">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="text-[11px] uppercase tracking-[0.18em] font-bold" style="color: var(--muted);">Priority Alerts</div>
+          <h3 class="text-xl font-bold mt-1">優先タイムライン</h3>
+        </div>
+        <div class="px-2 py-1 rounded-full text-[10px] font-bold" style="background: rgba(248,113,113,0.14); color:#F87171; border:1px solid rgba(248,113,113,0.3);">5 件</div>
+      </div>
+
+      <div class="space-y-3">
+        <!-- Critical: 許可証 -->
+        <div class="alert-card glass-strong p-4 rounded-2xl glow-red" style="border:1px solid rgba(248,113,113,0.4);">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(248,113,113,0.18);">
+              <i data-lucide="shield-alert" class="w-4 h-4" style="color:#F87171;"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <div class="text-[10px] font-bold uppercase tracking-wider" style="color:#F87171;">CRITICAL</div>
+                <div class="text-[10px]" style="color: var(--muted);">28日後</div>
+              </div>
+              <div class="font-semibold text-sm mt-0.5">産業廃棄物収集運搬業 許可証 失効</div>
+              <div class="text-xs mt-1" style="color: var(--muted);">大阪府 No.02700123456 · 担当: 樋口</div>
+            </div>
+          </div>
+          <div class="view-chip">View <i data-lucide="arrow-right" class="w-3 h-3"></i></div>
+        </div>
+
+        <!-- Warning: 契約 -->
+        <div class="alert-card glass-strong p-4 rounded-2xl" style="border:1px solid rgba(250,204,21,0.4);">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(250,204,21,0.14);">
+              <i data-lucide="file-text" class="w-4 h-4" style="color:#FACC15;"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <div class="text-[10px] font-bold uppercase tracking-wider" style="color:#FACC15;">WARNING</div>
+                <div class="text-[10px]" style="color: var(--muted);">来月末</div>
+              </div>
+              <div class="font-semibold text-sm mt-0.5">○○建設 年間契約 満了</div>
+              <div class="text-xs mt-1" style="color: var(--muted);">年商 ¥18.4M · 更新交渉が必要</div>
+            </div>
+          </div>
+          <div class="view-chip">View <i data-lucide="arrow-right" class="w-3 h-3"></i></div>
+        </div>
+
+        <!-- Warning: 車検 -->
+        <div class="alert-card glass-strong p-4 rounded-2xl" style="border:1px solid rgba(250,204,21,0.3);">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(250,204,21,0.14);">
+              <i data-lucide="truck" class="w-4 h-4" style="color:#FACC15;"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <div class="text-[10px] font-bold uppercase tracking-wider" style="color:#FACC15;">WARNING</div>
+                <div class="text-[10px]" style="color: var(--muted);">18日後</div>
+              </div>
+              <div class="font-semibold text-sm mt-0.5">車両 4t #12 車検満了</div>
+              <div class="text-xs mt-1" style="color: var(--muted);">ドライバー: 田中拓哉 · 代替車両要</div>
+            </div>
+          </div>
+          <div class="view-chip">View <i data-lucide="arrow-right" class="w-3 h-3"></i></div>
+        </div>
+
+        <!-- Info: マニフェスト -->
+        <div class="alert-card glass-strong p-4 rounded-2xl" style="border:1px solid rgba(34,211,238,0.25);">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(34,211,238,0.12);">
+              <i data-lucide="file-clock" class="w-4 h-4" style="color:#22D3EE;"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <div class="text-[10px] font-bold uppercase tracking-wider" style="color:#22D3EE;">INFO</div>
+                <div class="text-[10px]" style="color: var(--muted);">本日中</div>
+              </div>
+              <div class="font-semibold text-sm mt-0.5">マニフェスト未送信 4件</div>
+              <div class="text-xs mt-1" style="color: var(--muted);">電子マニフェスト E-2026-05-26-***</div>
+            </div>
+          </div>
+          <div class="view-chip">View <i data-lucide="arrow-right" class="w-3 h-3"></i></div>
+        </div>
+
+        <!-- Info: 入金 -->
+        <div class="alert-card glass-strong p-4 rounded-2xl" style="border:1px solid rgba(139,92,246,0.25);">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(139,92,246,0.14);">
+              <i data-lucide="wallet" class="w-4 h-4" style="color:#8B5CF6;"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <div class="text-[10px] font-bold uppercase tracking-wider" style="color:#8B5CF6;">PAYMENT</div>
+                <div class="text-[10px]" style="color: var(--muted);">超過 7日</div>
+              </div>
+              <div class="font-semibold text-sm mt-0.5">入金未確認 2社 ¥384,200</div>
+              <div class="text-xs mt-1" style="color: var(--muted);">△△解体 / ☆☆塗装</div>
+            </div>
+          </div>
+          <div class="view-chip">View <i data-lucide="arrow-right" class="w-3 h-3"></i></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom 4 col -->
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-12">
+
+    <!-- 品目別構成 (donut) -->
+    <div class="reveal glass card-shine p-6 grad-border relative overflow-hidden">
+      <div class="text-[11px] uppercase tracking-[0.18em] font-bold" style="color: var(--muted);">Waste Composition</div>
+      <h3 class="text-lg font-bold mt-1 mb-4">品目別構成</h3>
+      <div class="relative h-[180px]">
+        <canvas id="chart-donut"></canvas>
+        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <div class="text-[10px]" style="color: var(--muted);">合計</div>
+          <div class="text-2xl font-black num">¥13.4M</div>
+        </div>
+      </div>
+      <div class="mt-4 space-y-1.5 text-xs">
+        <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-sm" style="background:#22D3EE;"></span>木くず</span><span class="font-semibold num">35%</span></div>
+        <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-sm" style="background:#8B5CF6;"></span>混合廃棄物</span><span class="font-semibold num">28%</span></div>
+        <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-sm" style="background:#EC4899;"></span>廃プラ</span><span class="font-semibold num">18%</span></div>
+        <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-sm" style="background:#A3E635;"></span>汚泥</span><span class="font-semibold num">12%</span></div>
+        <div class="flex items-center justify-between"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-sm" style="background:#FACC15;"></span>紙くず</span><span class="font-semibold num">7%</span></div>
+      </div>
+    </div>
+
+    <!-- 業者別 TOP5 -->
+    <div class="reveal glass card-shine p-6 grad-border relative overflow-hidden">
+      <div class="text-[11px] uppercase tracking-[0.18em] font-bold" style="color: var(--muted);">Top Clients</div>
+      <h3 class="text-lg font-bold mt-1 mb-5">業者別売上 TOP5</h3>
+      <div class="space-y-4">
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1.5"><span class="font-semibold">○○建設</span><span class="num font-bold">¥3,840K</span></div>
+          <div class="bar-track h-2"><div class="bar-fill" data-bar="100"></div></div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1.5"><span class="font-semibold">××工務店</span><span class="num font-bold">¥2,910K</span></div>
+          <div class="bar-track h-2"><div class="bar-fill" data-bar="76"></div></div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1.5"><span class="font-semibold">△△解体</span><span class="num font-bold">¥2,420K</span></div>
+          <div class="bar-track h-2"><div class="bar-fill" data-bar="63"></div></div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1.5"><span class="font-semibold">□□リフォーム</span><span class="num font-bold">¥1,680K</span></div>
+          <div class="bar-track h-2"><div class="bar-fill" data-bar="44"></div></div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1.5"><span class="font-semibold">☆☆塗装</span><span class="num font-bold">¥1,210K</span></div>
+          <div class="bar-track h-2"><div class="bar-fill" data-bar="32"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ドライバー稼働 -->
+    <div class="reveal glass card-shine p-6 grad-border relative overflow-hidden">
+      <div class="text-[11px] uppercase tracking-[0.18em] font-bold" style="color: var(--muted);">Driver Utilization</div>
+      <h3 class="text-lg font-bold mt-1 mb-5">稼働ランキング TOP5</h3>
+      <div class="space-y-3.5">
+        <div class="flex items-center gap-3">
+          <div class="avatar g1">田</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between text-xs mb-1"><span class="font-semibold truncate">田中拓哉</span><span class="num font-bold" style="color:#A3E635;">96%</span></div>
+            <div class="bar-track h-1.5"><div class="bar-fill" data-bar="96"></div></div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="avatar g2">佐</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between text-xs mb-1"><span class="font-semibold truncate">佐藤健一</span><span class="num font-bold" style="color:#A3E635;">92%</span></div>
+            <div class="bar-track h-1.5"><div class="bar-fill" data-bar="92"></div></div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="avatar g3">山</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between text-xs mb-1"><span class="font-semibold truncate">山田太郎</span><span class="num font-bold">88%</span></div>
+            <div class="bar-track h-1.5"><div class="bar-fill" data-bar="88"></div></div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="avatar g4">鈴</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between text-xs mb-1"><span class="font-semibold truncate">鈴木一郎</span><span class="num font-bold">81%</span></div>
+            <div class="bar-track h-1.5"><div class="bar-fill" data-bar="81"></div></div>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="avatar g5">高</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between text-xs mb-1"><span class="font-semibold truncate">高橋翼</span><span class="num font-bold">74%</span></div>
+            <div class="bar-track h-1.5"><div class="bar-fill" data-bar="74"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 本日サマリー -->
+    <div class="reveal glass card-shine p-6 grad-border relative overflow-hidden">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-[11px] uppercase tracking-[0.18em] font-bold" style="color: var(--muted);">Today · 5/27</div>
+          <h3 class="text-lg font-bold mt-1">本日のサマリー</h3>
+        </div>
+        <span class="w-1.5 h-1.5 rounded-full bg-[#22D3EE] pulse-dot"></span>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div class="pulse-tile glass-strong p-3 rounded-2xl" style="border:1px solid rgba(34,211,238,0.25);">
+          <div class="flex items-center gap-2 text-[10px] uppercase tracking-wider" style="color:#22D3EE;">
+            <i data-lucide="truck" class="w-3 h-3"></i> 配車
+          </div>
+          <div class="text-2xl font-black num mt-1">14</div>
+          <div class="text-[10px]" style="color: var(--muted);">完了 9 / 進行中 5</div>
+        </div>
+        <div class="pulse-tile glass-strong p-3 rounded-2xl" style="border:1px solid rgba(139,92,246,0.25); animation-delay: 0.4s;">
+          <div class="flex items-center gap-2 text-[10px] uppercase tracking-wider" style="color:#8B5CF6;">
+            <i data-lucide="scale" class="w-3 h-3"></i> 計量
+          </div>
+          <div class="text-2xl font-black num mt-1">38</div>
+          <div class="text-[10px]" style="color: var(--muted);">合計 28.4t</div>
+        </div>
+        <div class="pulse-tile glass-strong p-3 rounded-2xl" style="border:1px solid rgba(236,72,153,0.25); animation-delay: 0.8s;">
+          <div class="flex items-center gap-2 text-[10px] uppercase tracking-wider" style="color:#EC4899;">
+            <i data-lucide="user-plus" class="w-3 h-3"></i> 新規予約
+          </div>
+          <div class="text-2xl font-black num mt-1">7</div>
+          <div class="text-[10px]" style="color: var(--muted);">うち初回 3</div>
+        </div>
+        <div class="pulse-tile glass-strong p-3 rounded-2xl" style="border:1px solid rgba(163,230,53,0.3); animation-delay: 1.2s;">
+          <div class="flex items-center gap-2 text-[10px] uppercase tracking-wider" style="color:#A3E635;">
+            <i data-lucide="check-circle-2" class="w-3 h-3"></i> 完了
+          </div>
+          <div class="text-2xl font-black num mt-1">2</div>
+          <div class="text-[10px]" style="color: var(--muted);">案件クローズ</div>
+        </div>
+      </div>
+      <a href="./dispatch.html" class="mt-4 flex items-center justify-center gap-2 text-xs font-semibold py-2.5 rounded-full" style="background: rgba(255,255,255,0.04); border: 1px solid var(--border);">
+        配車管理を開く <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Footer mini -->
+  <div class="reveal flex items-center justify-between text-xs pb-12" style="color: var(--muted);">
+    <div>© 2026 KPH Cockpit — 産廃業界向け次世代 SaaS</div>
+    <div class="flex items-center gap-5">
+      <a href="./index.html" class="navlink">ダッシュボード</a>
+      <a href="./dispatch.html" class="navlink">配車管理</a>
+      <a href="./driver.html" class="navlink">ドライバー</a>
+    </div>
+  </div>
+
+</section>
+
+<script>
+  // Lucide
+  lucide.createIcons();
+
+  // ---------- Particles ----------
+  (function(){
+    const c = document.getElementById('particles');
+    const ctx = c.getContext('2d');
+    let w, h, parts = [];
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function resize() { w = c.width = innerWidth; h = c.height = innerHeight; }
+    resize();
+    addEventListener('resize', resize);
+    const colors = ['rgba(34,211,238,', 'rgba(139,92,246,', 'rgba(236,72,153,'];
+    const count = reduced ? 0 : 70;
+    for (let i=0;i<count;i++){
+      parts.push({
+        x: Math.random()*w,
+        y: Math.random()*h,
+        r: 0.6 + Math.random()*1.6,
+        vx: (Math.random()-0.5)*0.15,
+        vy: (Math.random()-0.5)*0.15,
+        a: 0.15 + Math.random()*0.5,
+        c: colors[i%3]
+      });
+    }
+    function tick(){
+      ctx.clearRect(0,0,w,h);
+      parts.forEach(p=>{
+        p.x += p.vx; p.y += p.vy;
+        if (p.x<0) p.x=w; if (p.x>w) p.x=0;
+        if (p.y<0) p.y=h; if (p.y>h) p.y=0;
+        ctx.beginPath();
+        ctx.fillStyle = p.c + p.a + ')';
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fill();
+      });
+      requestAnimationFrame(tick);
+    }
+    if (!reduced) tick();
+  })();
+
+  // ---------- Tilt ----------
+  if (window.VanillaTilt) {
+    VanillaTilt.init(document.querySelectorAll('[data-tilt]'), {
+      max: 6, speed: 600, glare: true, 'max-glare': 0.1
+    });
+  }
+
+  // ---------- Card shine follow ----------
+  document.querySelectorAll('.card-shine').forEach(el=>{
+    el.addEventListener('mousemove', (e)=>{
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', ((e.clientX-r.left)/r.width*100)+'%');
+      el.style.setProperty('--my', ((e.clientY-r.top)/r.height*100)+'%');
+    });
+  });
+
+  // ---------- Tabs ----------
+  const tabAfter = document.getElementById('tab-after');
+  const tabBefore = document.getElementById('tab-before');
+  const viewAfter = document.getElementById('view-after');
+  const viewBefore = document.getElementById('view-before');
+  function setTab(which){
+    if (which==='before'){
+      tabBefore.classList.add('active'); tabAfter.classList.remove('active');
+      viewBefore.classList.remove('hidden'); viewAfter.classList.add('hidden');
+    } else {
+      tabAfter.classList.add('active'); tabBefore.classList.remove('active');
+      viewAfter.classList.remove('hidden'); viewBefore.classList.add('hidden');
+    }
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  tabBefore.addEventListener('click', ()=> setTab('before'));
+  tabAfter.addEventListener('click', ()=> setTab('after'));
+  document.getElementById('goto-after')?.addEventListener('click', ()=> setTab('after'));
+
+  // ---------- Period chips ----------
+  document.querySelectorAll('[data-period]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      document.querySelectorAll('[data-period]').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+
+  // ---------- Charts ----------
+  const gridColor = 'rgba(255,255,255,0.05)';
+  const tickColor = 'rgba(255,255,255,0.5)';
+  Chart.defaults.font.family = "'Inter','Noto Sans JP',sans-serif";
+  Chart.defaults.color = tickColor;
+
+  // Spark generic
+  function spark(id, data, color){
+    const ctx = document.getElementById(id);
+    if (!ctx) return;
+    const grad = ctx.getContext('2d').createLinearGradient(0,0,0,40);
+    grad.addColorStop(0, color+'66');
+    grad.addColorStop(1, color+'00');
+    new Chart(ctx, {
+      type:'line',
+      data:{ labels:data.map((_,i)=>i), datasets:[{ data, borderColor: color, backgroundColor: grad, fill:true, tension:0.4, borderWidth:2, pointRadius:0 }] },
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{enabled:false}}, scales:{x:{display:false}, y:{display:false}} }
+    });
+  }
+  spark('spark1', [8.2,9.1,8.8,10.3,9.7,11.2,10.8,11.9,11.6,12.4,11.94,13.42], '#22D3EE');
+  spark('spark2', [88,92,95,91,98,102,99,105,103,106,104,108], '#8B5CF6');
+  spark('spark3', [14,15,16,17,16,18,17,18,19,18,17,18], '#A3E635');
+
+  // Revenue line chart
+  (function(){
+    const ctx = document.getElementById('chart-revenue');
+    if (!ctx) return;
+    const c2 = ctx.getContext('2d');
+    const gradFill = c2.createLinearGradient(0,0,0,340);
+    gradFill.addColorStop(0, 'rgba(34,211,238,0.28)');
+    gradFill.addColorStop(0.6,'rgba(139,92,246,0.08)');
+    gradFill.addColorStop(1, 'rgba(34,211,238,0)');
+    const gradLine = c2.createLinearGradient(0,0,1000,0);
+    gradLine.addColorStop(0,'#22D3EE');
+    gradLine.addColorStop(0.6,'#8B5CF6');
+    gradLine.addColorStop(1,'#EC4899');
+
+    const labels = ['6月','7月','8月','9月','10月','11月','12月','1月','2月','3月','4月','5月'];
+    const actual = [8.2,9.1,8.8,10.3,9.7,11.2,10.8,11.9,11.6,12.4,11.94,13.42];
+    const target = [9.5,9.5,10,10,10.5,11,11,11.5,11.8,12.0,12.2,12.4];
+
+    new Chart(ctx, {
+      type:'line',
+      data:{
+        labels,
+        datasets:[
+          {
+            label:'実績 (百万円)',
+            data: actual,
+            borderColor: gradLine,
+            backgroundColor: gradFill,
+            fill:true,
+            tension:0.42,
+            borderWidth: 3,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            pointHoverBackgroundColor:'#fff',
+            pointHoverBorderColor:'#22D3EE',
+            pointHoverBorderWidth: 3,
+          },
+          {
+            label:'目標 (百万円)',
+            data: target,
+            borderColor: 'rgba(139,92,246,0.7)',
+            borderDash:[6,6],
+            borderWidth: 2,
+            fill: false,
+            tension: 0.3,
+            pointRadius: 0,
+          }
+        ]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        interaction:{ mode:'index', intersect:false },
+        plugins:{
+          legend:{ display:false },
+          tooltip:{
+            backgroundColor:'rgba(10,14,26,0.92)',
+            borderColor:'rgba(34,211,238,0.4)',
+            borderWidth:1,
+            padding: 12,
+            titleColor:'#fff',
+            bodyColor:'rgba(255,255,255,0.8)',
+            displayColors: true,
+            callbacks:{
+              label: (ctx)=> ` ${ctx.dataset.label}: ¥${ctx.parsed.y.toFixed(2)}M`
+            }
+          }
+        },
+        scales:{
+          x:{
+            grid:{ color: gridColor, drawBorder:false },
+            ticks:{ color: tickColor, font:{size:11} }
+          },
+          y:{
+            grid:{ color: gridColor, drawBorder:false },
+            ticks:{ color: tickColor, font:{size:11}, callback:(v)=> '¥'+v+'M' }
+          }
+        },
+        animation:{
+          duration: 1800,
+          easing: 'easeOutQuart'
+        }
+      }
+    });
+  })();
+
+  // Donut
+  (function(){
+    const ctx = document.getElementById('chart-donut');
+    if (!ctx) return;
+    new Chart(ctx, {
+      type:'doughnut',
+      data:{
+        labels:['木くず','混合廃棄物','廃プラ','汚泥','紙くず'],
+        datasets:[{
+          data:[35,28,18,12,7],
+          backgroundColor:['#22D3EE','#8B5CF6','#EC4899','#A3E635','#FACC15'],
+          borderColor:'#0A0E1A',
+          borderWidth: 3,
+          hoverOffset: 8,
+        }]
+      },
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        cutout:'70%',
+        plugins:{
+          legend:{display:false},
+          tooltip:{
+            backgroundColor:'rgba(10,14,26,0.92)',
+            borderColor:'rgba(34,211,238,0.4)',
+            borderWidth:1,
+            padding: 10,
+            callbacks:{ label:(c)=> ` ${c.label}: ${c.parsed}%` }
+          }
+        },
+        animation:{ animateRotate:true, duration: 1400 }
+      }
+    });
+  })();
+
+  // ---------- GSAP reveal & countup ----------
+  gsap.registerPlugin(ScrollTrigger);
+
+  document.querySelectorAll('.reveal').forEach((el,i)=>{
+    gsap.to(el, {
+      opacity:1, y:0, duration:0.8, ease:'power3.out', delay: i*0.05,
+      scrollTrigger:{ trigger: el, start:'top 92%' }
+    });
+  });
+
+  // Countups
+  document.querySelectorAll('.countup').forEach(el=>{
+    const target = parseFloat(el.dataset.target);
+    const suffix = el.dataset.suffix || '';
+    const obj = { v: 0 };
+    ScrollTrigger.create({
+      trigger: el, start:'top 90%',
+      onEnter: ()=>{
+        gsap.to(obj, {
+          v: target, duration: 1.6, ease:'power3.out',
+          onUpdate:()=>{
+            const val = obj.v;
+            if (target >= 1000) {
+              el.textContent = Math.round(val).toLocaleString();
+            } else if (Number.isInteger(target)) {
+              el.textContent = Math.round(val) + suffix;
+            } else {
+              el.textContent = val.toFixed(1) + suffix;
+            }
+          }
+        });
+      }
+    });
+  });
+
+  // Ring fg fill
+  ScrollTrigger.create({
+    trigger:'#ring-fg-1', start:'top 90%',
+    onEnter:()=> {
+      const c = document.getElementById('ring-fg-1');
+      const circ = 2*Math.PI*32; // 201
+      // 108% achievement: cap visual at full + extra rotation feel; fill at 100%
+      gsap.fromTo(c, { strokeDashoffset: circ }, { strokeDashoffset: 0, duration: 1.8, ease:'power3.out' });
+    }
+  });
+
+  // Bars fill
+  document.querySelectorAll('[data-bar]').forEach(el=>{
+    const pct = parseInt(el.dataset.bar,10);
+    ScrollTrigger.create({
+      trigger: el, start:'top 95%',
+      onEnter:()=> gsap.to(el, { width: pct+'%', duration: 1.2, ease:'power3.out' })
+    });
+  });
+
+</script>
+
+<!-- ========== AI Copilot ========== -->
+<div id="copilot-backdrop"></div>
+<span class="copilot-chip-fab">Ask Copilot</span>
+<button id="copilot-fab" aria-label="AI Copilot を開く">
+  <i data-lucide="sparkles"></i>
+</button>
+
+<aside id="copilot-panel" aria-hidden="true">
+  <div class="copilot-header flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="copilot-ai-badge"><i data-lucide="sparkles"></i></div>
+      <div>
+        <div class="text-[15px] font-bold tracking-wide">KPH <span class="grad-text">Copilot</span></div>
+        <div class="text-[11px] font-jp" style="color:rgba(248,250,252,0.55)">経営データを自然言語で聞いてみてください</div>
+      </div>
+    </div>
+    <button class="copilot-close" id="copilot-close" aria-label="閉じる"><i data-lucide="x"></i></button>
+  </div>
+
+  <div class="copilot-suggestions">
+    <button class="copilot-suggest-chip font-jp" data-q="今月の売上は？">今月の売上は？</button>
+    <button class="copilot-suggest-chip font-jp" data-q="〇〇建設の取引履歴を見せて">取引履歴を見せて</button>
+    <button class="copilot-suggest-chip font-jp" data-q="許可証の期限切れ間近を教えて">許可証の期限</button>
+    <button class="copilot-suggest-chip font-jp" data-q="来月の売上予測は？">来月の予測</button>
+  </div>
+
+  <div class="copilot-messages" id="copilot-messages">
+    <!-- Preset history -->
+    <div class="msg-row user">
+      <div class="msg-bubble font-jp">今月の売上は？</div>
+    </div>
+    <div class="msg-row ai">
+      <div class="msg-ai-icon"><i data-lucide="sparkles"></i></div>
+      <div class="msg-bubble font-jp">
+        2026年5月の売上は <span class="num font-mono" style="color:#A3E635;font-weight:700">¥13,420,000</span> で、前月比 <span style="color:#A3E635">+8.4%</span>、目標達成率 <span style="color:#22D3EE;font-weight:700">108%</span> です。
+        <div class="ai-mini-bars" aria-hidden="true">
+          <div style="height:45%"></div><div style="height:60%"></div><div style="height:55%"></div>
+          <div style="height:72%"></div><div style="height:68%"></div><div style="height:88%"></div>
+          <div style="height:100%"></div>
+        </div>
+        <div class="ai-actions">
+          <button class="ai-action-chip" data-action="月次レポートを発行"><i data-lucide="file-text"></i>月次レポート発行</button>
+          <button class="ai-action-chip" data-action="PDFで出力"><i data-lucide="download"></i>PDF出力</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="copilot-input-wrap">
+    <div class="copilot-input-row">
+      <input id="copilot-input" type="text" placeholder="質問を入力... (例: 売上、取引先、許可証、予測)" autocomplete="off"/>
+      <button id="copilot-send" aria-label="送信"><i data-lucide="send-horizontal"></i></button>
+    </div>
+  </div>
+</aside>
+
+<div class="copilot-toast" id="copilot-toast"><i data-lucide="check-circle-2"></i><span></span></div>
+
+<script>
+(function(){
+  const fab = document.getElementById('copilot-fab');
+  const chipFab = document.querySelector('.copilot-chip-fab');
+  const panel = document.getElementById('copilot-panel');
+  const backdrop = document.getElementById('copilot-backdrop');
+  const closeBtn = document.getElementById('copilot-close');
+  const input = document.getElementById('copilot-input');
+  const sendBtn = document.getElementById('copilot-send');
+  const messages = document.getElementById('copilot-messages');
+  const toast = document.getElementById('copilot-toast');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let isOpen = false;
+
+  function openPanel(){
+    if (isOpen) return;
+    isOpen = true;
+    panel.setAttribute('aria-hidden','false');
+    backdrop.classList.add('is-open');
+    if (reduced) { gsap.set(panel, { right: 0 }); }
+    else { gsap.to(panel, { right: 0, duration: 0.55, ease: 'power3.out' }); }
+    setTimeout(()=> input.focus(), 400);
+  }
+  function closePanel(){
+    if (!isOpen) return;
+    isOpen = false;
+    panel.setAttribute('aria-hidden','true');
+    backdrop.classList.remove('is-open');
+    if (reduced) { gsap.set(panel, { right: -460 }); }
+    else { gsap.to(panel, { right: -460, duration: 0.45, ease: 'power3.in' }); }
+  }
+  fab.addEventListener('click', openPanel);
+  chipFab.addEventListener('click', openPanel);
+  closeBtn.addEventListener('click', closePanel);
+  backdrop.addEventListener('click', closePanel);
+  document.addEventListener('keydown', (e)=>{ if (e.key === 'Escape' && isOpen) closePanel(); });
+
+  // ----- Suggestion chips -----
+  document.querySelectorAll('.copilot-suggest-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      input.value = chip.dataset.q;
+      input.focus();
+      handleSend();
+    });
+  });
+
+  // ----- Toast -----
+  function showToast(text){
+    toast.querySelector('span').textContent = text;
+    toast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=> toast.classList.remove('show'), 1800);
+  }
+
+  // ----- Chart highlight -----
+  function flashChart(selector){
+    const el = document.querySelector(selector);
+    if (!el) return;
+    const target = el.closest('.glass') || el.closest('.glass-strong') || el.parentElement;
+    if (!target) return;
+    target.classList.remove('chart-highlight');
+    void target.offsetWidth;
+    target.classList.add('chart-highlight');
+    setTimeout(()=> target.classList.remove('chart-highlight'), 2900);
+  }
+
+  // ----- Preset answers -----
+  function classify(q){
+    const s = q.toLowerCase();
+    if (/予測|forecast|来月|見込/.test(q)) return 'forecast';
+    if (/許可|期限|失効|更新|切れ/.test(q)) return 'permit';
+    if (/取引|顧客|業者|建設|履歴|クライアント/.test(q)) return 'client';
+    if (/売上|収益|revenue|sales|今月|先月|月次/.test(q)) return 'revenue';
+    return 'default';
+  }
+
+  function buildAnswer(kind){
+    if (kind === 'revenue') {
+      return {
+        text: '今月（2026年5月）の売上は ¥13,420,000、前月比 +8.4%、目標達成率 108% です。トップ案件は産廃収集ルートA（¥3.2M）。',
+        chartSel: '#chart-revenue',
+        extra: `
+          <div class="ai-mini-bars" aria-hidden="true">
+            <div style="height:38%"></div><div style="height:55%"></div><div style="height:48%"></div>
+            <div style="height:70%"></div><div style="height:62%"></div><div style="height:85%"></div>
+            <div style="height:100%"></div>
+          </div>`,
+        actions: [
+          { label:'請求書を発行する', icon:'file-text' },
+          { label:'メール送信', icon:'mail' },
+          { label:'PDFで出力', icon:'download' }
+        ]
+      };
+    }
+    if (kind === 'client') {
+      return {
+        text: '主要取引先トップ5を抽出しました（2026年5月時点・売上順）。',
+        chartSel: '#chart-donut',
+        extra: `
+          <div class="ai-list">
+            <div class="ai-list-item"><span>大成建設 関西支店</span><span class="num">¥3,240,000</span></div>
+            <div class="ai-list-item"><span>関西土木工業</span><span class="num">¥2,180,000</span></div>
+            <div class="ai-list-item"><span>淀川建設</span><span class="num">¥1,920,000</span></div>
+            <div class="ai-list-item"><span>北摂解体</span><span class="num">¥1,540,000</span></div>
+            <div class="ai-list-item"><span>梅田リノベーション</span><span class="num">¥1,310,000</span></div>
+          </div>`,
+        actions: [
+          { label:'顧客リストをCSVで出力', icon:'download' },
+          { label:'営業に共有', icon:'send' }
+        ]
+      };
+    }
+    if (kind === 'permit') {
+      return {
+        text: '期限切れが近い許可証が 3 件あります。60日以内に更新手続きが必要です。',
+        chartSel: null,
+        extra: `
+          <div class="ai-alert"><i data-lucide="alert-triangle"></i>3件が60日以内に失効予定</div>
+          <div class="ai-list">
+            <div class="ai-list-item"><span>産廃収集運搬（大阪府）</span><span style="color:#F87171">残 18日</span></div>
+            <div class="ai-list-item"><span>産廃収集運搬（兵庫県）</span><span style="color:#FACC15">残 41日</span></div>
+            <div class="ai-list-item"><span>建設業許可（一般）</span><span style="color:#FACC15">残 57日</span></div>
+          </div>`,
+        actions: [
+          { label:'更新タスクを登録', icon:'calendar-plus' },
+          { label:'担当者にメール送信', icon:'mail' }
+        ]
+      };
+    }
+    if (kind === 'forecast') {
+      return {
+        text: '過去12ヶ月のトレンドと季節要因から、来月（6月）の売上を予測しました。',
+        chartSel: '#chart-revenue',
+        extra: `
+          <div class="ai-forecast">
+            <div>予測: <span class="big num font-mono">¥14,200,000</span></div>
+            <div class="ci">信頼区間 95%: ¥13,500,000 〜 ¥14,900,000</div>
+          </div>`,
+        actions: [
+          { label:'予算計画に反映', icon:'target' },
+          { label:'PDFで出力', icon:'download' }
+        ]
+      };
+    }
+    return {
+      text: 'ご質問を確認しました。売上・取引先・許可証・予測などのキーワードで詳細をお答えできます。',
+      chartSel: null,
+      extra: '',
+      actions: [
+        { label:'サンプル質問を見る', icon:'help-circle' }
+      ]
+    };
+  }
+
+  // ----- Append message -----
+  function appendUser(text){
+    const row = document.createElement('div');
+    row.className = 'msg-row user';
+    row.innerHTML = `<div class="msg-bubble font-jp"></div>`;
+    row.querySelector('.msg-bubble').textContent = text;
+    messages.appendChild(row);
+    scrollBottom();
+  }
+
+  function appendTyping(){
+    const row = document.createElement('div');
+    row.className = 'msg-row ai';
+    row.id = '__copilot-typing';
+    row.innerHTML = `
+      <div class="msg-ai-icon"><i data-lucide="sparkles"></i></div>
+      <div class="msg-bubble font-jp">
+        <span style="color:rgba(248,250,252,0.6);font-size:12px">考えています</span>
+        <span class="typing-dots" style="margin-left:8px"><span></span><span></span><span></span></span>
+      </div>`;
+    messages.appendChild(row);
+    if (window.lucide) lucide.createIcons();
+    scrollBottom();
+  }
+  function removeTyping(){
+    const t = document.getElementById('__copilot-typing');
+    if (t) t.remove();
+  }
+
+  function appendAI(answer){
+    const row = document.createElement('div');
+    row.className = 'msg-row ai';
+    row.innerHTML = `
+      <div class="msg-ai-icon"><i data-lucide="sparkles"></i></div>
+      <div class="msg-bubble font-jp">
+        <span class="ai-text"></span>
+        <div class="ai-extra" style="display:none"></div>
+        <div class="ai-actions-wrap"></div>
+      </div>`;
+    messages.appendChild(row);
+    const textEl = row.querySelector('.ai-text');
+    const extraEl = row.querySelector('.ai-extra');
+    const actionsWrap = row.querySelector('.ai-actions-wrap');
+
+    // Streaming typing
+    const full = answer.text;
+    let i = 0;
+    const speed = reduced ? 0 : 18;
+    function step(){
+      textEl.textContent = full.slice(0, i);
+      i++;
+      scrollBottom();
+      if (i <= full.length) {
+        setTimeout(step, speed);
+      } else {
+        if (answer.extra) {
+          extraEl.style.display = 'block';
+          extraEl.innerHTML = answer.extra;
+        }
+        if (answer.actions && answer.actions.length) {
+          const wrap = document.createElement('div');
+          wrap.className = 'ai-actions';
+          answer.actions.forEach(a=>{
+            const btn = document.createElement('button');
+            btn.className = 'ai-action-chip font-jp';
+            btn.dataset.action = a.label;
+            btn.innerHTML = `<i data-lucide="${a.icon}"></i>${a.label}`;
+            wrap.appendChild(btn);
+          });
+          actionsWrap.appendChild(wrap);
+        }
+        if (window.lucide) lucide.createIcons();
+        scrollBottom();
+      }
+    }
+    if (reduced) {
+      textEl.textContent = full;
+      if (answer.extra) { extraEl.style.display = 'block'; extraEl.innerHTML = answer.extra; }
+      if (answer.actions) {
+        const wrap = document.createElement('div');
+        wrap.className = 'ai-actions';
+        answer.actions.forEach(a=>{
+          const btn = document.createElement('button');
+          btn.className = 'ai-action-chip font-jp';
+          btn.dataset.action = a.label;
+          btn.innerHTML = `<i data-lucide="${a.icon}"></i>${a.label}`;
+          wrap.appendChild(btn);
+        });
+        actionsWrap.appendChild(wrap);
+      }
+      if (window.lucide) lucide.createIcons();
+    } else {
+      step();
+    }
+  }
+
+  function scrollBottom(){ messages.scrollTop = messages.scrollHeight; }
+
+  function handleSend(){
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    appendUser(text);
+    const kind = classify(text);
+    const answer = buildAnswer(kind);
+    if (answer.chartSel) flashChart(answer.chartSel);
+
+    appendTyping();
+    setTimeout(()=>{
+      removeTyping();
+      appendAI(answer);
+    }, reduced ? 200 : 1500);
+  }
+
+  sendBtn.addEventListener('click', handleSend);
+  input.addEventListener('keydown', (e)=>{ if (e.key === 'Enter') handleSend(); });
+
+  // Delegate action chip clicks
+  messages.addEventListener('click', (e)=>{
+    const chip = e.target.closest('.ai-action-chip');
+    if (!chip) return;
+    showToast(chip.dataset.action + ' を実行しました');
+  });
+})();
+
+// Re-render any newly added lucide icons
+if (window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>
