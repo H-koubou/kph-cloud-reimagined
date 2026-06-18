@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KPH Cloud Reimagined — 打ち合わせサマリ資料（2026/6/18）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root{ --ink:#0f172a; --ink-2:#475569; --ink-3:#94a3b8; --line:#e2e8f0; --bg:#f1f5f9; --paper:#ffffff;
+    --cyan:#0891b2; --violet:#7c3aed; --magenta:#db2777; --lime:#65a30d; --red:#dc2626; --amber:#d97706; }
+  *{ box-sizing:border-box; -webkit-font-smoothing:antialiased; }
+  html,body{ margin:0; background:var(--bg); color:var(--ink); font-family:'Noto Sans JP','Inter',sans-serif; }
+  .grad{ background:linear-gradient(135deg,#0891b2,#7c3aed 55%,#db2777); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .grad-bg{ background:linear-gradient(135deg,#0891b2,#7c3aed 55%,#db2777); }
+
+  .toolbar{ position:sticky; top:0; z-index:50; background:#0b1220; color:#fff; padding:12px 20px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .toolbar .t-btn{ display:inline-flex;align-items:center;gap:7px;border:none;cursor:pointer;border-radius:10px;padding:9px 16px;font-family:'Noto Sans JP',sans-serif;font-weight:700;font-size:13px; }
+  .t-btn.primary{ background:linear-gradient(135deg,#22D3EE,#8B5CF6);color:#06121a; }
+  .t-btn.ghost{ background:rgba(255,255,255,0.08);color:#e2e8f0; }
+  .toolbar a{ color:inherit;text-decoration:none; }
+
+  .sheet{ max-width:900px; margin:24px auto; background:var(--paper); border:1px solid var(--line); border-radius:6px; box-shadow:0 10px 40px rgba(15,23,42,0.08); overflow:hidden; }
+  .pad{ padding:46px 54px; }
+  .cover{ background:linear-gradient(135deg,#0b1220,#1e1b4b 60%,#3b0764); color:#fff; padding:60px 54px; }
+  .cover .kicker{ font-size:12px; letter-spacing:.3em; text-transform:uppercase; color:#a5b4fc; font-weight:700; }
+  .cover h1{ font-size:36px; font-weight:900; line-height:1.28; margin:14px 0 8px; }
+  .cover .sub{ font-size:16px; color:#cbd5e1; line-height:1.7; }
+  .cover .metarow{ margin-top:30px; display:flex; gap:30px; flex-wrap:wrap; font-size:13px; color:#cbd5e1; }
+  .cover .metarow b{ color:#fff; display:block; font-size:14px; }
+
+  h2.sec{ font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--violet); font-weight:800; margin:0 0 6px; }
+  h3.t{ font-size:24px; font-weight:900; margin:0 0 16px; line-height:1.32; }
+  p.lead{ font-size:14.5px; line-height:1.9; color:var(--ink-2); margin:0 0 14px; }
+  .divider{ height:1px; background:var(--line); margin:0 54px; }
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .card{ border:1px solid var(--line); border-radius:14px; padding:18px; }
+  .card .ic{ width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;margin-bottom:12px; }
+  .card h4{ font-size:15.5px; font-weight:800; margin:0 0 6px; } .card p{ font-size:13px; line-height:1.75; color:var(--ink-2); margin:0; }
+
+  ul.clean{ list-style:none; padding:0; margin:0; } ul.clean li{ font-size:14px; line-height:1.8; color:var(--ink-2); display:flex; gap:10px; margin-bottom:7px; }
+  ul.clean li .b{ color:var(--ink); font-weight:700; }
+  .x{ color:var(--red); font-weight:900; } .c{ color:var(--lime); font-weight:900; }
+
+  /* before/after pill */
+  .ba{ display:grid; grid-template-columns:1fr 44px 1fr; gap:0; align-items:center; margin:18px 0; }
+  .ba .b1{ border:1px solid #fecaca; background:#fef2f2; border-radius:14px; padding:16px 18px; }
+  .ba .b2{ border:1px solid #bae6fd; background:#f0f9ff; border-radius:14px; padding:16px 18px; }
+  .ba .arr{ text-align:center; color:var(--violet); }
+  .ba .lbl{ font-size:11px; letter-spacing:.12em; font-weight:800; text-transform:uppercase; margin-bottom:6px; }
+  .ba .b1 .lbl{ color:#dc2626; } .ba .b2 .lbl{ color:#0891b2; }
+  .ba p{ margin:0; font-size:13.5px; line-height:1.7; color:var(--ink); }
+
+  table.tbl{ width:100%; border-collapse:collapse; font-size:13px; }
+  table.tbl th,table.tbl td{ border:1px solid var(--line); padding:9px 11px; text-align:left; vertical-align:top; line-height:1.65; }
+  table.tbl th{ background:#f8fafc; font-weight:800; font-size:12px; color:var(--ink); }
+  table.tbl td .tag{ display:inline-block; font-size:11px; font-weight:800; padding:2px 8px; border-radius:999px; }
+  .tg-done{ background:#dcfce7; color:#15803d; } .tg-plan{ background:#e0e7ff; color:#4338ca; } .tg-now{ background:#fef3c7; color:#b45309; }
+  .theme{ font-weight:800; color:var(--ink); }
+
+  .effect{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .effect .e{ border:1px solid var(--line); border-radius:14px; padding:16px; text-align:center; }
+  .effect .big{ font-size:24px; font-weight:900; line-height:1.1; } .effect .cap{ font-size:11.5px; color:var(--ink-3); margin-top:5px; line-height:1.5; }
+
+  .callout{ background:linear-gradient(135deg,rgba(8,145,178,0.07),rgba(124,58,237,0.07)); border:1px solid #c7d2fe; border-radius:14px; padding:18px 20px; font-size:14px; line-height:1.85; color:var(--ink-2); }
+  .win{ display:grid; grid-template-columns:38px 1fr; gap:14px; align-items:start; margin-bottom:16px; }
+  .win .n{ width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:15px; }
+  .win h4{ font-size:16px; font-weight:800; margin:2px 0 4px; } .win p{ font-size:13.5px; line-height:1.75; color:var(--ink-2); margin:0; }
+
+  .step{ display:flex; gap:14px; align-items:flex-start; margin-bottom:14px; }
+  .step .n{ width:28px;height:28px;border-radius:50%;background:var(--violet);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0; }
+  .step h4{ margin:2px 0 3px; font-size:15px; font-weight:800; } .step p{ margin:0; font-size:13.5px; color:var(--ink-2); line-height:1.7; }
+
+  .qbox{ border-left:3px solid var(--violet); background:#faf9ff; border-radius:0 12px 12px 0; padding:13px 16px; margin-bottom:10px; }
+  .qbox b{ font-size:14px; } .qbox p{ margin:4px 0 0; font-size:13px; color:var(--ink-2); line-height:1.7; }
+
+  .menu-map{ display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+  .menu-map span{ font-size:11px; background:#f1f5f9; border:1px solid var(--line); border-radius:7px; padding:5px 7px; text-align:center; color:var(--ink-2); }
+  .menu-map span.hot{ background:#fef3c7; border-color:#fcd34d; color:#b45309; font-weight:700; }
+
+  .footer{ background:#0b1220; color:#94a3b8; padding:26px 54px; font-size:12px; text-align:center; line-height:1.8; }
+  .pill-row{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+  .pill-row a{ font-size:12px; color:var(--cyan); text-decoration:none; border:1px solid var(--line); border-radius:999px; padding:4px 11px; }
+
+  @media print{
+    @page{ size:A4; margin:13mm; }
+    body{ background:#fff; } .toolbar{ display:none !important; } .sheet{ box-shadow:none; border:none; margin:0; max-width:none; border-radius:0; }
+    .page-break{ break-before:page; } section{ break-inside:avoid; }
+    .cover,.grad-bg,.card .ic,.win .n,.step .n,.footer,.tg-done,.tg-plan,.tg-now,.menu-map span.hot,.ba .b1,.ba .b2{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  }
+  @media (max-width:680px){ .pad{ padding:30px 22px; } .cover{ padding:40px 24px; } .grid2,.grid3,.effect,.menu-map,.ba{ grid-template-columns:1fr; } .ba .arr{ display:none; } .cover h1{ font-size:27px; } table.tbl{ font-size:12px; } }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <a href="./index.html" style="display:inline-flex;align-items:center;gap:7px;font-size:13px;"><i data-lucide="arrow-left" class="w-4 h-4"></i>モックに戻る</a>
+  <div style="display:flex;gap:10px;">
+    <a class="t-btn ghost" href="./dispatch.html"><i data-lucide="truck" class="w-4 h-4"></i>新・配車画面を見る</a>
+    <button class="t-btn primary" onclick="window.print()"><i data-lucide="printer" class="w-4 h-4"></i>PDFで保存 / 印刷</button>
+  </div>
+</div>
+
+<div class="sheet">
+
+  <!-- COVER -->
+  <div class="cover">
+    <p class="kicker">Feedback Review &amp; Direction — 打ち合わせ資料</p>
+    <h1>いただいたフィードバックと、<br/>これからの<span style="color:#a5b4fc">KPH</span>の方向性</h1>
+    <p class="sub">現場の声を一つ残らず設計に反映し、<br/>「競合に絶対に負けない」産廃SaaSへ。</p>
+    <div class="metarow">
+      <div><b>2026年6月18日</b>3者打ち合わせ用</div>
+      <div><b>対象</b>KPHクラウド リプレイス提案</div>
+      <div><b>提出</b>樋口工房</div>
+    </div>
+  </div>
+
+  <!-- 1. 御礼と全体方針 -->
+  <section class="pad">
+    <h2 class="sec">01 — はじめに</h2>
+    <h3 class="t">「全部取り入れたら良いシステムになりそう」、その通りに進めます</h3>
+    <p class="lead">
+      この度は、日頃から感じておられる改善点を丁寧にお寄せいただき、誠にありがとうございました。
+      いただいたメモは「乱雑」どころか、<b>現場を知り尽くした方にしか書けない、極めて実践的な要件定義</b>でした。
+      本資料では、<b>① いただいた声への対応方針</b>、<b>② 競合に負けないための戦略</b>、<b>③ 本日ご相談したいこと</b>を整理しています。
+    </p>
+    <div class="callout">
+      <b>基本姿勢：</b>初回モックは「魔法（AI）」を主役にお見せしました。今回のフィードバックを受け、
+      方針を<b>「現場が本当に使える"実務の土台"を固め、その上に魔法を載せる」</b>へと明確に組み替えます。
+      派手さより先に、毎日の業務が確実に回ること。これを最優先にします。
+    </div>
+  </section>
+  <div class="divider"></div>
+
+  <!-- 2. 方向転換 -->
+  <section class="pad">
+    <h2 class="sec">02 — 一番大事な方向転換</h2>
+    <h3 class="t">「AIにお任せ」ではなく、「人が主役・AIが補助」へ</h3>
+    <p class="lead">最も重要なご指摘は配車でした。<b>「AI配車は手直しが必要で、この業界では浸透していない」</b>——この一言で、配車画面を作り直しました。</p>
+    <div class="ba">
+      <div class="b1">
+        <div class="lbl">Before（初回モック）</div>
+        <p>AIが勝手に配車 → <b>結局ほぼ全部手直し</b>。業界で浸透しない、まさにその形でした。</p>
+      </div>
+      <div class="arr"><i data-lucide="arrow-right" class="w-6 h-6"></i></div>
+      <div class="b2">
+        <div class="lbl">After（作り直した配車）</div>
+        <p><b>予約一覧から人がドラッグで配車</b>。AIは見落とし・最短ルートを<b>「提案」するだけ</b>。採用は人が判断。</p>
+      </div>
+    </div>
+    <p class="lead" style="margin-bottom:0">
+      あわせて、<b>配車表をクリックでGoogleマップ表示</b>、<b>急な回収はドライバーへ一斉通知（Uber型）</b>も実装しました。
+      → 本日、実際に動く画面（<b>新・配車ボード</b>）をご覧いただけます。
+    </p>
+  </section>
+  <div class="divider"></div>
+
+  <!-- 3. 対応方針テーブル -->
+  <section class="pad">
+    <h2 class="sec">03 — いただいた改善点 → すべて対応します</h2>
+    <h3 class="t">フィードバック対応一覧</h3>
+    <table class="tbl">
+      <thead><tr><th style="width:14%">領域</th><th style="width:40%">現場の声（ご指摘）</th><th style="width:34%">対応方針</th><th style="width:12%">状況</th></tr></thead>
+      <tbody>
+        <tr><td class="theme">Web予約</td><td>強みである「予約〜請求まで一括」は維持したい。スマホ通知・担当営業へ通知・予約を基に顧客とチャット。</td><td>Web予約は中核として継続。予約・変更・キャンセルをスマホ／営業へプッシュ通知。予約に紐づく顧客チャットを新設。</td><td><span class="tag tg-plan">設計</span></td></tr>
+        <tr><td class="theme">配車</td><td>予約一覧から手動で配車を組む（必須）。クリックでGoogleマップ（必須）。臨時回収を一斉通知（Uber型）。</td><td>配車画面を全面刷新。ドラッグ配車＋地図＋臨時回収一斉通知を実装。AIは「提案」に格下げ。</td><td><span class="tag tg-done">実装済</span></td></tr>
+        <tr><td class="theme">顧客・契約・請求</td><td>契約外の回収・持込は禁止。誰が何の契約か分かりやすく。請求は「顧客／契約／現場」3パターン。帳簿が簡易で経理が回らない。</td><td>契約の見える化＋契約外アラート。請求を3軸で整理。請求・入金帳簿を本格化（大規模対応）。</td><td><span class="tag tg-plan">設計</span></td></tr>
+        <tr><td class="theme">情報の一元化</td><td>情報がバラバラ。業者に請求住所・銀行を紐付け。業者・契約・現場を同じ画面で。契約期限切れ表示。</td><td>「業者」を起点に契約・現場・請求住所・銀行を1画面集約。契約一覧＋期限切れ警告を標準表示。</td><td><span class="tag tg-plan">設計</span></td></tr>
+        <tr><td class="theme">ドライバー</td><td>車両点検チェックを標準機能に。日報を簡単入力。イレギュラー時に営業・経理とチャット。ログイン時は本人の日報へ（管理者は全員分閲覧）。</td><td>車両点検表をデフォルト搭載。スマホで日報・点検を数タップ。役割別ログイン＆現場チャットを実装。</td><td><span class="tag tg-plan">設計</span></td></tr>
+        <tr><td class="theme">マニフェスト</td><td>データ登録→紙印刷。年1回の都道府県報告をデータ蓄積で楽に。持込の手書き納品書を読み取って自動入力できると便利。</td><td>電子データ起点で紙も出力。報告書をワンクリック集計。<b>納品書を撮るだけでマニフェスト自動入力（写真AI）</b>。</td><td><span class="tag tg-now">強化中</span></td></tr>
+        <tr><td class="theme">コンテナ管理</td><td>今は使われていない。業者名の追加は必須。産廃コンテナ連携で使ってもらえそう。</td><td>業者名・設置/引上を紐付け、在庫と回収予測まで拡張。外部コンテナサービス連携も検討。</td><td><span class="tag tg-plan">設計</span></td></tr>
+        <tr><td class="theme">名称・UX</td><td>ユーザー/ドライバー/予約者/業者の区別が分かりにくい。持込は受付〜計量を同一画面に。</td><td>「自社ユーザー（ドライバー含む）／予約ユーザー／顧客」に再整理。持込受付〜計量を1画面に統合。</td><td><span class="tag tg-plan">設計</span></td></tr>
+        <tr><td class="theme">横断（通知・操作性）</td><td>管理者通知（予約・メッセージ・許可証/車検/マニフェスト期限〔自分でアラート期限設定〕・仮登録放置）。一覧の表示項目を自社ごとに選択＋Excel出力。ダブルクリックで詳細。左メニュー。</td><td>通知センター＋期限アラート（しきい値カスタム）。一覧のカラム自由設定＋Excel出力。ダブルクリック詳細・左サイドメニューを標準採用。</td><td><span class="tag tg-plan">設計</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+  <div class="divider"></div>
+
+  <!-- 4. 経営視点への配慮 -->
+  <section class="pad">
+    <h2 class="sec">04 — 「経営」視点について</h2>
+    <h3 class="t">無理に踏み込まず、まず"管理・経理の実務"から固めます</h3>
+    <p class="lead">
+      「経営の箇所は知識不足でこれから勉強」とのこと、よく分かりました。私たちも<b>机上の経営分析を押し付けることはしません</b>。
+      まずは現場で必ず効く<b>請求3パターンの整理・帳簿の本格化</b>といった「経理の実務強化」から着手し、
+      経営ダッシュボード（採算・参謀AI）は<b>御社の運用が育つのに合わせて、将来オプションとして一緒に育てる</b>段取りにします。
+    </p>
+    <div class="callout">「現場・配車・経営」の3視点は維持しつつ、<b>当面の重心は「現場」と「配車・経理の実務」</b>。経営は急がず、土台が固まってから。</div>
+  </section>
+  <div class="divider page-break"></div>
+
+  <!-- 5. 競合分析 -->
+  <section class="pad">
+    <h2 class="sec">05 — 競合に「絶対に負けない」ための分析</h2>
+    <h3 class="t">産廃SaaS市場を調べ尽くしました</h3>
+    <p class="lead">ご提示いただいた参考サイトを含め、主要プレイヤーを徹底調査しました。市場は大きく<b>3層</b>に分かれ、各社それぞれに<b>明確な「穴」</b>があります。</p>
+
+    <table class="tbl">
+      <thead><tr><th style="width:16%">サービス</th><th style="width:14%">層・狙い</th><th style="width:18%">強み</th><th style="width:30%">弱み（＝我々の攻め所）</th><th style="width:22%">価格</th></tr></thead>
+      <tbody>
+        <tr><td class="theme">環境将軍R<br><span style="color:var(--ink-3);font-weight:400">JEMS</span></td><td>基幹フルライン／中堅〜大手</td><td>機能網羅No.1格・約1,100社</td><td>導入が重い・高い・遅い（第三者評価で「導入のしやすさ」最低評価）。大企業向けに価格高止まり</td><td>初期180万円〜・<b>非公開（要見積）</b></td></tr>
+        <tr><td class="theme">産廃イチロー<br><span style="color:var(--ink-3);font-weight:400">SMS</span></td><td>マニフェスト中心／小〜中堅・最普及</td><td>安い・「みんな使っている」</td><td>紙時代の発想・<b>オンプレ／クラウド非対応</b>・モバイル無し・機能が製品ごとに分断</td><td>19.8万円〜（買い切り）</td></tr>
+        <tr><td class="theme">配車頭<br><span style="color:var(--ink-3);font-weight:400">ファンファーレ</span></td><td>AI配車特化／中規模</td><td>VC調達8億・配車7時間→3分</td><td><b>配車1点のみ・JWNET非対応・基幹を担えない</b>＝"改善ツール"止まり。価格非公開</td><td><b>非公開</b></td></tr>
+        <tr><td class="theme">ムツミ<br><span style="color:var(--ink-3);font-weight:400">睦システム</span></td><td>基幹／小規模に強い・1,800社</td><td>低価格買い切り・実伝票UI・老舗の安心</td><td>デスクトップ中心で<b>アーキが古い</b>・法改正追従が弱い・マルチデバイス不利</td><td>6万〜21万円（買い切り）</td></tr>
+        <tr><td class="theme">CLOUDUS<br><span style="color:var(--ink-3);font-weight:400">イーテラス</span></td><td>産廃基幹SaaS／中堅〜大手・800社</td><td>受発注・配車・営業支援・協会推奨</td><td><b>電子マニフェスト連携が前面に無い</b>・1機能ずつ課金で全部入りは割高</td><td>初期0円＋<b>月5万円／機能</b></td></tr>
+        <tr><td class="theme">Go!Me!<br><span style="color:var(--ink-3);font-weight:400">gomi53</span></td><td>自治体ごみ収集＋産廃／行政寄り</td><td>撮るだけ計量AI・特許・自治体実績</td><td><b>本質は自治体向け</b>・民間産廃の実績薄・高額</td><td>初期250万円〜＋月5万円〜</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout" style="margin-top:20px">
+      <b style="color:var(--ink)">業界の"空白地帯"を、KPHが取ります。</b><br>
+      「<b>JWNET電子マニフェスト ×（人が主役の）配車 × モダンなモバイルUX × 現場写真AI</b>」を<b>1つのシステムで</b>提供している製品は、調べた限り<b>存在しません</b>。
+      配車特化は基幹を担えず、老舗基幹は古く、自治体系は産廃の現場に合わない。<b>この交差点が空いています。</b>
+    </div>
+  </section>
+  <div class="divider"></div>
+
+  <!-- 6. 勝ち筋5本柱 -->
+  <section class="pad">
+    <h2 class="sec">06 — 勝ち筋（5本柱）</h2>
+    <h3 class="t">「全部入りなのに、軽い」で勝つ</h3>
+    <div class="win"><div class="n grad-bg">1</div><div><h4>1システムで完結する</h4><p>配車＋電子マニフェスト（JWNET）＋計量・持込＋請求/帳簿＋契約・顧客管理を1つに。競合は全員どこかに穴がある——そこを"統合"で埋める。</p></div></div>
+    <div class="win"><div class="n grad-bg">2</div><div><h4>JWNET電子マニフェストを標準装備</h4><p>電子化率は67.9%で右肩上がり、捕捉率75%（2030目標）。「制度に絡む基幹」になることが、配車頭のような"改善ツール"との決定的な差。</p></div></div>
+    <div class="win"><div class="n grad-bg">3</div><div><h4>価格を"見える化"する</h4><p>将軍は初期180万〜・非公開、配車頭も非公開、Go!Me!は250万〜。明朗な月額を提示するだけで、中小の検討ハードルで圧勝できる。</p></div></div>
+    <div class="win"><div class="n grad-bg">4</div><div><h4>現場のモバイル体験 × 写真AIで差別化</h4><p>「納品書を撮るだけ・選ぶだけ」で実績と証跡が残る。どの競合も明示していない"現場写真記録"の空白を取る。</p></div></div>
+    <div class="win"><div class="n grad-bg">5</div><div><h4>安全な移行 × 縛らない自由</h4><p>既存KPHからのデータ移行・並行運用で乗り換えリスクを最小化。特定の収集網に縛られない、御社のための独立した基幹システム。</p></div></div>
+  </section>
+  <div class="divider"></div>
+
+  <!-- 7. なぜ今必要か（業界データ） -->
+  <section class="pad">
+    <h2 class="sec">07 — 「だから、今」の根拠</h2>
+    <h3 class="t">業界データが、刷新の必然性を裏づけます</h3>
+    <div class="effect">
+      <div class="e"><div class="big grad">92.8<span style="font-size:15px">%</span></div><div class="cap">配車ルート設定が<br>いまだ手作業</div></div>
+      <div class="e"><div class="big grad">7.3<span style="font-size:15px">%</span></div><div class="cap">動態管理システムの<br>導入率（大手でも）</div></div>
+      <div class="e"><div class="big grad">57.1<span style="font-size:15px">%</span></div><div class="cap">産廃事業者が感じる<br>ドライバー不足</div></div>
+      <div class="e"><div class="big grad">▲34<span style="font-size:15px">%</span></div><div class="cap">物流2024年問題による<br>輸送力不足（2030予測）</div></div>
+    </div>
+    <p class="lead" style="margin-top:18px;margin-bottom:0">
+      ドライバーは76.7万人→<b>51.9万人（2030予測）</b>へ。許可業者の<b>8割が従業員29人以下</b>の零細構造。
+      <b>「もう人手では回らない。だから今、システムが要る」</b>——この危機感が、KPHへの乗り換え理由になります。
+    </p>
+  </section>
+  <div class="divider page-break"></div>
+
+  <!-- 8. 既存システム理解 -->
+  <section class="pad">
+    <h2 class="sec">08 — 御社の現行システム、理解しています</h2>
+    <h3 class="t">全体構造を踏まえた上で再設計します</h3>
+    <p class="lead">現行（環境プラットホームクラウド）のメニュー構成も把握しました。<b>黄色は、今回のフィードバックで「統合・改善したい」とご指摘のあった箇所</b>です。</p>
+    <div style="font-size:12px;font-weight:800;color:var(--ink-2);margin:6px 0 6px">日常業務</div>
+    <div class="menu-map" style="margin-bottom:12px">
+      <span class="hot">持込予約管理</span><span class="hot">回収予約管理</span><span class="hot">日報管理</span><span class="hot">配車管理</span>
+      <span class="hot">売上管理</span><span class="hot">請求書</span><span class="hot">入金管理</span><span class="hot">マニフェスト</span>
+      <span class="hot">コンテナ管理</span><span>契約書作成依頼</span><span class="hot">持込受付</span><span class="hot">持込計量</span>
+    </div>
+    <div style="font-size:12px;font-weight:800;color:var(--ink-2);margin:6px 0 6px">マスター</div>
+    <div class="menu-map">
+      <span class="hot">ユーザー管理</span><span class="hot">ドライバー管理</span><span class="hot">予約者管理</span><span>権限管理</span>
+      <span class="hot">業者管理</span><span>自社カレンダー</span><span class="hot">現場管理</span><span>積替・保管施設</span>
+      <span>処分場</span><span class="hot">契約管理</span><span class="hot">請求住所管理</span><span class="hot">銀行管理</span>
+      <span>車輌管理</span><span>単価管理</span><span>単位管理</span><span>荷姿管理</span>
+    </div>
+    <div class="callout" style="margin-top:18px">
+      ご指摘の通り、<b>業者／契約／現場／請求住所／銀行</b>が別メニューに分散しています。これらを<b>「業者」を起点に1画面へ集約</b>し、
+      「何がどこにあるか分からない」を解消します。<b>既存の良さ（一括運用の思想）は壊さず</b>、導線と一元性だけを磨きます。
+    </div>
+  </section>
+  <div class="divider"></div>
+
+  <!-- 9. ロードマップ -->
+  <section class="pad">
+    <h2 class="sec">09 — 進め方（3フェーズ）</h2>
+    <h3 class="t">土台 → 魔法 → 経営の順で</h3>
+    <div class="grid3">
+      <div class="card"><div class="ic grad-bg"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></div>
+        <h4>Phase 1：実務の土台</h4>
+        <p>Web予約＋通知／<b>配車刷新（実装済）</b>／情報一元化／請求3パターン＋帳簿／ドライバー点検・日報／左メニュー・一覧カスタム。</p></div>
+      <div class="card"><div class="ic grad-bg"><i data-lucide="sparkles" class="w-5 h-5"></i></div>
+        <h4>Phase 2：現場の魔法</h4>
+        <p>納品書を撮るだけ→マニフェスト自動入力（写真AI）／臨時回収の一斉通知運用／音声で事務処理／コンテナ在庫予測。</p></div>
+      <div class="card"><div class="ic grad-bg"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
+        <h4>Phase 3：経営の頭脳</h4>
+        <p>採算の見える化・経営参謀AI。<b>御社の運用が育つのに合わせて</b>、将来オプションとして段階導入。</p></div>
+    </div>
+  </section>
+  <div class="divider"></div>
+
+  <!-- 10. 本日ご相談したいこと -->
+  <section class="pad">
+    <h2 class="sec">10 — 本日、3人でご相談したいこと</h2>
+    <h3 class="t">打ち合わせアジェンダ</h3>
+    <div class="qbox"><b>① 優先順位の合意</b><p>Phase 1の中で「まずどこから」を決めたい。個人的には<b>配車 → 情報一元化 → 請求/帳簿</b>を推奨します。</p></div>
+    <div class="qbox"><b>② Web予約の現行仕様ヒアリング</b><p>「予約〜請求一括」の具体フロー、通知を出したいタイミング、顧客チャットの想定を詳しく教えてください。</p></div>
+    <div class="qbox"><b>③ 参考サイトで"良い"と感じた具体点</b><p>「Go!Me!が新KPFに近い」とのこと。どの画面・機能が魅力でしたか？（将軍・CLOUDUSの良し悪しも）</p></div>
+    <div class="qbox"><b>④ 名称整理の方向確認</b><p>「自社ユーザー（ドライバー含む）／予約ユーザー／顧客」で進めて問題ないか。</p></div>
+    <div class="qbox"><b>⑤ 開発範囲・概算・スケジュール感</b><p>どこまでを最初のリリースに含めるか。費用・期間のたたき台を一緒に固めたい。</p></div>
+  </section>
+  <div class="divider"></div>
+
+  <!-- 11. 次ステップ -->
+  <section class="pad">
+    <h2 class="sec">11 — 次のステップ</h2>
+    <div class="step"><div class="n">1</div><div><h4>本日：方向性と優先順位の合意</h4><p>本資料・新配車画面をベースに、作る順番と範囲をすり合わせ。</p></div></div>
+    <div class="step"><div class="n">2</div><div><h4>次回まで：Phase 1の画面モック追加</h4><p>合意した優先機能（例：情報一元化・請求/帳簿）の画面を追加で作成。</p></div></div>
+    <div class="step"><div class="n">3</div><div><h4>並行：開発範囲・お見積りの精緻化</h4><p>移行（既存KPHデータ）含め、現実的なフェーズ計画と費用を提示。</p></div></div>
+    <p class="lead" style="margin-top:18px;margin-bottom:0">本日は、忌憚のないご意見をいただければ幸いです。いただくほど、KPHは強くなります。よろしくお願いいたします。</p>
+    <div class="pill-row">
+      <span style="font-size:12px;color:var(--ink-3)">参考調査ソース：</span>
+      <a href="https://www.j-ems.jp/shogun/" target="_blank">環境将軍R</a>
+      <a href="https://www.sanpai.com/soft/" target="_blank">産廃イチロー</a>
+      <a href="https://web.haisya-gasira.com/" target="_blank">配車頭</a>
+      <a href="https://www.mutumi.co.jp/products/" target="_blank">ムツミ</a>
+      <a href="https://vi.e-teras.co.jp/cloudus/" target="_blank">CLOUDUS</a>
+      <a href="https://gomi53.com/" target="_blank">Go!Me!</a>
+      <a href="https://www.jwnet.or.jp/" target="_blank">JWNET</a>
+    </div>
+  </section>
+
+  <div class="footer">
+    KPH Cloud Reimagined — 打ち合わせサマリ資料 ／ 2026年6月18日<br>
+    現場の声を、一つ残らず。競合に絶対に負けないKPHへ。
+  </div>
+</div>
+
+<script>if(window.lucide) lucide.createIcons();</script>
+</body>
+</html>

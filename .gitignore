@@ -1,0 +1,7 @@
+# クライアントの既存システムのスクショ・解析用素材（公開リポジトリに含めない）
+_feedback_analysis/
+
+# 検証・OS生成物
+.playwright-mcp/
+.DS_Store
+*-check.png
