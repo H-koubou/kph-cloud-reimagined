@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>請求管理 — 顧客・契約・現場の3軸で | KPH Cloud Reimagined</title>
+<meta name="description" content="請求書発行を「顧客ごと／契約ごと／現場ごと」の3パターンで。入金消込・未入金アラート・帳簿出力まで1画面で。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root{
+    --bg-0:#070912; --cyan:#22D3EE; --violet:#8B5CF6; --magenta:#EC4899; --lime:#A3E635; --amber:#FBBF24;
+    --text:#F8FAFC; --text-2:rgba(248,250,252,0.65); --text-3:rgba(248,250,252,0.4);
+    --glass-bg:rgba(255,255,255,0.04); --glass-border:rgba(255,255,255,0.08);
+    --shadow-deep:0 0 60px rgba(139,92,246,0.15),0 20px 80px rgba(0,0,0,0.5);
+  }
+  *{ -webkit-font-smoothing:antialiased; box-sizing:border-box; }
+  html,body{ background:var(--bg-0); color:var(--text); }
+  body{ font-family:'Inter','Noto Sans JP',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 10% -10%,rgba(34,211,238,0.10),transparent 60%),
+      radial-gradient(1000px 500px at 90% 10%,rgba(236,72,153,0.10),transparent 60%),
+      radial-gradient(900px 700px at 50% 110%,rgba(139,92,246,0.14),transparent 60%),
+      linear-gradient(180deg,#0A0E1A 0%,#13102B 50%,#070912 100%);
+    background-attachment:fixed; overflow-x:hidden; }
+  .font-jp{ font-family:'Noto Sans JP','Inter',sans-serif; }
+  .mono{ font-family:'Inter',ui-monospace,monospace; font-variant-numeric:tabular-nums; }
+  .glass{ background:var(--glass-bg); border:1px solid var(--glass-border);
+    -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px); border-radius:24px;
+    box-shadow:var(--shadow-deep); position:relative; }
+  .grad-text{ background:linear-gradient(135deg,#22D3EE,#8B5CF6 50%,#EC4899); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .grad-text-lime{ background:linear-gradient(135deg,#A3E635,#22D3EE); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .nav-glass{ background:rgba(10,14,26,0.7); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); border-bottom:1px solid rgba(255,255,255,0.06); }
+  .logo-mark{ width:30px; height:30px; border-radius:9px; background:conic-gradient(from 180deg,#22D3EE,#8B5CF6,#EC4899,#22D3EE); box-shadow:0 0 18px rgba(139,92,246,0.6); }
+  .btn-ghost{ display:inline-flex; align-items:center; gap:.5rem; padding:.6rem 1rem; border-radius:999px; border:1px solid rgba(255,255,255,0.14); color:var(--text); font-weight:600; transition:.25s; background:rgba(255,255,255,0.03); cursor:pointer; }
+  .btn-ghost:hover{ border-color:rgba(255,255,255,0.3); background:rgba(255,255,255,0.07); }
+  .btn-primary{ display:inline-flex; align-items:center; gap:.5rem; padding:.6rem 1.1rem; border-radius:999px; color:#0A0E1A; font-weight:700; background:linear-gradient(135deg,#22D3EE,#8B5CF6 55%,#EC4899); box-shadow:0 10px 36px rgba(139,92,246,0.4); transition:.25s; cursor:pointer; border:none; }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 18px 50px rgba(139,92,246,0.6); }
+  .tag{ display:inline-flex; align-items:center; gap:.5rem; padding:.4rem .9rem; border-radius:999px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.03); font-size:13px; color:var(--text-2); }
+  .dot{ width:7px; height:7px; border-radius:50%; background:var(--lime); box-shadow:0 0 8px var(--lime); }
+  .hero-title{ font-weight:800; font-size:clamp(38px,5vw,74px); line-height:0.98; letter-spacing:-0.04em; }
+
+  /* KPI */
+  .kpi{ border-radius:18px; border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.025); padding:1.1rem 1.2rem; }
+  .kpi .v{ font-size:26px; font-weight:800; line-height:1; letter-spacing:-0.02em; }
+  .kpi .l{ font-size:12px; color:var(--text-3); margin-top:6px; }
+
+  /* tabs */
+  .seg{ display:inline-flex; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:999px; padding:4px; gap:2px; }
+  .seg button{ padding:.5rem 1rem; border-radius:999px; font-size:13px; font-weight:700; color:var(--text-2); background:transparent; border:none; cursor:pointer; transition:.2s; font-family:'Noto Sans JP',sans-serif; }
+  .seg button.active{ background:linear-gradient(135deg,#22D3EE,#8B5CF6); color:#0A0E1A; }
+
+  /* table */
+  .row{ border-radius:14px; border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.025); transition:.18s; }
+  .row:hover{ border-color:rgba(255,255,255,0.18); }
+  .badge{ font-size:11px; font-weight:700; padding:.16rem .55rem; border-radius:999px; white-space:nowrap; }
+  .b-paid{ background:rgba(163,230,53,0.15); color:#bef264; }
+  .b-unpaid{ background:rgba(251,191,36,0.16); color:#FCD34D; }
+  .b-over{ background:rgba(239,68,68,0.16); color:#FCA5A5; }
+  .b-issued{ background:rgba(34,211,238,0.14); color:#67E8F9; }
+  .b-draft{ background:rgba(255,255,255,0.08); color:var(--text-3); }
+  .b-alert{ background:rgba(236,72,153,0.16); color:#F9A8D4; }
+  .det{ font-size:12px; color:var(--text-3); }
+  .det td{ padding:3px 0; }
+
+  .modal-back{ position:fixed; inset:0; background:rgba(5,7,15,0.8); backdrop-filter:blur(6px); z-index:100; display:none; align-items:flex-start; justify-content:center; padding:2rem 1rem; overflow:auto; }
+  .modal-back.show{ display:flex; }
+  /* invoice (light paper) */
+  .invoice{ background:#fff; color:#0f172a; border-radius:14px; width:100%; max-width:760px; padding:40px 44px; font-size:13px; }
+  .invoice h2{ font-size:26px; font-weight:900; letter-spacing:.3em; margin:0; }
+  .invoice table{ width:100%; border-collapse:collapse; }
+  .invoice .items th{ text-align:left; font-size:11px; color:#64748b; border-bottom:2px solid #0f172a; padding:8px 6px; }
+  .invoice .items td{ padding:9px 6px; border-bottom:1px solid #e2e8f0; }
+  .invoice .r{ text-align:right; } .invoice .mono{ font-variant-numeric:tabular-nums; }
+  .feat{ border-radius:18px; padding:1.4rem; border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.025); }
+  .voice{ font-size:12.5px; color:var(--text-3); font-style:italic; }
+  @keyframes slideIn{ from{ opacity:0; transform:translateY(8px);} to{ opacity:1; transform:none;} }
+  .slide-in{ animation:slideIn .35s ease both; }
+  ::-webkit-scrollbar{ width:8px; height:8px; } ::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.12); border-radius:8px; }
+  @media print{ body *{ visibility:hidden; } #invoiceModal, #invoiceModal *{ visibility:visible; } #invoiceModal{ position:absolute; inset:0; background:#fff; display:block; padding:0; } .invoice{ box-shadow:none; max-width:none; } .no-print{ display:none !important; } }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav-glass fixed top-0 inset-x-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="./index.html" class="flex items-center gap-3">
+      <div class="logo-mark"></div>
+      <div class="leading-tight">
+        <div class="text-[11px] tracking-[0.2em] text-white/50 uppercase">KPH Cloud</div>
+        <div class="text-sm font-semibold">請求管理 / Billing</div>
+      </div>
+    </a>
+    <div class="hidden md:flex items-center gap-6 text-sm text-white/70">
+      <a href="./index.html" class="hover:text-white transition">トップ</a>
+      <a href="#billing" class="hover:text-white transition">請求一覧</a>
+      <a href="#ledger" class="hover:text-white transition">帳簿</a>
+      <a href="./dispatch.html" class="hover:text-white transition">配車</a>
+    </div>
+    <a href="./index.html" class="btn-ghost text-sm !py-2 !px-4"><i data-lucide="arrow-left" class="w-4 h-4"></i> 一覧へ</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="relative pt-32 pb-10 px-6">
+  <div class="max-w-6xl mx-auto text-center">
+    <div class="inline-flex items-center gap-2 mb-6 tag">
+      <span class="dot"></span> 請求 — 現場のフィードバックを反映して新設しました
+    </div>
+    <h1 class="hero-title font-jp">請求は、<span class="grad-text">顧客・契約・現場</span>の3軸で。</h1>
+    <p class="mt-7 text-lg text-white/65 leading-relaxed max-w-3xl mx-auto font-jp">
+      「顧客ごと・契約ごと・現場ごと」の<span class="text-white">3パターン</span>をワンタップで切替。<br class="hidden md:block"/>
+      <span class="text-white">入金消込・未入金アラート・帳簿出力</span>まで、この1画面で完結します。
+    </p>
+  </div>
+</section>
+
+<!-- KPI -->
+<section class="px-4 md:px-6">
+  <div class="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div class="kpi"><div class="v mono grad-text">¥<span id="kpiBilled">0</span></div><div class="l">今月の請求額（2026年5月）</div></div>
+    <div class="kpi"><div class="v mono" style="color:#bef264">¥<span id="kpiPaid">0</span></div><div class="l">入金済</div></div>
+    <div class="kpi"><div class="v mono" style="color:#FCD34D">¥<span id="kpiUnpaid">0</span></div><div class="l">未入金（売掛残）</div></div>
+    <div class="kpi"><div class="v mono" style="color:#FCA5A5"><span id="kpiOver">0</span>件</div><div class="l">入金期日超過アラート</div></div>
+  </div>
+</section>
+
+<!-- BILLING -->
+<section id="billing" class="px-4 md:px-6 py-10">
+  <div class="max-w-7xl mx-auto glass p-4 md:p-6">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <div>
+        <h2 class="font-jp font-bold text-lg flex items-center gap-2"><i data-lucide="receipt" class="w-5 h-5 text-cyan-300"></i>請求一覧</h2>
+        <p class="text-[12px] text-white/45 font-jp mt-1">山本建材（適格請求書発行事業者）／ 締め：月末締め・翌月末払い</p>
+      </div>
+      <div class="flex items-center gap-3 flex-wrap">
+        <div class="seg" id="patternSeg">
+          <button data-p="customer" class="active">顧客ごと</button>
+          <button data-p="contract">契約ごと</button>
+          <button data-p="site">現場ごと</button>
+        </div>
+        <button class="btn-ghost text-sm font-jp" onclick="exportExcel('請求一覧')"><i data-lucide="sheet" class="w-4 h-4 text-lime-300"></i>Excel出力</button>
+      </div>
+    </div>
+
+    <!-- 未入金アラート -->
+    <div id="alertBar" class="mb-4 flex items-center gap-2 text-sm font-jp px-4 py-3 rounded-xl" style="background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.25)">
+      <i data-lucide="alert-triangle" class="w-4 h-4 text-pink-300"></i>
+      <span id="alertText" class="text-pink-100"></span>
+    </div>
+
+    <div class="text-[11px] text-white/40 font-jp grid grid-cols-12 gap-2 px-3 pb-2">
+      <div class="col-span-4 md:col-span-3">請求先 / 単位</div>
+      <div class="col-span-3 md:col-span-2 hidden md:block">内訳</div>
+      <div class="col-span-3 md:col-span-2 text-right">請求額（税込）</div>
+      <div class="col-span-2 text-center">発行</div>
+      <div class="col-span-2 text-center">入金</div>
+      <div class="col-span-3 md:col-span-1 text-right">操作</div>
+    </div>
+    <div id="billRows" class="space-y-2.5"></div>
+  </div>
+</section>
+
+<!-- LEDGER -->
+<section id="ledger" class="px-4 md:px-6 pb-12">
+  <div class="max-w-7xl mx-auto glass p-4 md:p-6">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <h2 class="font-jp font-bold text-lg flex items-center gap-2"><i data-lucide="book-open" class="w-5 h-5 text-violet-300"></i>帳簿 <span class="text-[12px] font-normal text-white/40">（経理が回る、本格帳簿）</span></h2>
+      <div class="flex items-center gap-3">
+        <div class="seg" id="ledgerSeg">
+          <button data-l="sales" class="active">売上帳</button>
+          <button data-l="deposit">入金帳</button>
+        </div>
+        <button class="btn-ghost text-sm font-jp" onclick="exportExcel('帳簿')"><i data-lucide="sheet" class="w-4 h-4 text-lime-300"></i>Excel出力</button>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm font-jp" id="ledgerTable">
+        <thead id="ledgerHead" class="text-[11px] text-white/40 text-left"></thead>
+        <tbody id="ledgerBody"></tbody>
+        <tfoot id="ledgerFoot" class="text-[13px] font-bold"></tfoot>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 現場の声 → 実装 -->
+<section class="px-6 pb-24">
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center mb-10">
+      <div class="tag inline-flex mb-4"><span class="dot"></span>現場の声 → そのまま設計に</div>
+      <h2 class="text-3xl md:text-4xl font-bold font-jp">経理の<span class="grad-text-lime">お悩み</span>を、まるごと解消</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div class="feat"><i data-lucide="layers" class="w-7 h-7 text-cyan-300 mb-3"></i>
+        <h3 class="font-jp font-bold mb-2">請求の3パターン整理</h3>
+        <p class="voice font-jp mb-2">「請求は顧客ごと・契約ごと・現場ごとの3パターンある」</p>
+        <p class="text-sm text-white/70 font-jp">→ <span class="text-cyan-200">タブ切替</span>で同じデータを3軸で集計・発行。</p></div>
+      <div class="feat"><i data-lucide="book-open" class="w-7 h-7 text-violet-300 mb-3"></i>
+        <h3 class="font-jp font-bold mb-2">帳簿の本格化</h3>
+        <p class="voice font-jp mb-2">「帳簿が簡易的で、大きい会社は経理が難しい」</p>
+        <p class="text-sm text-white/70 font-jp">→ <span class="text-violet-200">売上帳・入金帳</span>＋Excel出力で会計に耐える。</p></div>
+      <div class="feat"><i data-lucide="check-circle-2" class="w-7 h-7 text-lime-300 mb-3"></i>
+        <h3 class="font-jp font-bold mb-2">入金管理・消込</h3>
+        <p class="voice font-jp mb-2">「入金の帳簿が簡易的」</p>
+        <p class="text-sm text-white/70 font-jp">→ <span class="text-lime-200">ワンクリック消込</span>と未入金・期日超過アラート。</p></div>
+      <div class="feat"><i data-lucide="shield-alert" class="w-7 h-7 text-pink-300 mb-3"></i>
+        <h3 class="font-jp font-bold mb-2">契約と請求の連動</h3>
+        <p class="voice font-jp mb-2">「契約外の回収・持込は禁止」</p>
+        <p class="text-sm text-white/70 font-jp">→ 契約に紐づく請求のみ。<span class="text-pink-200">契約外は警告</span>（拡張）。</p></div>
+    </div>
+  </div>
+</section>
+
+<footer class="px-6 pb-16">
+  <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-white/10">
+    <div class="text-white/40 text-sm font-jp">KPH Cloud Reimagined — 請求は3軸、帳簿は本格、入金は消込まで</div>
+    <a href="./index.html" class="btn-ghost text-sm"><i data-lucide="grid-3x3" class="w-4 h-4"></i> 全画面モックへ戻る</a>
+  </div>
+</footer>
+
+<!-- INVOICE MODAL -->
+<div id="invoiceModal" class="modal-back">
+  <div>
+    <div class="invoice" id="invoicePaper"></div>
+    <div class="no-print flex justify-center gap-3 mt-4">
+      <button class="btn-ghost text-sm font-jp" onclick="closeModal('invoiceModal')"><i data-lucide="x" class="w-4 h-4"></i>閉じる</button>
+      <button class="btn-primary text-sm font-jp" onclick="window.print()"><i data-lucide="printer" class="w-4 h-4"></i>請求書を発行（PDF/印刷）</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== data ===================== */
+// 1明細 = 回収/持込1件。顧客/契約/現場の3軸で集計できるようフラットに保持
+const ITEMS = [
+  { customer:'梅田建設(有)',        contract:'収集運搬及び処分', site:'勢田町現場',       date:'05/08', item:'混合廃棄物 4㎥',     amount:48000 },
+  { customer:'梅田建設(有)',        contract:'収集運搬及び処分', site:'小俣町第2現場',     date:'05/19', item:'廃石膏ボード 1㎥',   amount:22000 },
+  { customer:'(株)アイフク・テック', contract:'収集運搬（自社）', site:'二見町現場',       date:'05/11', item:'混合廃棄物 3㎥',     amount:36000 },
+  { customer:'(株)アイフク・テック', contract:'収集運搬及び処分', site:'伊勢図書館改修工事', date:'05/22', item:'がれき類 計量2.4t',  amount:31200 },
+  { customer:'カーペンターネット',   contract:'収集運搬',        site:'小俣町現場',       date:'05/14', item:'廃プラ 2㎥',        amount:24000 },
+  { customer:'丸和リフォーム',       contract:'スポット契約',     site:'一之木現場',       date:'05/16', item:'廃プラ・金属くず',   amount:18500 },
+  { customer:'山際工務店',          contract:'収集運搬',        site:'御薗町解体現場',    date:'05/27', item:'木くず 計量1.8t',   amount:21600 },
+];
+// 入金状態（請求先=顧客単位で管理。期日=翌月末）
+const PAY = {
+  '梅田建設(有)':        { paid:true,  due:'06/30' },
+  '(株)アイフク・テック': { paid:false, due:'06/30' },
+  'カーペンターネット':   { paid:true,  due:'06/30' },
+  '丸和リフォーム':       { paid:false, due:'05/31', over:true },
+  '山際工務店':          { paid:false, due:'06/30' },
+};
+const TAX = 0.10;
+let pattern = 'customer';
+let ledger = 'sales';
+
+const yen = n => n.toLocaleString('ja-JP');
+const withTax = n => Math.round(n*(1+TAX));
+
+/* ===================== grouping ===================== */
+function groupKey(it){
+  if(pattern==='customer') return it.customer;
+  if(pattern==='site') return it.customer+' ／ '+it.site;
+  return it.customer+' ／ '+it.contract; // contract
+}
+function unitLabel(){ return pattern==='customer'?'顧客ごと':pattern==='contract'?'契約ごと':'現場ごと'; }
+function payOwner(it){ return it.customer; } // 入金は顧客単位
+
+function buildGroups(){
+  const map = {};
+  ITEMS.forEach(it=>{
+    const k = groupKey(it);
+    (map[k] = map[k] || { key:k, items:[], owner:it.customer }).items.push(it);
+  });
+  return Object.values(map);
+}
+
+/* ===================== render rows ===================== */
+function render(){
+  const groups = buildGroups();
+  const rows = document.getElementById('billRows');
+  rows.innerHTML = groups.map((g,i)=>{
+    const sub = g.items.reduce((s,x)=>s+x.amount,0);
+    const tot = withTax(sub);
+    const pay = PAY[g.owner] || {paid:false,due:'—'};
+    const payBadge = pay.paid ? `<span class="badge b-paid">入金済</span>`
+      : pay.over ? `<span class="badge b-over">期日超過</span>` : `<span class="badge b-unpaid">未入金</span>`;
+    const detRows = g.items.map(x=>`<tr><td>${x.date}</td><td style="padding-left:10px">${x.site}</td><td style="padding-left:10px">${x.item}</td><td class="text-right mono">¥${yen(x.amount)}</td></tr>`).join('');
+    return `<div class="row slide-in">
+      <div class="grid grid-cols-12 gap-2 items-center px-3 py-3">
+        <div class="col-span-4 md:col-span-3">
+          <div class="font-jp text-[13.5px] font-bold leading-tight">${g.key}</div>
+          <div class="text-[11px] text-white/40 font-jp mt-0.5">${unitLabel()}・${g.items.length}明細</div>
+        </div>
+        <div class="col-span-3 md:col-span-2 hidden md:block text-[12px] text-white/55 font-jp">${g.items[0].item}${g.items.length>1?` 他${g.items.length-1}件`:''}</div>
+        <div class="col-span-3 md:col-span-2 text-right">
+          <div class="mono font-bold">¥${yen(tot)}</div>
+          <div class="text-[10px] text-white/35 mono">(税抜 ¥${yen(sub)})</div>
+        </div>
+        <div class="col-span-2 text-center"><span class="badge b-issued">発行可</span></div>
+        <div class="col-span-2 text-center">${payBadge}</div>
+        <div class="col-span-3 md:col-span-1 flex md:justify-end gap-1.5">
+          <button class="btn-primary !py-1.5 !px-2.5 text-[11px]" onclick='openInvoice(${i})'><i data-lucide="file-text" class="w-3.5 h-3.5"></i><span class="hidden xl:inline">発行</span></button>
+          ${pay.paid?'':`<button class="btn-ghost !py-1.5 !px-2.5 text-[11px]" onclick="markPaid('${g.owner.replace(/'/g,"")}')"><i data-lucide="check" class="w-3.5 h-3.5 text-lime-300"></i><span class="hidden xl:inline">消込</span></button>`}
+        </div>
+      </div>
+      <div class="px-3 pb-3 -mt-1">
+        <details class="text-white/60"><summary class="text-[11px] text-white/40 cursor-pointer font-jp">明細を見る</summary>
+          <table class="det w-full mt-2 font-jp">${detRows}</table>
+        </details>
+      </div>
+    </div>`;
+  }).join('');
+  window._groups = groups;
+  renderKPI(); renderAlert(); renderLedger();
+  if(window.lucide) lucide.createIcons();
+}
+
+function renderKPI(){
+  let billed=0, paid=0, unpaid=0, over=0;
+  // 請求総額は顧客単位で重複しないよう ITEMS 全体から
+  const byOwner = {};
+  ITEMS.forEach(it=>{ byOwner[it.customer]=(byOwner[it.customer]||0)+it.amount; });
+  Object.entries(byOwner).forEach(([owner,sub])=>{
+    const tot = withTax(sub); billed += tot;
+    const p = PAY[owner]||{};
+    if(p.paid) paid += tot; else { unpaid += tot; if(p.over) over++; }
+  });
+  document.getElementById('kpiBilled').textContent = yen(billed);
+  document.getElementById('kpiPaid').textContent = yen(paid);
+  document.getElementById('kpiUnpaid').textContent = yen(unpaid);
+  document.getElementById('kpiOver').textContent = over;
+}
+
+function renderAlert(){
+  const un = Object.entries(PAY).filter(([o,p])=>!p.paid);
+  const over = un.filter(([o,p])=>p.over);
+  const bar = document.getElementById('alertBar');
+  if(un.length===0){ bar.style.display='none'; return; }
+  bar.style.display='flex';
+  const names = un.map(([o])=>o).join('・');
+  document.getElementById('alertText').innerHTML =
+    `未入金 <b>${un.length}社</b>（${names}）` + (over.length?` ／ うち <b class="text-red-200">期日超過 ${over.length}社</b>（${over.map(([o])=>o).join('・')}）` : '');
+}
+
+/* ===================== ledger ===================== */
+function renderLedger(){
+  const head = document.getElementById('ledgerHead');
+  const body = document.getElementById('ledgerBody');
+  const foot = document.getElementById('ledgerFoot');
+  if(ledger==='sales'){
+    head.innerHTML = `<tr class="border-b border-white/10"><th class="py-2 pr-3">日付</th><th class="pr-3">顧客</th><th class="pr-3">現場</th><th class="pr-3">品目</th><th class="pr-3 text-right">税抜</th><th class="pr-3 text-right">消費税</th><th class="text-right">税込</th></tr>`;
+    let s=0,t=0;
+    body.innerHTML = ITEMS.map(it=>{ const tax=Math.round(it.amount*TAX); s+=it.amount; t+=tax;
+      return `<tr class="border-b border-white/5"><td class="py-2 pr-3 text-white/60 mono">2026/${it.date}</td><td class="pr-3">${it.customer}</td><td class="pr-3 text-white/60">${it.site}</td><td class="pr-3 text-white/60">${it.item}</td><td class="pr-3 text-right mono">¥${yen(it.amount)}</td><td class="pr-3 text-right mono text-white/50">¥${yen(tax)}</td><td class="text-right mono font-semibold">¥${yen(it.amount+tax)}</td></tr>`;
+    }).join('');
+    foot.innerHTML = `<tr><td colspan="4" class="pt-3 text-right text-white/50">合計</td><td class="pt-3 text-right mono grad-text">¥${yen(s)}</td><td class="pt-3 text-right mono">¥${yen(t)}</td><td class="pt-3 text-right mono grad-text">¥${yen(s+t)}</td></tr>`;
+  } else {
+    head.innerHTML = `<tr class="border-b border-white/10"><th class="py-2 pr-3">請求先</th><th class="pr-3">請求額(税込)</th><th class="pr-3">入金期日</th><th class="pr-3">状態</th><th class="text-right">入金日</th></tr>`;
+    const byOwner = {};
+    ITEMS.forEach(it=>{ byOwner[it.customer]=(byOwner[it.customer]||0)+it.amount; });
+    let paidSum=0, unpaidSum=0;
+    body.innerHTML = Object.entries(byOwner).map(([o,sub])=>{ const tot=withTax(sub); const p=PAY[o]||{};
+      if(p.paid) paidSum+=tot; else unpaidSum+=tot;
+      const st = p.paid?`<span class="badge b-paid">入金済</span>`:p.over?`<span class="badge b-over">期日超過</span>`:`<span class="badge b-unpaid">未入金</span>`;
+      return `<tr class="border-b border-white/5"><td class="py-2 pr-3">${o}</td><td class="pr-3 mono">¥${yen(tot)}</td><td class="pr-3 text-white/60 mono">2026/${p.due||'—'}</td><td class="pr-3">${st}</td><td class="text-right text-white/60 mono">${p.paid?'2026/06/12':'—'}</td></tr>`;
+    }).join('');
+    foot.innerHTML = `<tr><td class="pt-3 text-right text-white/50" colspan="1">入金済 / 未入金</td><td class="pt-3 mono" style="color:#bef264">¥${yen(paidSum)}</td><td colspan="2" class="pt-3 mono" style="color:#FCD34D">未入金 ¥${yen(unpaidSum)}</td><td></td></tr>`;
+  }
+}
+
+/* ===================== invoice modal ===================== */
+function openInvoice(i){
+  const g = window._groups[i];
+  const sub = g.items.reduce((s,x)=>s+x.amount,0);
+  const tax = Math.round(sub*TAX);
+  const rows = g.items.map(x=>`<tr><td>2026/${x.date}</td><td>${x.site}</td><td>${x.item}</td><td class="r mono">¥${yen(x.amount)}</td></tr>`).join('');
+  document.getElementById('invoicePaper').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px">
+      <div><h2>請求書</h2><div style="color:#64748b;font-size:11px;margin-top:8px">発行日：2026年5月31日 ／ No. INV-2026-05-${String(i+1).padStart(3,'0')}</div></div>
+      <div style="text-align:right;font-size:12px;line-height:1.7">
+        <div style="font-weight:900;font-size:15px">山本建材 株式会社</div>
+        <div style="color:#475569">三重県伊勢市〇〇町1-2-3<br>登録番号：T1234567890123<br>TEL 0596-××-××××</div>
+      </div>
+    </div>
+    <div style="font-size:15px;font-weight:800;border-bottom:2px solid #0f172a;padding-bottom:8px;margin-bottom:6px">${g.key} 御中</div>
+    <div style="color:#475569;font-size:12px;margin-bottom:18px">下記の通りご請求申し上げます（${unitLabel()}）。</div>
+    <div style="display:inline-block;background:#f1f5f9;border-radius:10px;padding:12px 20px;margin-bottom:18px">
+      <span style="font-size:12px;color:#64748b">ご請求金額（税込）</span>
+      <span style="font-size:24px;font-weight:900;margin-left:12px" class="mono">¥${yen(sub+tax)}</span>
+    </div>
+    <table class="items"><thead><tr><th>日付</th><th>現場</th><th>品目</th><th class="r">金額</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+    <table style="margin-top:14px;width:260px;margin-left:auto;font-size:13px">
+      <tr><td style="padding:4px 0;color:#64748b">小計</td><td class="r mono">¥${yen(sub)}</td></tr>
+      <tr><td style="padding:4px 0;color:#64748b">消費税(10%)</td><td class="r mono">¥${yen(tax)}</td></tr>
+      <tr style="border-top:2px solid #0f172a"><td style="padding:8px 0;font-weight:900">合計</td><td class="r mono" style="font-weight:900;font-size:16px">¥${yen(sub+tax)}</td></tr>
+    </table>
+    <div style="margin-top:24px;font-size:11px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:12px">
+      お振込先：〇〇銀行 伊勢支店 普通 1234567 ヤマモトケンザイ（カ ／ お支払期限：2026年6月30日
+    </div>`;
+  openModal('invoiceModal');
+}
+
+/* ===================== actions ===================== */
+function markPaid(owner){
+  if(PAY[owner]){ PAY[owner].paid=true; PAY[owner].over=false; }
+  render();
+  toast(`${owner} の入金を消込しました`);
+}
+function exportExcel(what){ toast(`${what}をExcelで出力しました（${ITEMS.length}明細）`); }
+
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+document.querySelectorAll('.modal-back').forEach(m=>m.addEventListener('click',e=>{ if(e.target===m) closeModal(m.id); }));
+
+function toast(msg){
+  const t=document.createElement('div');
+  t.className='fixed bottom-6 left-1/2 -translate-x-1/2 glass px-5 py-3 font-jp text-sm z-[200] slide-in';
+  t.style.borderColor='rgba(163,230,53,0.4)';
+  t.innerHTML=`<span class="flex items-center gap-2"><i data-lucide="check-circle-2" class="w-4 h-4 text-lime-300"></i>${msg}</span>`;
+  document.body.appendChild(t); if(window.lucide) lucide.createIcons();
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='.4s'; setTimeout(()=>t.remove(),400); },2200);
+}
+
+/* ===================== init ===================== */
+document.querySelectorAll('#patternSeg button').forEach(b=>b.addEventListener('click',function(){
+  document.querySelectorAll('#patternSeg button').forEach(x=>x.classList.remove('active'));
+  this.classList.add('active'); pattern=this.dataset.p; render();
+}));
+document.querySelectorAll('#ledgerSeg button').forEach(b=>b.addEventListener('click',function(){
+  document.querySelectorAll('#ledgerSeg button').forEach(x=>x.classList.remove('active'));
+  this.classList.add('active'); ledger=this.dataset.l; renderLedger();
+}));
+render();
+</script>
+</body>
+</html>
