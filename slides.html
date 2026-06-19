@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>環境プラットホーム リプレイス設計 — スライド | KPH Cloud Reimagined</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+  :root{
+    --bg-0:#070912; --cyan:#22D3EE; --violet:#8B5CF6; --magenta:#EC4899; --lime:#A3E635; --amber:#FBBF24; --red:#F87171;
+    --text:#F8FAFC; --t2:rgba(248,250,252,0.66); --t3:rgba(248,250,252,0.42);
+    --line:rgba(255,255,255,0.1);
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-font-smoothing:antialiased; }
+  html,body{ height:100%; background:var(--bg-0); color:var(--text); font-family:'Inter','Noto Sans JP',sans-serif; overflow:hidden; }
+  body{ background:
+      radial-gradient(1200px 600px at 12% -10%,rgba(34,211,238,0.10),transparent 60%),
+      radial-gradient(1000px 500px at 88% 8%,rgba(236,72,153,0.10),transparent 60%),
+      radial-gradient(900px 700px at 50% 115%,rgba(139,92,246,0.16),transparent 60%),
+      linear-gradient(180deg,#0A0E1A,#13102B 55%,#070912); }
+  .jp{ font-family:'Noto Sans JP','Inter',sans-serif; }
+  .grad{ background:linear-gradient(135deg,#22D3EE,#8B5CF6 50%,#EC4899); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .grad-lime{ background:linear-gradient(135deg,#A3E635,#22D3EE); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+  /* deck */
+  .deck{ position:fixed; inset:0; }
+  .slide{ position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center;
+    padding:5vh 7vw 9vh; opacity:0; transform:translateY(14px) scale(0.99); pointer-events:none;
+    transition:opacity .45s ease, transform .45s ease; }
+  .slide.active{ opacity:1; transform:none; pointer-events:auto; }
+  .kicker{ display:inline-flex; align-items:center; gap:.5rem; font-size:13px; letter-spacing:.14em; color:var(--t2);
+    border:1px solid var(--line); padding:.35rem .8rem; border-radius:999px; background:rgba(255,255,255,0.03); width:fit-content; }
+  .kicker .d{ width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan); }
+  h1.title{ font-weight:800; font-size:clamp(34px,5vw,72px); line-height:1.04; letter-spacing:-0.035em; margin:.4em 0 .2em; }
+  h2.head{ font-weight:800; font-size:clamp(24px,3.2vw,42px); line-height:1.15; letter-spacing:-0.02em; margin:.5rem 0 1.3rem; }
+  .sub{ font-size:clamp(14px,1.5vw,19px); color:var(--t2); line-height:1.7; }
+
+  .glass{ background:rgba(255,255,255,0.035); border:1px solid var(--line); border-radius:18px;
+    -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); }
+
+  /* nav */
+  .nav{ position:fixed; bottom:20px; left:0; right:0; display:flex; align-items:center; justify-content:center; gap:18px; z-index:50; }
+  .nav button{ width:42px;height:42px;border-radius:50%; border:1px solid var(--line); background:rgba(255,255,255,0.05); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.2s; }
+  .nav button:hover{ background:rgba(255,255,255,0.12); }
+  .dots{ display:flex; gap:7px; }
+  .dots i{ width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2); cursor:pointer; transition:.2s; }
+  .dots i.on{ background:linear-gradient(135deg,#22D3EE,#EC4899); width:22px; border-radius:999px; }
+  .pg{ position:fixed; top:18px; right:22px; font-size:13px; color:var(--t3); z-index:50; letter-spacing:.05em; }
+  .brand{ position:fixed; top:16px; left:22px; display:flex; align-items:center; gap:9px; z-index:50; }
+  .logo{ width:24px;height:24px;border-radius:7px;background:conic-gradient(from 180deg,#22D3EE,#8B5CF6,#EC4899,#22D3EE);box-shadow:0 0 14px rgba(139,92,246,.6); }
+  .brand span{ font-size:12px; color:var(--t3); letter-spacing:.16em; text-transform:uppercase; }
+
+  /* diagram bits */
+  .box{ border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,0.04); padding:.9rem 1rem; text-align:center; }
+  .box .bt{ font-weight:700; font-size:15px; } .box .bd{ font-size:11.5px; color:var(--t3); margin-top:3px; }
+  .box.c{ border-color:rgba(34,211,238,.4); box-shadow:0 0 24px rgba(34,211,238,.12) inset; }
+  .box.v{ border-color:rgba(139,92,246,.45); box-shadow:0 0 26px rgba(139,92,246,.16) inset; }
+  .box.m{ border-color:rgba(236,72,153,.4); }
+  .box.l{ border-color:rgba(163,230,53,.4); }
+
+  /* horizontal flow with chevrons */
+  .flow{ display:flex; align-items:stretch; gap:0; flex-wrap:wrap; }
+  .flow .step{ flex:1; min-width:120px; position:relative; padding:1rem .8rem; text-align:center; border:1px solid var(--line); background:rgba(255,255,255,0.03);
+    border-radius:12px; margin-right:20px; }
+  .flow .step:last-child{ margin-right:0; }
+  .flow .step::after{ content:""; position:absolute; right:-19px; top:50%; transform:translateY(-50%);
+    width:0;height:0;border-top:9px solid transparent;border-bottom:9px solid transparent;border-left:12px solid rgba(139,92,246,.6); }
+  .flow .step:last-child::after{ display:none; }
+  .flow .step .n{ font-size:11px; color:var(--t3); } .flow .step .l{ font-weight:700; font-size:14.5px; margin-top:3px; }
+  .flow .step .x{ font-size:11px; color:var(--t3); margin-top:3px; line-height:1.4; }
+
+  .arrow-d{ display:flex; justify-content:center; color:var(--violet); margin:.2rem 0; }
+
+  .grid{ display:grid; gap:14px; }
+  .chip{ font-size:12.5px; padding:.4rem .6rem; border:1px solid var(--line); border-radius:9px; background:rgba(255,255,255,0.03); text-align:center; }
+  .chip.hot{ border-color:rgba(251,191,36,.5); background:rgba(251,191,36,.08); color:#FCD34D; font-weight:700; }
+  .colhead{ font-size:13px; font-weight:800; letter-spacing:.05em; margin-bottom:8px; display:flex; align-items:center; gap:7px; }
+
+  .card{ border:1px solid var(--line); border-radius:16px; background:rgba(255,255,255,0.03); padding:1.1rem 1.2rem; }
+  .card .ic{ width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:.7rem; }
+  .card h4{ font-size:16px; font-weight:800; } .card p{ font-size:13px; color:var(--t2); line-height:1.7; margin-top:.3rem; }
+
+  /* pyramid layers */
+  .layer{ border-radius:14px; padding:1rem 1.4rem; margin:0 auto .7rem; text-align:center; border:1px solid var(--line); }
+  .layer .lt{ font-weight:800; font-size:17px; } .layer .ld{ font-size:12.5px; color:var(--t2); margin-top:3px; }
+
+  /* before/after */
+  .ba{ display:grid; grid-template-columns:1fr 46px 1fr; align-items:center; gap:0; }
+  .ba .b1{ border:1px solid rgba(248,113,113,.35); background:rgba(248,113,113,.07); border-radius:14px; padding:1rem 1.2rem; }
+  .ba .b2{ border:1px solid rgba(34,211,238,.4); background:rgba(34,211,238,.07); border-radius:14px; padding:1rem 1.2rem; }
+  .ba .ar{ text-align:center; color:var(--violet); }
+  .ba .lbl{ font-size:11px; letter-spacing:.12em; font-weight:800; text-transform:uppercase; margin-bottom:.4rem; }
+  .ba .b1 .lbl{ color:var(--red); } .ba .b2 .lbl{ color:var(--cyan); }
+  .ba p{ font-size:14px; line-height:1.7; }
+
+  table.par{ width:100%; border-collapse:collapse; font-size:14px; }
+  table.par td,table.par th{ border-bottom:1px solid var(--line); padding:.6rem .7rem; text-align:left; }
+  table.par th{ color:var(--t3); font-size:12px; font-weight:700; }
+  table.par .ar{ color:var(--violet); text-align:center; }
+  .tagai{ font-size:10.5px; font-weight:800; padding:.1rem .45rem; border-radius:999px; background:rgba(139,92,246,.2); color:#C4B5FD; margin-left:6px; }
+
+  /* roadmap */
+  .road{ display:flex; gap:16px; }
+  .road .ph{ flex:1; border:1px solid var(--line); border-radius:14px; padding:1rem; position:relative; }
+  .road .ph .p{ font-size:12px; font-weight:800; color:var(--cyan); } .road .ph h4{ font-size:15px; font-weight:800; margin:.2rem 0 .4rem; }
+  .road .ph p{ font-size:12px; color:var(--t2); line-height:1.6; }
+  .road .ph.p3{ border-color:rgba(139,92,246,.5); box-shadow:0 0 30px rgba(139,92,246,.15) inset; }
+
+  @media (max-width:780px){
+    .slide{ padding:7vh 6vw 12vh; justify-content:flex-start; overflow-y:auto; }
+    .ba{ grid-template-columns:1fr; gap:10px; } .ba .ar{ transform:rotate(90deg); }
+    .flow .step{ margin-right:0; margin-bottom:22px; } .flow .step::after{ right:50%; top:auto; bottom:-19px; transform:translateX(50%) rotate(90deg); }
+    .road{ flex-direction:column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="brand"><div class="logo"></div><span>KPH Cloud · Replace</span></div>
+<div class="pg"><span id="cur">1</span> / <span id="tot">14</span></div>
+
+<div class="deck" id="deck">
+
+  <!-- 1 TITLE -->
+  <section class="slide active">
+    <div class="kicker jp"><span class="d"></span>環境プラットホーム リプレイス設計</div>
+    <h1 class="title jp">現状を<span class="grad">まるごと補完</span>し、<br/><span class="grad-lime">AIエージェント</span>で次世代へ。</h1>
+    <p class="sub jp">現行システム（全32画面）を読み取り専用で調査。<br/>「全機能を補完した土台」の上に、<b style="color:#fff">配車AI・ドライバーアプリ・喋るだけ事務</b>を載せます。</p>
+    <div style="margin-top:2rem;display:flex;gap:10px;flex-wrap:wrap" class="jp">
+      <div class="kicker"><i data-lucide="search" class="w-4 h-4"></i>2環境を実調査</div>
+      <div class="kicker"><i data-lucide="layout-grid" class="w-4 h-4"></i>32画面を棚卸し</div>
+      <div class="kicker"><i data-lucide="shield-check" class="w-4 h-4"></i>閲覧のみ・無変更</div>
+    </div>
+  </section>
+
+  <!-- 2 調査サマリ -->
+  <section class="slide">
+    <div class="kicker jp"><span class="d"></span>調査サマリ</div>
+    <h2 class="head jp">分かったこと、3つ</h2>
+    <div class="grid jp" style="grid-template-columns:repeat(3,1fr)">
+      <div class="card"><div class="ic" style="background:rgba(34,211,238,.15)"><i data-lucide="copy" class="w-5 h-5" style="color:#67E8F9"></i></div>
+        <h4>① 同一基盤の複製</h4><p>山本建材もダイイチ企業も<b style="color:#fff">同じ汎用プラットフォームを会社ごとに複製</b>したもの。差は社名と配色だけ。</p></div>
+      <div class="card"><div class="ic" style="background:rgba(163,230,53,.15)"><i data-lucide="check-circle-2" class="w-5 h-5" style="color:#bef264"></i></div>
+        <h4>② 土台は堅実</h4><p>業者→契約→現場→売上→請求→入金の<b style="color:#fff">一本道がしっかり</b>。法令台帳（マニフェスト・点呼）も網羅。</p></div>
+      <div class="card"><div class="ic" style="background:rgba(236,72,153,.15)"><i data-lucide="trending-up" class="w-5 h-5" style="color:#F9A8D4"></i></div>
+        <h4>③ 伸びしろ明確</h4><p><b style="color:#fff">ダッシュボード不在・JWNET未連携・手入力・地図/最適化なし</b>。ここが我々の差別化点。</p></div>
+    </div>
+    <p class="sub jp" style="margin-top:1.4rem">→ リプレイスは<b style="color:#fff">「1つの優れたシステムを作り、会社ごとに展開」</b>するマルチテナント設計が有効。</p>
+  </section>
+
+  <!-- 3 マルチテナント -->
+  <section class="slide">
+    <div class="kicker jp"><span class="d"></span>構成 ①</div>
+    <h2 class="head jp">同じ基盤を、会社ごとに展開している</h2>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+      <div class="box v jp" style="min-width:340px"><div class="bt">環境プラットホーム（共通基盤）</div><div class="bd">同一ベンダー・同一URL設計・同一認証</div></div>
+      <div class="arrow-d"><i data-lucide="chevrons-down" class="w-7 h-7"></i></div>
+      <div class="grid jp" style="grid-template-columns:repeat(3,1fr);width:100%;max-width:820px">
+        <div class="box c"><div class="bt">山本建材</div><div class="bd">本番テナント</div></div>
+        <div class="box c"><div class="bt">ダイイチ企業</div><div class="bd">テナント</div></div>
+        <div class="box" style="border-style:dashed"><div class="bt" style="color:var(--t2)">次の会社…</div><div class="bd">同じ仕組みで追加</div></div>
+      </div>
+    </div>
+    <p class="sub jp" style="margin-top:1.5rem;text-align:center">リプレイス後も<b style="color:#fff">テナント追加で横展開</b>でき、移行も共通設計で組めます。</p>
+  </section>
+
+  <!-- 4 データモデル -->
+  <section class="slide">
+    <div class="kicker jp"><span class="d"></span>構成 ②</div>
+    <h2 class="head jp">データの中心は「業者」と「契約」</h2>
+    <div class="jp" style="display:flex;flex-direction:column;align-items:center">
+      <div class="box c" style="min-width:300px"><div class="bt">業者（取引先）</div><div class="bd">全マスターの起点／締日・支払・インボイス番号</div></div>
+      <div class="arrow-d"><i data-lucide="arrow-down" class="w-6 h-6"></i></div>
+      <div class="grid" style="grid-template-columns:repeat(5,1fr);width:100%;max-width:900px;margin-bottom:14px">
+        <div class="box"><div class="bt" style="font-size:13px">許可証</div></div>
+        <div class="box"><div class="bt" style="font-size:13px">銀行口座</div></div>
+        <div class="box"><div class="bt" style="font-size:13px">請求先</div></div>
+        <div class="box"><div class="bt" style="font-size:13px">積替・保管</div></div>
+        <div class="box"><div class="bt" style="font-size:13px">処分場</div></div>
+      </div>
+      <div class="box v" style="min-width:520px"><div class="bt">契約 ★中核ハブ</div><div class="bd">排出事業者・収集運搬・処分・請求先を全紐付け／請求区分＝<b style="color:#fff">顧客・契約・現場ごと</b></div></div>
+      <div class="arrow-d"><i data-lucide="arrow-down" class="w-6 h-6"></i></div>
+      <div class="grid" style="grid-template-columns:1fr 1fr;width:100%;max-width:620px">
+        <div class="box l"><div class="bt" style="font-size:14px">単価</div><div class="bd">業者×契約×現場×品目／買取・販売価格</div></div>
+        <div class="box l"><div class="bt" style="font-size:14px">現場</div><div class="bd">ドライバー・車種→配車／現場別請求先</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 業務フロー -->
+  <section class="slide">
+    <div class="kicker jp"><span class="d"></span>構成 ③</div>
+    <h2 class="head jp">毎日の業務フロー（一本道）</h2>
+    <div class="flow jp">
+      <div class="step"><div class="n">01</div><div class="l">予約</div><div class="x">持込／回収<br>(予約者・受付)</div></div>
+      <div class="step"><div class="n">02</div><div class="l">配車</div><div class="x">配車ボード<br>(午前/午後)</div></div>
+      <div class="step"><div class="n">03</div><div class="l">現場作業</div><div class="x">受付/計量/搬出<br>品目・重量・票番号</div></div>
+      <div class="step"><div class="n">04</div><div class="l">売上</div><div class="x">自動生成<br>←単価マスター</div></div>
+      <div class="step"><div class="n">05</div><div class="l">請求</div><div class="x">3軸で集約<br>仕切書/請求書</div></div>
+      <div class="step"><div class="n">06</div><div class="l">入金</div><div class="x">消込<br>→銀行口座</div></div>
+    </div>
+    <div class="glass jp" style="margin-top:1.6rem;padding:1rem 1.3rem">
+      <div style="font-size:13px;color:var(--t3);margin-bottom:.3rem">法令・台帳（横断）</div>
+      <div style="display:flex;gap:24px;flex-wrap:wrap;font-size:14px">
+        <span>📋 マニフェスト（紙7票・A〜E票返却）</span>
+        <span>🍺 日報（アルコールチェック＋走行メーター）</span>
+        <span>📑 許可証（有効期限）</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 機能マップ -->
+  <section class="slide">
+    <div class="kicker jp"><span class="d"></span>現状機能マップ</div>
+    <h2 class="head jp">全32画面を、4カテゴリで把握</h2>
+    <div class="grid jp" style="grid-template-columns:repeat(4,1fr);align-items:start">
+      <div>
+        <div class="colhead" style="color:#67E8F9"><i data-lucide="calendar-clock" class="w-4 h-4"></i>日常業務</div>
+        <div class="grid" style="grid-template-columns:1fr;gap:7px">
+          <div class="chip hot">持込予約</div><div class="chip hot">回収予約</div><div class="chip hot">配車</div>
+          <div class="chip hot">日報</div><div class="chip hot">マニフェスト</div><div class="chip hot">持込受付</div>
+          <div class="chip">持込計量</div><div class="chip">搬出</div><div class="chip">コンテナ</div><div class="chip">契約書作成依頼</div>
+        </div>
+      </div>
+      <div>
+        <div class="colhead" style="color:#bef264"><i data-lucide="banknote" class="w-4 h-4"></i>お金</div>
+        <div class="grid" style="grid-template-columns:1fr;gap:7px">
+          <div class="chip">売上</div><div class="chip hot">請求書発行</div><div class="chip">請求先</div>
+          <div class="chip hot">入金</div><div class="chip">銀行</div>
+        </div>
+      </div>
+      <div>
+        <div class="colhead" style="color:#F9A8D4"><i data-lucide="database" class="w-4 h-4"></i>マスター</div>
+        <div class="grid" style="grid-template-columns:1fr;gap:7px">
+          <div class="chip hot">業者</div><div class="chip hot">契約</div><div class="chip">現場</div><div class="chip">単価</div>
+          <div class="chip hot">許可証</div><div class="chip">車輌</div><div class="chip">処分場/施設</div>
+          <div class="chip">単位/荷姿</div><div class="chip">ユーザー/ドライバー/予約者</div><div class="chip hot">権限</div>
+        </div>
+      </div>
+      <div>
+        <div class="colhead" style="color:#C4B5FD"><i data-lucide="settings" class="w-4 h-4"></i>自社設定</div>
+        <div class="grid" style="grid-template-columns:1fr;gap:7px">
+          <div class="chip">予約締切設定</div><div class="chip">営業/休業カレンダー</div><div class="chip">受入混雑枠</div>
+        </div>
+      </div>
+    </div>
+    <p class="sub jp" style="margin-top:1.2rem;font-size:14px"><span style="color:#FCD34D">■</span> ＝ 今回フィードバックで改善要望のあった画面</p>
+  </section>
+
+  <!-- 7 弱点 -->
+  <section class="slide">
+    <div class="kicker jp"><span class="d"></span>伸びしろ</div>
+    <h2 class="head jp">現状の「あと一歩」＝差別化のチャンス</h2>
+    <div class="grid jp" style="grid-template-columns:repeat(3,1fr)">
+      <div class="card"><div class="ic" style="background:rgba(34,211,238,.15)"><i data-lucide="link" class="w-5 h-5" style="color:#67E8F9"></i></div><h4>連携・自動化</h4><p>JWNET電子マニフェスト未連携／計量機・アルコール検知器・会計が手入力。</p></div>
+      <div class="card"><div class="ic" style="background:rgba(163,230,53,.15)"><i data-lucide="receipt" class="w-5 h-5" style="color:#bef264"></i></div><h4>税制・請求</h4><p>請求書が10%欄のみ＝インボイス/複数税率が不足。入金残額が見えにくい。</p></div>
+      <div class="card"><div class="ic" style="background:rgba(251,191,36,.15)"><i data-lucide="bell-ring" class="w-5 h-5" style="color:#FCD34D"></i></div><h4>可視化・アラート</h4><p>ホームがメニューのみ＝<b style="color:#fff">ダッシュボード不在</b>。許可証失効・契約満了の通知なし。</p></div>
+      <div class="card"><div class="ic" style="background:rgba(236,72,153,.15)"><i data-lucide="map" class="w-5 h-5" style="color:#F9A8D4"></i></div><h4>配車・現場</h4><p>地図は外部リンクのみ・割当は手動。日報は点呼＋メーターだけで車両点検なし。</p></div>
+      <div class="card"><div class="ic" style="background:rgba(139,92,246,.15)"><i data-lucide="layout-panel-left" class="w-5 h-5" style="color:#C4B5FD"></i></div><h4>マスター・UX</h4><p>業者の全体像が1画面で見えない。巨大フォーム。権限はユーザー個別32機能。</p></div>
+      <div class="card"><div class="ic" style="background:rgba(248,113,113,.15)"><i data-lucide="phone-call" class="w-5 h-5" style="color:#F87171"></i></div><h4>予約者の可視性</h4><p>進捗・マニフェスト・請求を予約者が見られず<b style="color:#fff">電話依存</b>。取消は申請制。</p></div>
+    </div>
+  </section>
+
+  <!-- 8 方針 ピラミッド -->
+  <section class="slide">
+    <div class="kicker jp"><span class="d"></span>リプレイス方針</div>
+    <h2 class="head jp">土台 → 強化 → 魔法 の順で積む</h2>
+    <div class="jp" style="max-width:760px;margin:0 auto;width:100%">
+      <div class="layer" style="background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(236,72,153,.14));border-color:rgba(139,92,246,.5);width:62%">
+        <div class="lt grad">③ AIエージェント</div><div class="ld">配車AI／ドライバーアプリ／喋るだけ事務</div></div>
+      <div class="layer" style="background:rgba(34,211,238,.08);border-color:rgba(34,211,238,.4);width:80%">
+        <div class="lt" style="color:#67E8F9">② 土台の強化</div><div class="ld">ダッシュボード・JWNET連携・インボイス・期限アラート</div></div>
+      <div class="layer" style="background:rgba(255,255,255,0.04);width:100%">
+        <div class="lt">① 全機能の補完（パリティ）</div><div class="ld">現状32画面を新UIで完全再現＋情報一元化・ウィザード化</div></div>
+    </div>
+    <p class="sub jp" style="margin-top:1.4rem;text-align:center">派手なAIより先に、<b style="color:#fff">毎日の業務が確実に回ること</b>。土台を固めてから魔法を載せます。</p>
+  </section>
+
+  <!-- 9 パリティ -->
+  <section class="slide">
+    <div class="kicker jp"><span class="d"></span>補完＋改善</div>
+    <h2 class="head jp">現状 → 新システム（抜粋）</h2>
+    <table class="par jp">
+      <thead><tr><th style="width:38%">現状</th><th style="width:8%"></th><th>新システムでの補完・改善</th></tr></thead>
+      <tbody>
+        <tr><td>ホーム（メニューのみ）</td><td class="ar">→</td><td>経営ダッシュボード（KPI・期限アラート）</td></tr>
+        <tr><td>配車（手動・地図リンクのみ）</td><td class="ar">→</td><td>地図埋込＋臨時回収＋AI提案<span class="tagai">AI</span></td></tr>
+        <tr><td>日報（点呼＋メーターのみ）</td><td class="ar">→</td><td>車両点検＋日報＋写真をスマホ完結<span class="tagai">AI</span></td></tr>
+        <tr><td>マニフェスト（紙台帳・手入力）</td><td class="ar">→</td><td>JWNET連携＋撮るだけ自動入力<span class="tagai">AI</span></td></tr>
+        <tr><td>請求書（10%欄のみ）</td><td class="ar">→</td><td>インボイス/複数税率＋3軸集計</td></tr>
+        <tr><td>入金（モーダル）</td><td class="ar">→</td><td>消込の可視化＋残額一覧＋CSV自動消込</td></tr>
+        <tr><td>業者/契約/現場（分散）</td><td class="ar">→</td><td>業者360°ビュー＋契約ウィザード</td></tr>
+        <tr><td>予約者（照会不可・電話依存）</td><td class="ar">→</td><td>進捗/請求の自己照会＋AI一次対応<span class="tagai">AI</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 10 AI1 配車 -->
+  <section class="slide">
+    <div class="kicker jp"><span class="d" style="background:var(--amber)"></span>AIエージェント ①</div>
+    <h2 class="head jp">配車AI — 組むのは人、整えるのはAI</h2>
+    <div class="ba jp">
+      <div class="b1"><div class="lbl">現状</div><p>午前/午後マトリクスへ<b>手動割当</b>。地図は住所の外部リンクのみ。最適化なし。</p></div>
+      <div class="ar"><i data-lucide="arrow-right" class="w-7 h-7"></i></div>
+      <div class="b2"><div class="lbl">リプレイス</div><p>予約・車輌キャパ・時間指定・<b>現場座標</b>から<b>巡回順とドライバー割当をAIが提案</b>→人が承認。地図埋込・臨時回収一斉通知。</p></div>
+    </div>
+    <div class="glass jp" style="margin-top:1.4rem;padding:1rem 1.3rem;font-size:14px;color:var(--t2)">
+      💡 既存の「回収希望日・時間指定・座標」データがそのままAIの学習素材になります。
+      <a href="./dispatch.html" style="color:#67E8F9;text-decoration:none;font-weight:700;margin-left:8px">→ 配車ボードのモックを見る</a>
+    </div>
+  </section>
+
+  <!-- 11 AI2 ドライバー -->
+  <section class="slide">
+    <div class="kicker jp"><span class="d" style="background:var(--cyan)"></span>AIエージェント ②</div>
+    <h2 class="head jp">ドライバーアプリ — 撮るだけ・話すだけ</h2>
+    <div class="ba jp">
+      <div class="b1"><div class="lbl">現状</div><p>PC管理画面の制限ビュー流用。日報は<b>アルコール＋メーターだけ</b>、点検・写真なし。</p></div>
+      <div class="ar"><i data-lucide="arrow-right" class="w-7 h-7"></i></div>
+      <div class="b2"><div class="lbl">リプレイス</div><p>現場写真→<b>品目・数量・不適物をAI判定</b>。メーター・点検・サインをスマホ完結。オフライン対応。</p></div>
+    </div>
+    <div class="glass jp" style="margin-top:1.4rem;padding:1rem 1.3rem;font-size:14px;color:var(--t2)">
+      💡 手入力の日報・受付重量・マニフェスト品目を自動化。現場が止まりません。
+      <a href="./driver.html" style="color:#67E8F9;text-decoration:none;font-weight:700;margin-left:8px">→ ドライバーアプリのモックを見る</a>
+    </div>
+  </section>
+
+  <!-- 12 AI3 喋るだけ事務 -->
+  <section class="slide">
+    <div class="kicker jp"><span class="d" style="background:var(--violet)"></span>AIエージェント ③</div>
+    <h2 class="head jp">喋るだけ事務 ＋ 予約者AI</h2>
+    <div class="ba jp">
+      <div class="b1"><div class="lbl">現状</div><p>契約書作成依頼の長大フォーム・予約を手入力。品目が無いと「担当者へ連絡」＝<b>電話運用</b>。</p></div>
+      <div class="ar"><i data-lucide="arrow-right" class="w-7 h-7"></i></div>
+      <div class="b2"><div class="lbl">リプレイス</div><p>電話・チャットの<b>自然言語から予約・契約依頼を自動入力</b>。品目はAIがマッピング提案。予約者の進捗/請求照会もAIが一次対応。</p></div>
+    </div>
+    <div class="glass jp" style="margin-top:1.4rem;padding:1rem 1.3rem;font-size:14px;color:var(--t2)">
+      💡 事務の電話依存を削減し、予約者の自己解決を促進。
+      <a href="./office.html" style="color:#67E8F9;text-decoration:none;font-weight:700;margin-left:8px">→ 喋るだけ事務のモックを見る</a>
+    </div>
+  </section>
+
+  <!-- 13 ロードマップ -->
+  <section class="slide">
+    <div class="kicker jp"><span class="d"></span>ロードマップ</div>
+    <h2 class="head jp">4フェーズで、着実に</h2>
+    <div class="road jp">
+      <div class="ph"><div class="p">PHASE 0</div><h4>基盤・移行設計</h4><p>マルチテナント基盤・既存データ移行・権限ロール設計</p></div>
+      <div class="ph"><div class="p">PHASE 1</div><h4>全機能の補完</h4><p>32画面を新UIで完全再現＋一元化・ウィザード化・左メニュー</p></div>
+      <div class="ph"><div class="p">PHASE 2</div><h4>土台の強化</h4><p>ダッシュボード・JWNET連携・インボイス・期限アラート・入金消込</p></div>
+      <div class="ph p3"><div class="p" style="color:#C4B5FD">PHASE 3</div><h4>AIエージェント</h4><p>配車AI・ドライバーアプリ・喋るだけ事務／予約者AI</p></div>
+    </div>
+    <p class="sub jp" style="margin-top:1.5rem;text-align:center">現状を止めずに<b style="color:#fff">並行運用→段階移行</b>。Phase 1達成時点で切替判断。</p>
+  </section>
+
+  <!-- 14 確認＆クロージング -->
+  <section class="slide">
+    <div class="kicker jp"><span class="d"></span>ご確認＆次の一歩</div>
+    <h2 class="head jp">いくつか教えてください</h2>
+    <div class="grid jp" style="grid-template-columns:1fr 1fr;gap:12px">
+      <div class="glass" style="padding:.9rem 1.1rem;font-size:14px">❶ 隠れ機能「産廃数量管理／収集運搬実績報告」は何の機能か（JWNET報告系？）</div>
+      <div class="glass" style="padding:.9rem 1.1rem;font-size:14px">❷ JWNET電子マニフェストは今どう運用？（別途Web運用か）</div>
+      <div class="glass" style="padding:.9rem 1.1rem;font-size:14px">❸ 計量機・アルコール検知器の機種（自動取込可否）</div>
+      <div class="glass" style="padding:.9rem 1.1rem;font-size:14px">❹ 会計ソフト／軽減税率8%対象の有無</div>
+    </div>
+    <div style="margin-top:1.8rem;display:flex;gap:12px;flex-wrap:wrap" class="jp">
+      <a href="./index.html" class="kicker" style="text-decoration:none;color:#fff"><i data-lucide="layout-grid" class="w-4 h-4"></i>全モックを見る</a>
+      <a href="./dispatch.html" class="kicker" style="text-decoration:none;color:#fff"><i data-lucide="truck" class="w-4 h-4"></i>配車</a>
+      <a href="./billing.html" class="kicker" style="text-decoration:none;color:#fff"><i data-lucide="receipt" class="w-4 h-4"></i>請求</a>
+      <a href="./meeting.html" class="kicker" style="text-decoration:none;color:#fff"><i data-lucide="file-text" class="w-4 h-4"></i>サマリ資料</a>
+    </div>
+    <p class="sub jp" style="margin-top:1.6rem">現場の声を、一つ残らず。<span class="grad">競合に絶対に負けないKPH</span>へ。</p>
+  </section>
+
+</div>
+
+<div class="nav">
+  <button id="prev" aria-label="前へ"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+  <div class="dots" id="dots"></div>
+  <button id="next" aria-label="次へ"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let idx = 0;
+  document.getElementById('tot').textContent = total;
+  const dotsWrap = document.getElementById('dots');
+  slides.forEach((_,i)=>{ const d=document.createElement('i'); d.addEventListener('click',()=>go(i)); dotsWrap.appendChild(d); });
+  const dots = Array.from(dotsWrap.children);
+  function go(n){
+    idx = Math.max(0, Math.min(total-1, n));
+    slides.forEach((s,i)=>s.classList.toggle('active', i===idx));
+    dots.forEach((d,i)=>d.classList.toggle('on', i===idx));
+    document.getElementById('cur').textContent = idx+1;
+  }
+  document.getElementById('next').addEventListener('click',()=>go(idx+1));
+  document.getElementById('prev').addEventListener('click',()=>go(idx-1));
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' ') { e.preventDefault(); go(idx+1); }
+    if(e.key==='ArrowLeft'||e.key==='PageUp') { e.preventDefault(); go(idx-1); }
+    if(e.key==='Home') go(0); if(e.key==='End') go(total-1);
+  });
+  // swipe
+  let sx=null; document.addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+  document.addEventListener('touchend',e=>{ if(sx===null)return; const dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>50) go(idx+(dx<0?1:-1)); sx=null; },{passive:true});
+  go(0);
+  if(window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>

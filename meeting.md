@@ -27,6 +27,8 @@
 | 💼 **経営参謀（Advisor）** | 採算判定・受ける/断る・見積脳（※将来フェーズ） | [開く](https://h-koubou.github.io/kph-cloud-reimagined/advisor.html) |
 | 📑 **提案書（PDF用）** | 印刷最適化の提案書 | [開く](https://h-koubou.github.io/kph-cloud-reimagined/proposal.html) |
 | 🖨 **この資料のHTML/印刷版** | 本サマリのHTML版（PDF保存可） | [開く](https://h-koubou.github.io/kph-cloud-reimagined/meeting.html) |
+| 📐 **リプレイス設計スライド** ⭐新 | 現状棚卸し→AI設計の図解プレゼン（全14枚・矢印キー操作） | [開く](https://h-koubou.github.io/kph-cloud-reimagined/slides.html) |
+| 📄 **リプレイス設計書（詳細）** ⭐新 | 全32画面インベントリ＋機能パリティ＋AI設計の文書版 | [開く](https://github.com/H-koubou/kph-cloud-reimagined/blob/main/replace-plan.md) |
 
 ---
 
